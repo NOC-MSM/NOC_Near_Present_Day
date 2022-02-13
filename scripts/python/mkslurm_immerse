@@ -1,0 +1,481 @@
+#!/usr/bin/env python3
+"""
+This version of mkslurm_hetjob_ensemble is customized for IMMERSE wp6.2
+"""
+import argparse
+import logging
+import sys
+from textwrap import dedent
+
+
+def main(args):
+    """Create slurm scripts
+
+    Args:
+        args: Parsed arguments.
+    """
+
+    # Verbosity
+    if args.v:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    cmd = f"{parser.prog} " + " ".join(
+        [
+            f"{'-' if len(arg)==1 else '--'}{arg.replace('_', '-')} {val}"
+            for arg, val in vars(args).items()
+        ]
+    )
+    logging.info("Running %s", cmd)
+
+    # Check
+    if args.g == 1 or args.g < 0:
+        logging.critical("-g must be 0 or greater than 1.")
+        sys.exit()
+    if len(args.D) > 1:
+        logging.critical("This version for IMMERSE does not support ensembles")
+        sys.exit()
+
+    # Find placements for each node
+    nodes_mapper = _mkslurm_alt(args)
+
+    # Group identical nodes: HetJob setup
+    hetjob_mapper = _group_identical_nodes(nodes_mapper)
+
+    # Print table
+    _print_table(hetjob_mapper, args.N)
+
+    # Build slurm script
+
+    # SBATCH settings
+    string = f"""\
+    #!/bin/bash
+    #SBATCH --job-name={args.j}
+    #SBATCH --time={args.t}
+    #SBATCH --account={args.a}
+    #SBATCH --partition={args.p}
+    #SBATCH --qos={args.q}
+    #SBATCH --nodes={sum(val['nnodes'] for val in hetjob_mapper.values())}
+    #SBATCH --ntasks-per-core=1
+    # Created by: {cmd}
+    """
+    string += """
+    # ========================================================
+    # PARAMETERS TO SET
+    # Restart frequency (<0 days, >0 hours)
+    FREQRST=CHANGEME
+    # Simulation length (<0 days, >0 hours)
+    LENGTH=CHANGEME
+    # Parent initial time step (0: infer from time.step)
+    # PARENT_IT000 != 0 -> auto-resubmission is switched OFF
+    PARENT_IT000=CHANGEME
+    # Name of this script (to resubmit)
+    SCRIPTNAME=CHANGEME
+    # ========================================================
+
+    # Define useful functions
+    get_var () {
+        VARNAME=$1
+        NAMNAME=$2
+        VAR=$(grep "^\s*${VARNAME}\s*=.*" "$NAMNAME" | sed "s/[', ]//g")
+        VAR=${VAR%%!*}
+        VAR=${VAR#*=}
+        echo "$VAR"
+    }
+
+    edit_var () {
+        VARNAME=$1
+        VAR=$2
+        NAMNAMES=${*:3}
+        CMD=$(echo sed -i "\\"s|^\\s*${VARNAME}\\s*=.*|\\t${VARNAME} = ${VAR},|g\\"" "$NAMNAMES")
+        eval "$CMD"
+    }
+
+    get_timestep () {
+        TIMENAME=$1
+        TIMESTEP=$(grep -Eo '[0-9\.]+' "$TIMENAME")
+        echo "$TIMESTEP"
+    }
+
+    # Convert days to hours
+    if [ "$FREQRST" -lt 0 ]; then
+        FREQRST=$(( FREQRST * -24 ))
+    fi
+    if [ "$LENGTH" -lt 0 ]; then
+        LENGTH=$(( LENGTH * -24 ))
+    fi
+
+    # Get parent it000
+    if [ "$PARENT_IT000" -eq 0 ]; then
+        RESUBMIT=true
+        if test -f "time.step"; then
+            PARENT_IT000=$(get_timestep time.step)
+        fi
+        PARENT_IT000=$(( PARENT_IT000 + 1 ))
+    else
+        RESUBMIT=false
+    fi
+
+    # Get parent dt
+    PARENT_DT=$(get_var rn_dt namelist_cfg)
+    PARENT_DT=${PARENT_DT%.*}
+
+    # Edit namelists
+    if [ "$PARENT_IT000" -gt 1 ]; then
+        # Use restarts
+        edit_var ln_rstart ".true." ./*namelist_cfg
+        edit_var ln_init_chfrpar ".false." ./*_namelist_cfg
+        edit_var ln_tsd_init ".false." ./namelist_cfg
+
+        for NAMELIST in *namelist_cfg; do
+            # Set start
+            DT=$(get_var rn_dt "$NAMELIST")
+            DT=${DT%.*}
+            RATIO=$(( PARENT_DT / DT ))
+            TSTEP=$(( (PARENT_IT000 - 1) * RATIO ))
+            IT000=$(( TSTEP + 1 / RATIO ))
+            edit_var "nn_it000" "$IT000" "$NAMELIST"
+
+            # Set restart prefixes
+            EXP=$(get_var cn_exp "${NAMELIST}")
+            OCERST_IN=${EXP}_$(printf "%08d" "$TSTEP")_restart
+            NAMELIST_ICE=${NAMELIST//namelist_cfg/namelist_ice_cfg}
+            ICERST_IN=${OCERST_IN}_ice
+            edit_var cn_ocerst_in "'${OCERST_IN}'" "$NAMELIST"
+            edit_var cn_icerst_in "'${ICERST_IN}'" "$NAMELIST_ICE"
+        done
+
+    else
+        # Start from rest
+        edit_var ln_rstart ".false." ./*namelist_cfg
+        edit_var ln_init_chfrpar ".true." ./*_namelist_cfg
+        edit_var ln_tsd_init ".true." ./namelist_cfg
+        edit_var cn_ocerst_in "'dummy'" ./*namelist_cfg
+        edit_var cn_icerst_in "'dummy'" ./*namelist_ice_cfg
+        edit_var nn_it000 "1" ./*namelist_cfg
+    fi
+
+    # Edit nn_itend
+    for NAMELIST in *namelist_cfg; do
+        IT000=$(get_var nn_it000 "$NAMELIST")
+        DT=$(get_var rn_dt "$NAMELIST")
+        DT=${DT%.*}
+        ITEND=$(( IT000 - 1 + FREQRST * 60 * 60 / DT ))
+        FINAL=$(( LENGTH * 60 * 60 / DT ))
+        if [ "$ITEND" -ge "$FINAL" ]; then
+            ITEND=$FINAL
+        fi
+        edit_var nn_itend "$ITEND" "$NAMELIST"
+    done
+
+    # Submit next job
+    if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+        sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
+    fi
+
+    # Create directories
+    for SUFFIX in RESTARTS OUTPUT; do
+        mkdir -p $SUFFIX
+        for PREFIX in $(seq "$(find . -name "*_namelist_cfg" | wc -l)"); do
+            mkdir -p "${PREFIX}_"$SUFFIX
+        done
+    done
+    """
+
+    string += f"""
+    # Link xios and nemo
+    ln -fs /work/n01/shared/nemo/xios-trunk{'-gnu' if args.gnu else ''}/bin/xios_server.exe .
+    ln -fs ../BLD/bin/nemo.exe nemo
+    """
+    slurm = dedent(string)
+
+    # Environment
+    string = f"""
+    # Set environment
+    {'module swap PrgEnv-cray/8.0.0 PrgEnv-gnu/8.1.0' if args.gnu else ''}
+    module swap craype-network-ofi craype-network-ucx
+    module swap cray-mpich cray-mpich-ucx
+    module load cray-hdf5-parallel/1.12.0.7
+    module load cray-netcdf-hdf5parallel/4.7.4.7
+    {'module load libfabric' if args.gnu else ''}
+    module list
+    export OMP_NUM_THREADS=1
+    """
+    slurm += dedent(string)
+
+    # Loop over ensembles
+    for i, wdir in enumerate(args.D):
+
+        # Wrapper
+        exec_map = " ".join(
+            [
+                str(ex)
+                for values in hetjob_mapper.values()
+                for i in range(values["nnodes"])
+                for ex, wd in zip(values["ex"], values["wd"])
+                if wd == wdir
+            ]
+        )
+        exec_cmd = "exec \\${map[\\${exec_map[\\$SLURM_PROCID]}]}"
+        string = f"""
+        # Ensemble {i}: {wdir}
+        cat > "$SLURM_SUBMIT_DIR"/myscript_wrapper_{i}.sh << EOFB
+        #!/bin/ksh
+        #
+        set -A map ./xios_server.exe ./nemo
+        exec_map=( {exec_map} )
+        #
+        {exec_cmd}
+        ##
+        EOFB
+        chmod u+x "$SLURM_SUBMIT_DIR"/myscript_wrapper_{i}.sh
+        """
+        slurm += dedent(string)
+
+        # Srun
+        strings = []
+        for het_group, values in hetjob_mapper.items():
+            cores = [core for core, wd in zip(values["pl"], values["wd"]) if wdir == wd]
+            if not cores:
+                continue
+
+            het_group_string = (
+                f"--het-group={het_group} " if len(hetjob_mapper) > 1 else ""
+            )
+            strings += [
+                het_group_string
+                + f"--mem=0 --oversubscribe --nodes={values['nnodes']}"
+                + f" --ntasks={len(cores)*values['nnodes']}"
+                + f" --ntasks-per-node={len(cores)}"
+                + " --cpu-bind=v,mask_cpu:"
+                + ",".join([hex(2 ** core) for core in cores])
+                + f' "$SLURM_SUBMIT_DIR"/myscript_wrapper_{i}.sh'
+            ]
+        string = "srun --mem-bind=local \\\n" + " \\\n: ".join(strings)
+        slurm += "\n".join(
+            [f"cd {wdir} || exit", string + " &", 'cd "$SLURM_SUBMIT_DIR" || exit\n']
+        )
+
+    tail = """
+    wait
+
+    # Print stats
+    sacct -j "$SLURM_JOB_ID" --units=G --format=JobID,JobName,NNodes,Elapsed,AveRSS,MaxRSS,MaxRSSNode,MaxRSSTask
+
+    # Move log files
+    mkdir -p LOGS/"$SLURM_JOB_ID"
+    mv {*.dat,*output*,*.stat*,communication_report.txt} LOGS/"$SLURM_JOB_ID"
+
+    # Check time.step and ocean.output
+    for NAMELIST in *namelist_cfg; do
+
+        # Check that ocean.output exist
+        OUTNAME=${NAMELIST//namelist_cfg/ocean.output}
+        OUTNAME=LOGS/"$SLURM_JOB_ID"/"$OUTNAME"
+        if [ ! -f  "$OUTNAME" ]; then
+            echo "E R R O R : $OUTNAME is missing."
+            exit 1
+        fi
+
+        # Check for errors
+        ERROR=$(grep "E R R O R" "$OUTNAME" | wc -l)
+        if [ "$ERROR" -gt 0 ]; then
+            echo "E R R O R : errors found in $OUTNAME"
+            exit 1
+        fi
+
+        # Check that time.step exist
+        TIMENAME=${NAMELIST//namelist_cfg/time.step}
+        if [ ! -f  "$TIMENAME" ]; then
+            echo "E R R O R : $TIMENAME is missing."
+            exit 1
+        fi
+
+        # Check nn_itend vs time.step
+        EXPECTED=$(get_var nn_itend "$NAMELIST")
+        ACTUAL=$(get_timestep "$TIMENAME")
+        if [ "$ACTUAL" -lt "$EXPECTED" ]; then
+            echo "E R R O R : $TIMENAME is $ACTUAL (expecting $EXPECTED)"
+            exit 1
+        fi
+    done
+    """
+    slurm += dedent(tail)
+
+    print(slurm)
+
+
+def _mkslurm_alt(args):
+    """
+    Python version of mkslurm_alt
+
+    Args:
+        args: Parsed arguments.
+
+    Returns:
+        Dictionary mapping nodes to their ex, pl
+    """
+
+    # Start loop
+    nservers_left = args.S * len(args.D)
+    nclients_left = args.C * len(args.D)
+    nodes_mapper = {}
+    cpu, totnserv, prevclie, skipnext, node = (0 for _ in range(5))
+    while nservers_left or nclients_left:
+        # Reset node
+        cpu = 0 if cpu == args.N else cpu
+        totnserv = totnserv if cpu else 0
+        prevclie = prevclie if cpu else 0
+        skipnext = skipnext if cpu else 0
+        node = node if cpu else len(nodes_mapper)
+        nodes_mapper.setdefault(node, {key: [] for key in ("ex", "pl", "wd")})
+        if skipnext:
+            skipnext -= 1
+            cpu += 1
+            prevclie = 0
+            continue
+        if totnserv < args.m and nservers_left:
+            nodes_mapper[node]["ex"] += [0]
+            nodes_mapper[node]["pl"] += [cpu]
+            if args.alternate_dirs:
+                nodes_mapper[node]["wd"] += [args.D[nservers_left % len(args.D)]]
+            else:
+                nodes_mapper[node]["wd"] += [
+                    args.D[::-1][(nservers_left - 1) // args.S]
+                ]
+            skipnext = args.s - 1
+            nservers_left -= 1
+            totnserv += 1
+        elif nclients_left:
+            nodes_mapper[node]["ex"] += [1]
+            nodes_mapper[node]["pl"] += [cpu]
+            if args.alternate_dirs:
+                nodes_mapper[node]["wd"] += [args.D[nclients_left % len(args.D)]]
+            else:
+                nodes_mapper[node]["wd"] += [
+                    args.D[::-1][(nclients_left - 1) // args.C]
+                ]
+            nclients_left -= 1
+            prevclie += 1
+            skipnext = prevclie == args.g - 1
+        cpu += 1
+    nodes_needed = len(nodes_mapper)
+    reserved_cores = nodes_needed * args.N
+    cores_used = sum(len(values["ex"]) for values in nodes_mapper.values())
+    reserved_cores_needed = (
+        args.S * args.s + args.C + (args.C // (args.g - 1) if args.g else 0)
+    ) * len(args.D)
+    logging.info("nodes needed= %s (%s)", nodes_needed, reserved_cores)
+    logging.info("cores to be used= %s (%s)", cores_used, reserved_cores_needed)
+
+    return nodes_mapper
+
+
+def _group_identical_nodes(nodes_mapper):
+    """
+    Group identical nodes to HetJobs
+
+    Args:
+        nodes_mapper: Dictionary mapping nodes to their ex, pl, and wd
+
+    Returns:
+        Dictionary mapping het-groups to their ex, pl, wd, and nnodes
+    """
+    # Group nodes for HetJob
+    hetjob_mapper = {}
+    het_group = 0
+    # Loop over nodes
+    for node_values in nodes_mapper.values():
+        hetjob_found = False
+        # Loop over hetjobs already found
+        for hetjob_values in hetjob_mapper.values():
+            hetjob_found = all(
+                hetjob_values[key] == node_values[key] for key in ["ex", "pl", "wd"]
+            )
+            if hetjob_found:
+                # Add to existing hetjob
+                hetjob_values["nnodes"] += 1
+                break
+        # Create new hetjob
+        if not hetjob_found:
+            hetjob_mapper[het_group] = node_values
+            hetjob_mapper[het_group]["nnodes"] = 1
+            het_group += 1
+
+    return dict(sorted(hetjob_mapper.items()))
+
+
+def _print_table(hetjob_mapper, ncores_per_node):
+    """
+    Print a human readable table of the setup.
+
+    Args:
+        hetjob_mapper: Dictionary mapping het-groups to their ex, pl, and nnodes
+        ncores_per_node: Number of cores per node
+    """
+    # Loop to create table
+    groups, nodes, cores, tasks, wdirs = ([] for i in range(5))
+    for group, values in enumerate(hetjob_mapper.values()):
+        nnodes = values["nnodes"]
+        # Build table
+        for core in range(ncores_per_node):
+            if core in values["pl"]:
+                task = "c" if values["ex"][values["pl"].index(core)] else "s"
+                wdir = values["wd"][values["pl"].index(core)]
+            else:
+                task = wdir = "-"
+            groups += [group]
+            nodes += [nnodes]
+            cores += [core]
+            tasks += [task]
+            wdirs += [wdir]
+
+    # Print table
+    header = ("group", "nodes", "core", "task", "directory")
+    logging.debug("{:>5} {:>5} {:>5} {:>5} {}".format(*header))
+    for line in zip(groups, nodes, cores, tasks, wdirs):
+        logging.debug("{:>5} {:>5} {:>5} {:>5} {}".format(*line))
+
+
+if __name__ == "__main__":
+    # Parse arguments
+    parser = argparse.ArgumentParser(
+        prog="mkslurm_immerse",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description=" ".join(
+            [
+                "mkslurm_hetjob_ensemble with custom code to run IMMERSE WP6.2 simulations.",
+                "Server placement and spacing remains",
+                "as mkslurm but clients are always tightly packed with a gap left",
+                'every "NC_GAP" cores where NC_GAP can be given by the -g argument.',
+                "values of 4, 8 or 16 are recommended.",
+                "This version allows to submit ensemble runs (e.g., -D dir1 dir2).",
+            ]
+        ),
+        prefix_chars="-",
+    )
+    parser.add_argument("-S", help="number of servers", type=int, default=4)
+    parser.add_argument("-s", help="server spacing", type=int, default=8)
+    parser.add_argument(
+        "-m", help="max number of servers per node", type=int, default=2
+    )
+    parser.add_argument("-C", help="number of clients", type=int, default=28)
+    parser.add_argument("-g", help="client gap interval", type=int, default=4)
+    parser.add_argument(
+        "-D", help="ensemble directories", type=str, nargs="+", default="."
+    )
+    parser.add_argument(
+        "--alternate-dirs",
+        help="alternate ensemble directories to minimize the number of hetjobs",
+        action="store_true",
+    )
+    parser.add_argument("-N", help="number of cores per node", type=int, default=128)
+    parser.add_argument("-t", help="time limit", type=str, default="00:10:00")
+    parser.add_argument("-a", help="account", type=str, default="n01")
+    parser.add_argument("-j", help="job name", type=str, default="nemo_test")
+    parser.add_argument("-p", help="partition", type=str, default="standard")
+    parser.add_argument("-q", help="quality of service", type=str, default="standard")
+    parser.add_argument("-v", help="show human readable hetjobs", action="store_true")
+    parser.add_argument("--gnu", help="use GNU compiler", action="store_true")
+    # Let's go!
+    main(parser.parse_args())

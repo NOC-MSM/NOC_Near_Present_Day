@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""
+Combine ref and cfg namelists and print a concise namelist_cfg.
+"""
+import logging
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+
+try:
+    import f90nml
+except ImportError as imp_exc:
+    raise ImportError("This script requires 'f90nml' to be installed.") from imp_exc
+
+
+def main(args):
+    """
+    Args:
+        args: Parsed arguments.
+    """
+
+    logging.basicConfig(level=logging.INFO)
+
+    # Read namelists
+    cfg = f90nml.read(args.c)
+    out = f90nml.read(args.c)
+    ref = f90nml.read(args.r)
+
+    # Remove useless info
+    for nam, variables in cfg.items():
+        for var, val in variables.items():
+            try:
+                if val == ref[nam][var]:
+                    del out[nam][var]
+            except KeyError as key_exc:
+                msg = f"Variable `{var} ({nam})` does not exist in reference namelist"
+                raise KeyError(msg) from key_exc
+
+        # Empty namblock
+        if not out[nam]:
+            out.pop(nam)
+
+    # Print
+    out.end_comma = True
+    cmd = f"{parser.prog} " + " ".join(
+        [f"-{arg.replace('_', '-')} {val}" for arg, val in vars(args).items()]
+    )
+    header = f"! Created by: {cmd}\n"
+    print(header)
+    print(out, end="\n\n")
+
+    if args.overwrite:
+        logging.warning("Overwriting '%s'", args.c)
+        with open(args.c, "w", encoding="utf-8") as cfg_file:
+            print(header, file=cfg_file)
+            print(out, file=cfg_file, end="\n\n")
+
+
+if __name__ == "__main__":
+
+    # Parse arguments
+    parser = ArgumentParser(
+        prog="print_concise_namelist_cfg",
+        formatter_class=ArgumentDefaultsHelpFormatter,
+        description="Print a concise namelist_cfg to terminal.",
+        prefix_chars="-",
+    )
+    parser.add_argument(
+        "-c", help="namelist_cfg path", type=str, default="./namelist_cfg"
+    )
+    parser.add_argument(
+        "-r", help="namelist_ref path", type=str, default="./namelist_ref"
+    )
+    parser.add_argument(
+        "--overwrite", help="overwrite namelist_cfg", action="store_true"
+    )
+
+    # Let's go!
+    main(parser.parse_args())

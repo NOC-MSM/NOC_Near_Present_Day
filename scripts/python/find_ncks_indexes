@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""
+Find ncks inexes to cutout nests.
+"""
+import logging
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+
+try:
+    import xarray as xr
+    import xoak  # noqa: F401
+    from xarray import Dataset
+except ImportError as imp_exc:
+    raise ImportError(
+        "This script requires 'xarray' and 'xoak' to be installed."
+    ) from imp_exc
+
+
+def main(args):
+    """
+    Args:
+        args: Parsed arguments.
+    """
+
+    logging.basicConfig(level=logging.INFO)
+
+    # Read parent
+    dims = (
+        "x",
+        "y",
+    )
+    parent = xr.open_mfdataset(args.p, drop_variables=dims).squeeze(drop=True)
+
+    # Read coords for nests
+    coords_for_nests = xr.open_mfdataset(args.n, drop_variables=dims).squeeze(drop=True)
+    ds_mesh = Dataset(
+        coords={
+            "lon": coords_for_nests["glamt"],
+            "lat": coords_for_nests["gphit"],
+            **{dim: coords_for_nests[dim] + 1 for dim in dims},
+        }
+    )
+    ds_mesh.xoak.set_index(["lat", "lon"], "sklearn_geo_balltree")
+
+    # Loop over nests
+    count = 0
+    with open(args.a, "r") as f:
+        for line in f:
+            if len(split := line.split()) > 1:
+
+                # Get indexes
+                agrif_inds = tuple(map(int, split))
+                cutout = parent.isel(
+                    x=slice(agrif_inds[0] - 2, agrif_inds[1]),
+                    y=slice(agrif_inds[2] - 1, agrif_inds[3] + 1),
+                )
+                corners = cutout.isel(
+                    x=xr.DataArray([0, 0, -1, -1]), y=xr.DataArray([0, -1, 0, -1])
+                )
+                indexes = ds_mesh.xoak.sel(lon=corners.glamt, lat=corners.gphit)
+
+                # Print ncks command
+                count += 1
+                cmd_to_print = [f"Nest {count:02d}: ncks -F"]
+                for dim in dims:
+                    values = indexes[dim].values
+                    assert len(set(values)) == 2, "Can't find unique indexes."
+                    cmd_to_print.append(f"-d {dim},{min(values)-2},{max(values)+2}")
+                logging.info(" ".join(cmd_to_print))
+
+
+if __name__ == "__main__":
+
+    # Parse arguments
+    parser = ArgumentParser(
+        prog="find_ncks_indexes",
+        formatter_class=ArgumentDefaultsHelpFormatter,
+        description="Find ncks inexes to cutout nests.",
+        prefix_chars="-",
+    )
+    parser.add_argument(
+        "-p", help="parent domain path (e.g., eORCA12)", type=str, required=True
+    )
+    parser.add_argument(
+        "-n",
+        help="domain from which cut nests out (e.g., eORCA36)",
+        type=str,
+        required=True,
+    )
+    parser.add_argument(
+        "-a",
+        help="path to AGRIF_FixedGrids.in",
+        type=str,
+        default="AGRIF_FixedGrids.in",
+    )
+
+    # Let's go!
+    main(parser.parse_args())

@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""
+Plot benchmark timing
+"""
+import argparse
+import os
+from dataclasses import dataclass
+from glob import glob
+
+import matplotlib.pyplot as plt
+
+
+@dataclass
+class Parser:
+    path: str
+
+    @property
+    def slurm_files(self):
+        return glob(os.path.join(self.path, "slurm-*.out"))
+
+    @property
+    def slurm_id(self):
+        return [
+            int(out.rsplit("-", 1)[-1].replace(".out", "")) for out in self.slurm_files
+        ]
+
+    @property
+    def real_time(self):
+        times = []
+        for out in self.slurm_files:
+            with open(out, "r") as f:
+                text = f.read()
+                if "error" in text or "E R R O R" in text:
+                    times.append(None)
+                    continue
+
+            with open(out, "r") as f:
+                for line in f:
+                    if line.strip().startswith("real"):
+                        m, s = line.split()[-1].replace("s", "").split("m")
+                        s = int(m) * 60 + float(s)
+                        times.append(s)
+                        break
+        return times
+
+    @property
+    def nnodes(self):
+        nodes = []
+        for out in self.slurm_files:
+            with open(out, "r") as f:
+                for line in f:
+                    if line.strip().startswith("NNODES"):
+                        nodes.append(int(line.split("=")[-1]))
+                        break
+        return nodes
+
+    @property
+    def nemo_time(self):
+        timing_paths = [
+            os.path.join(self.path, "LOGS", str(sid), "timing.output")
+            for sid in self.slurm_id
+        ]
+        time = []
+        for timing in timing_paths:
+            if not os.path.exists(timing):
+                time.append(None)
+                continue
+            with open(timing, "r") as f:
+                for line in f:
+                    if line.startswith(" Average"):
+                        time.append(float(line.split()[2]))
+                        break
+        return time
+
+
+def main(args):
+    """Plot benchmark timing
+
+    Args:
+        args: Parsed arguments.
+    """
+
+    plt.style.use("seaborn-poster")
+    fig, ax = plt.subplots(1, 1)
+    for dirname in args.directories:
+        parser = Parser(dirname)
+        ax.plot(parser.nnodes, parser.real_time, "o", label=dirname)
+    plt.legend(loc="lower center", bbox_to_anchor=(0.5, 1.05), ncol=1)
+    plt.grid()
+    ax.set_xlabel("number of nodes")
+    ax.set_ylabel("time [s]")
+    fig.savefig(args.o, bbox_inches="tight")
+
+
+if __name__ == "__main__":
+    # Parse arguments
+    parser = argparse.ArgumentParser(
+        prog="plot_benchmark_timing",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description="Make a plot of benchamrk timing.",
+        prefix_chars="-",
+    )
+    parser.add_argument(
+        "directories", help="benchmark directories", type=str, nargs="+"
+    )
+    parser.add_argument(
+        "-o", help="path to which to save plot", type=str, required=True
+    )
+    # Let's go!
+    main(parser.parse_args())

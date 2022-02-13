@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""
+Create initial conditions flood-filling t and s from a restart.
+"""
+import logging
+import os
+import shutil
+import sys
+import tempfile
+import warnings
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+
+try:
+    import xarray as xr
+    from dask.distributed import Client
+except ImportError as imp_exc:
+    raise ImportError(
+        "This script requires 'xarray' and 'dask' to be installed."
+    ) from imp_exc
+
+try:
+    from tqdm import trange
+
+    use_tqdm = True
+except ImportError:
+    trange = range
+    use_tqdm = False
+
+warnings.filterwarnings(
+    "ignore", message=".*invalid value encountered in true_divide.*"
+)
+
+
+def main(args):
+    """
+    Args:
+        args: Parsed arguments.
+    """
+
+    logging.basicConfig(level=logging.INFO)
+    cmd = f"{parser.prog} " + " ".join(
+        [f"-{arg.replace('_', '-')} {val}" for arg, val in vars(args).items()]
+    )
+
+    # Make sure output does not exists
+    if os.path.exists(args.o):
+        logging.critical("'%s' already exists.", args.o)
+        sys.exit()
+
+    # Start dask client
+    client = Client(n_workers=5)
+    logging.info(client)
+
+    # Open netcdf files
+    restart = xr.open_mfdataset(args.r, drop_variables="nav_lev").squeeze(drop=True)
+    domain = xr.open_mfdataset(args.d, drop_variables=("x", "y")).squeeze(drop=True)
+    nav_lev = domain["nav_lev"]
+    domain = domain.drop("nav_lev")
+
+    # Initialize output
+    ds = restart[["tn", "sn"]]
+    zi = domain["nav_lev"] + 1
+    lsm = (zi >= domain["top_level"]) & (zi <= domain["bottom_level"])
+    ds = ds.where(lsm)
+    ds["LSM"] = lsm.astype(int)
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        # Flood fill
+        for i in trange(args.n):
+
+            if not use_tqdm:
+                logging.info("Iteration %d/%d", i, args.n)
+
+            # Initialize dataset with values to substitute
+            ds_drowned = ds.copy()
+
+            # Loop over dimensions to average
+            for dim, pts in {"x": 3, "y": 3, "nav_lev": 3}.items():
+                ds_drowned = ds_drowned.rolling(
+                    **{dim: pts}, min_periods=1, center=True
+                )
+                ds_drowned = ds_drowned.sum()
+
+            # Simple average (not weighted!)
+            ds_drowned = ds_drowned / ds_drowned["LSM"]
+
+            # Update lsm
+            ds_drowned["LSM"] = ds_drowned["LSM"].notnull()
+
+            # Substitute nans before next iteration
+            ds = ds.where(ds["LSM"], ds_drowned)
+
+            # Write checkpoints
+            if i == 0 or (i + 1) % args.f == 0:
+                tmpname = os.path.join(tmpdirname, f"tmp{(i+1)//args.f%2}")
+                if os.path.exists(tmpname):
+                    shutil.rmtree(tmpname)
+                ds.chunk({"nav_lev": 15, "x": -1, "y": -1}).to_zarr(
+                    tmpname, consolidated=True
+                )
+                ds = xr.open_zarr(tmpname, consolidated=True)
+
+        # Write
+        ds["nav_lev"] = nav_lev
+        ds["glamt"] = domain["glamt"]
+        ds["gphit"] = domain["gphit"]
+        chunksizes = {"x": 64, "y": 64, "nav_lev": 1}
+        for da in ds.variables.values():
+            da.encoding = dict(
+                chunksizes=tuple(chunksizes[dim] for dim in da.dims),
+                complevel=1,
+                zlib=True,
+                _FillValue=-9999,
+            )
+        logging.info("Writing '%s'", args.o)
+        ds.attrs["history"] = f"Created by: {cmd}"
+        ds.to_netcdf(args.o)
+    logging.info("ALL DONE!")
+
+
+if __name__ == "__main__":
+
+    # Parse arguments
+    parser = ArgumentParser(
+        prog="make_initial_conditions",
+        formatter_class=ArgumentDefaultsHelpFormatter,
+        description="Create initial conditions from a restart.",
+        prefix_chars="-",
+    )
+    parser.add_argument("-r", help="restart path", type=str, default="./restart.nc")
+    parser.add_argument(
+        "-d", help="domain_cfg path", type=str, default="./domain_cfg.nc"
+    )
+    parser.add_argument("-n", help="number of iterations", type=int, default=100)
+    parser.add_argument(
+        "-f", help="checkpoint frequency (number of iterations)", type=int, default=10
+    )
+    parser.add_argument("-o", help="output path", type=str, required=True)
+
+    # Let's go!
+    main(parser.parse_args())

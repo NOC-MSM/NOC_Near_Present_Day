@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""
+Combine ref and cfg namelists.
+"""
+import logging
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+
+try:
+    import f90nml
+except ImportError as imp_exc:
+    raise ImportError("This script requires 'f90nml' to be installed.") from imp_exc
+
+
+def main(args):
+    """
+    Args:
+        args: Parsed arguments.
+    """
+
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Writing '%s'", args.o)
+
+    # Create header
+    cmd = f"{parser.prog} " + " ".join(
+        [f"-{arg.replace('_', '-')} {val}" for arg, val in vars(args).items()]
+    )
+    header = f"! Created by: {cmd}\n"
+    with open(args.o, "w", encoding="utf-8") as out_file:
+        print(header, file=out_file)
+
+    # Write combined namelist
+    cfg = f90nml.read(args.c)
+    with open(args.o, "a", encoding="utf-8") as out_file:
+        f90nml.patch(args.r, cfg, out_file)
+
+
+if __name__ == "__main__":
+
+    # Parse arguments
+    parser = ArgumentParser(
+        prog="combine_namelists",
+        formatter_class=ArgumentDefaultsHelpFormatter,
+        description="Combine ref and cfg namelists.",
+        prefix_chars="-",
+    )
+    parser.add_argument(
+        "-c", help="namelist_cfg path", type=str, default="./namelist_cfg"
+    )
+    parser.add_argument(
+        "-r", help="namelist_ref path", type=str, default="./namelist_ref"
+    )
+    parser.add_argument("-o", help="output path", type=str, required=True)
+
+    # Let's go!
+    main(parser.parse_args())

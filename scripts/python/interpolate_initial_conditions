@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""
+Interpolate initial conditions in the vertical dimension.
+"""
+import logging
+import os
+import sys
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
+
+try:
+    import xarray as xr
+    from dask.distributed import Client
+except ImportError as imp_exc:
+    raise ImportError(
+        "This script requires 'xarray' and 'dask' to be installed."
+    ) from imp_exc
+
+
+def main(args):
+    """
+    Args:
+        args: Parsed arguments.
+    """
+
+    logging.basicConfig(level=logging.INFO)
+    cmd = f"{parser.prog} " + " ".join(
+        [f"-{arg.replace('_', '-')} {val}" for arg, val in vars(args).items()]
+    )
+
+    # Make sure output does not exists
+    if os.path.exists(args.o):
+        logging.critical("'%s' already exists.", args.o)
+        sys.exit()
+
+    # Start dask client
+    client = Client()
+    logging.info(client)
+
+    # Open netcdf files
+    ds = xr.open_dataset(args.i, chunks={"x": 64, "y": 64})
+    nav_lev = xr.open_mfdataset(args.l)["nav_lev"]
+
+    # Interpolate
+    ds = ds.interp(
+        nav_lev=nav_lev, method="linear", kwargs={"fill_value": "extrapolate"}
+    )
+
+    # Write
+    chunksizes = {"x": 64, "y": 64, "nav_lev": 1}
+    for da in ds.variables.values():
+        da.encoding = dict(
+            chunksizes=tuple(chunksizes[dim] for dim in da.dims),
+            complevel=1,
+            zlib=True,
+            _FillValue=-9999,
+        )
+    logging.info("Writing '%s'", args.o)
+    ds.attrs["history"] = f"Created by: {cmd}"
+    ds.to_netcdf(args.o)
+    logging.info("ALL DONE!")
+
+
+if __name__ == "__main__":
+
+    # Parse arguments
+    parser = ArgumentParser(
+        prog="interpolate_initial_conditions",
+        formatter_class=ArgumentDefaultsHelpFormatter,
+        description="Interpolate vertically initial conditions.",
+        prefix_chars="-",
+    )
+    parser.add_argument("-i", help="initial conditions path", type=str, required=True)
+    parser.add_argument("-l", help="nav_lev path", type=str, required=True)
+    parser.add_argument("-o", help="output path", type=str, required=True)
+
+    # Let's go!
+    main(parser.parse_args())

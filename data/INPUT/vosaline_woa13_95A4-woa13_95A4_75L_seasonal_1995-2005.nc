@@ -1,0 +1,1 @@
+/work/n01/n01/atb299/GO8p7_eORCA12/vosaline_woa13_95A4-woa13_95A4_75L_seasonal_1995-2005.nc

@@ -1,0 +1,17 @@
+name: wp6.2
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.8
+  - f90nml
+  - xarray
+  - dask
+  - bottleneck
+  - netcdf4
+  - matplotlib
+  - xoak
+  - scikit-learn
+  - pys2index
+  - tqdm
+  - zarr
+  - scipy

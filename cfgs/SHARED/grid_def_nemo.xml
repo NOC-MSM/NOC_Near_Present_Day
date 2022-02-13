@@ -1,0 +1,175 @@
+<!--
+============================================================================================================
+= grid definition = = DO NOT CHANGE =
+============================================================================================================
+    -->
+ 
+    <grid_definition>    
+
+        <!--  -->
+       <grid id="grid_T_2D" >
+         <domain domain_ref="grid_T" />
+       </grid>
+        <!--  -->
+       <grid id="grid_T_ncatice" >
+         <domain domain_ref="grid_T" />
+         <axis axis_ref="ncatice" />
+       </grid>
+        <!--  -->
+       <grid id="grid_T_3D" >
+         <domain domain_ref="grid_T" />
+         <axis axis_ref="deptht" />
+       </grid>
+        <!--  -->
+       <grid id="grid_U_2D" >
+         <domain domain_ref="grid_U" />
+       </grid>
+        <!--  -->
+       <grid id="grid_U_3D" >
+         <domain domain_ref="grid_U" />
+         <axis axis_ref="depthu" />
+       </grid>
+        <!--  -->
+       <grid id="grid_V_2D" >
+         <domain domain_ref="grid_V" />
+       </grid>
+        <!--  -->
+       <grid id="grid_V_3D" >
+         <domain domain_ref="grid_V" />
+         <axis axis_ref="depthv" />
+       </grid>
+        <!--  -->
+       <grid id="grid_W_2D" >
+         <domain domain_ref="grid_W" />
+       </grid>
+        <!--  -->
+       <grid id="grid_W_3D" >
+         <domain domain_ref="grid_W" />
+         <axis axis_ref="depthw" />
+       </grid>
+        <!--  -->
+       <grid id="grid_1point" >
+         <domain domain_ref="1point"/>
+       </grid>
+        <!--  -->
+       <grid id="grid_T_nfloat" >
+         <domain domain_ref="grid_T" />
+         <axis axis_ref="nfloat" />
+       </grid>
+        <!--  -->
+       <grid id="grid_EqT" >
+         <domain domain_ref="EqT" />
+       </grid>
+        <!--  -->
+       <grid id="grid_ptr_W_GLO">
+         <domain  domain_ref="ptr" />
+         <axis axis_ref="depthw"  />
+         <scalar>
+           <extract_axis position="0" />
+         </scalar>
+       </grid>
+
+       <grid id="grid_ptr_W_ATL">
+         <domain  domain_ref="ptr" />
+         <axis axis_ref="depthw"  />
+         <scalar>
+           <extract_axis position="1" />
+         </scalar>
+       </grid>
+
+       <grid id="grid_ptr_W_IND">
+         <domain  domain_ref="ptr" />
+         <axis axis_ref="depthw"  />
+         <scalar>
+           <extract_axis position="2" />
+         </scalar>
+       </grid>
+
+       <grid id="grid_T_SFC">
+         <domain domain_ref="grid_T" />
+         <scalar>
+           <extract_axis position="0" />
+         </scalar>
+       </grid>
+
+       <grid id="grid_T_vsum">
+         <domain domain_ref="grid_T"/>
+         <scalar>
+            <reduce_axis operation="sum" />
+         </scalar>
+       </grid>
+
+       <grid id="grid_U_vsum">
+         <domain domain_ref="grid_U"/>
+         <scalar>
+            <reduce_axis operation="sum" />
+         </scalar>
+       </grid>
+
+       <grid id="grid_V_vsum">
+         <domain domain_ref="grid_V"/>
+         <scalar>
+            <reduce_axis operation="sum" />
+         </scalar>
+       </grid>
+
+
+       <grid id="grid_T_zoom_300">
+         <domain domain_ref="grid_T" />
+         <axis axis_ref="deptht300" />
+       </grid>
+
+       <grid id="grid_U_scalar" >
+         <domain domain_ref="grid_U" />
+         <scalar/>
+       </grid>
+
+       <grid id="grid_V_scalar" >
+         <domain domain_ref="grid_V" />
+         <scalar/>
+       </grid>
+ 
+      <!-- scalars -->
+      <grid id="grid_scalar" >
+        <scalar/>
+      </grid>
+        <!--  -->
+       <grid id="grid_EqT" >
+         <domain id="EqT" />
+       </grid>
+        <!--  -->
+       <grid id="gznl_T_2D">
+         <domain id="ptr" />
+       </grid>
+        <!--  -->
+       <grid id="gznl_T_3D">
+         <domain id="ptr" />
+         <axis axis_ref="deptht" />
+       </grid>
+        <!--  -->
+       <grid id="gznl_W_2D">
+         <domain id="ptr" />
+       </grid>
+        <!--  -->
+       <grid id="gznl_W_3D">
+         <domain id="ptr" />
+         <axis axis_ref="depthw" />
+       </grid>
+       <grid id="vert_sum">
+         <domain id="grid_T"/>
+         <scalar>
+            <reduce_axis operation="sum" />
+         </scalar>
+       </grid>
+       <grid id="zoom_300">
+         <domain id="grid_T" />
+         <axis axis_ref="deptht300"/>
+       </grid>
+       <grid id="zoom_300_sum">
+         <domain id="grid_T" />
+         <scalar>
+            <reduce_axis operation="sum" />
+         </scalar>
+       </grid>
+    </grid_definition>
+    

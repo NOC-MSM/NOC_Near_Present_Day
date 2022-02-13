@@ -1,0 +1,59 @@
+#!/bin/bash
+./setup -d nemo -x
+./setup -d head -c HEAD -x
+
+cd nemo || exit
+COMMIT=$(git rev-parse HEAD)
+cd ../head || exit
+COMMIT_HEAD=$(git rev-parse HEAD)
+cd .. || exit
+
+if [[ "$COMMIT" == "$COMMIT_HEAD" ]]; then
+    exit
+fi
+
+cat << EOF > "ISSUE.md"
+---
+title: Commit $COMMIT_HEAD has been pushed
+---
+Hi there,
+commit [$COMMIT_HEAD](https://forge.nemo-ocean.eu/nemo/core/-/commit/$COMMIT_HEAD) has been pushed.
+EOF
+
+for DIR in "./ext" "./cfgs"; do
+    for FILE in $(find "$DIR" -name "*.F90"); do
+        BASENAME=$(basename "$FILE")
+        FILEA=$(find nemo -name "$BASENAME")
+        FILEB=$(find head -name "$BASENAME")
+        DIFF=$(diff "$FILEA" "$FILEB")
+        if [ "$DIFF" != "" ]; then
+            cat << EOF >> "ISSUE.md"
+
+⚠️WARNING⚠️
+[$BASENAME](https://github.com/immerse-project/wp6.2-demonstrator/blob/main/$FILE) needs to be updated:
+\`\`\`diff
+diff $FILEA $FILEB
+$DIFF
+\`\`\`
+EOF
+        fi
+    done
+done
+
+for DIR in "tools/DOMAINcfg" "cfgs/SHARED"; do
+    for FILEA in $(find ./nemo/$DIR ! -path ./nemo/$DIR -prune -type f -name "namelist_ref" -o -name "namelist_ice_ref"); do
+        FILEB=${FILEA/nemo/head}
+        DIFF=$(diff "$FILEA" "$FILEB")
+        if [ "$DIFF" != "" ]; then
+            cat << EOF >> "ISSUE.md"
+
+⚠️WARNING⚠️
+\`${FILEA/.\/nemo\//}\` has changed:
+\`\`\`diff
+diff $FILEA $FILEB
+$DIFF
+\`\`\`
+EOF
+        fi
+    done
+done

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+WD=$PWD
+NEMODIR="${WD}/nemo"
+
+for DIR in {${WD}/tools/DOMAINcfg/*/,${WD}/cfgs/*/*/}; do
+    
+    cd "${DIR//$WD/$NEMODIR}" || exit
+
+    # Create concise and combine namelist
+    for NAMCFG in ./*namelist*_cfg; do
+        if [ "$(basename "$DIR")" = "MY_SRC" ]; then
+            continue
+        fi
+        NAMREF=${NAMCFG//_cfg/_ref}
+        NAMCOM=${NAMCFG//_cfg/}
+        "$WD"/scripts/python/print_concise_namelist_cfg -c "$NAMCFG" -r "$NAMREF" --overwrite || exit
+        "$WD"/scripts/python/combine_namelists -c "$NAMCFG" -r "$NAMREF" -o "$NAMCOM" || exit
+        cp {"$NAMCFG","$NAMCOM"} "${DIR//$NEMODIR/$WD}" || exit
+    done
+
+    cd "$WD" || exit
+done
