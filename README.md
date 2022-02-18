@@ -1,4 +1,4 @@
-# wp6.2-demonstator
+# NOC Near-Present-Day simulation
 
 ## Quick start on Archer2 (UK National Supercomputing Service)
 ```shell
