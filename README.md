@@ -2,7 +2,7 @@
 
 ## Quick start on Archer2 (UK National Supercomputing Service)
 ```shell
-git clone git@github.com:NOC-MSM/GO8p7_eORCA12_NPD.git
+git clone git@github.com:NOC-MSM/NOC_Near_Present_Day.git
 cd GO8p7_eORCA12_NPD
 ./setup
 ```
