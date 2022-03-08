@@ -2,10 +2,8 @@
 
 WD=$PWD
 
-NEMO_VER=4.0.4
-
-#BRANCH=dev_agrif_immerse
-#COMMIT=3e6d8e25438cdb34a842565685431b984c07679d
+BRANCH=4.2.0
+#COMMIT=
 
 NEMODIR=${WD}/nemo
 STOP=0
@@ -37,18 +35,18 @@ shift $((OPTIND-1))
 echo "Downloading NEMO"
 
 # Checkout the NEMO code from the SVN Paris repository
-svn co http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER --depth empty ${NEMODIR}
-svn co http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER/src --depth infinity ${NEMODIR}/src
+#svn co http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER --depth empty ${NEMODIR}
+#svn co http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER/src --depth infinity ${NEMODIR}/src
 #svn co http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER/cfgs/SHARED nemo/cfgs/SHARED
 #svn export http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER/cfgs/ref_cfgs.txt nemo/cfgs/ref_cfgs.txt
 
 # Checking out from NEMO GitLab
-#git clone https://forge.nemo-ocean.eu/nemo/nemo.git -b "$BRANCH" "$NEMODIR" || exit
-#if [ -n "${COMMIT}" ]; then
-#    cd "$NEMODIR" || exit
-#    git reset --hard "$COMMIT" || exit
-#    cd "$WD" || exit
-#fi
+git clone https://forge.nemo-ocean.eu/nemo/nemo.git -b "$BRANCH" "$NEMODIR" || exit
+if [ -n "${COMMIT}" ]; then
+    cd "$NEMODIR" || exit
+    git reset --hard "$COMMIT" || exit
+    cd "$WD" || exit
+fi
 
 if [[ "$STOP" == 1 ]]; then
     exit
