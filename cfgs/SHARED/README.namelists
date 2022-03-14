@@ -1,0 +1,109 @@
+Simple style rules for namelists
+--------------------------------
+
+NEMO reference namelists should adhere to the following simple style rules:
+
+1.	Comments outside a namelist block start with !! in column 1
+2.	Each namelist block starts with 3 lines of the form:
+
+!-----------------------------------------------------------------------
+&namblockname        !   short description of block
+!-----------------------------------------------------------------------
+
+        with all ! and & 's starting in column 1
+3.	The closing / for each namelist block is in column 1
+4.	Comments within namelist blocks never start with !- . Use ! followed
+        by space or != etc. 
+
+These conventions make it possible to construct empty configuration namelists.
+For example, a namelist_cfg template can be produced from namelist_ref with
+the following grep command; e.g.:
+
+grep -E  '^!-|^&|^/' namelist_ref > namelist_cfg.template
+
+head namelist_cfg.template
+  
+!-----------------------------------------------------------------------
+&namrun        !   parameters of the run
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namcfg        !   parameters of the configuration                     
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namdom        !   time and space domain
+!-----------------------------------------------------------------------
+/
+.
+.
+
+If all configuration namelists are produced and maintained using this
+strategy then standard, side-by-side comaparators, such as vimdiff or xxdiff,
+can be used to compare and transfer lines from the reference namelist to a
+configuration namelist when setting up a new configuration.
+
+Tips and tricks
+---------------
+
+1. The following bash function is useful when checking which namelist blocks
+are in active use in a configuration namelist:
+
+  function  list_used_nl(){ grep -n -E '^&|^/' "$1" | sed -e 's/:/ /' \
+    | awk ' BEGIN { x = 0 } \
+      {if ( NR % 2 == 0 && $1 - x > 2 ) printf("%3d  %s\n", $1 - x , n) ; \
+       else x = $1; n = $2}' \
+    | sort -k 2;}
+
+which (assuming the namelist adheres to the conventions) will list the number
+of entries in each non-empty namelist block. The list is sorted on the block
+name to ease comparisons. For example:
+
+  list_used_nl ORCA2_LIM3_PISCES/EXP00/namelist_cfg
+
+  1 &nambbc
+  5 &nambbl
+  30 &namberg
+  10 &namcfg
+  4 &namctl
+  3 &namdom
+  1 &namdrg
+  5 &namdyn_adv
+  1 &namdyn_hpg
+  22 &namdyn_ldf
+  1 &namdyn_spg
+  5 &namdyn_vor
+  3 &nameos
+  1 &namhsb
+  4 &namrun
+  1 &namsbc
+  1 &namsbc_blk
+  3 &namtra_adv
+  28 &namtra_ldf
+  10 &namtra_ldfeiv
+  25 &namzdf
+  3 &namzdf_iwm
+
+2. vimdiff can give garish colours in some terminals. Usually this is because
+vim assumes, incorrectly, that the terminal only supports 8 colours. Try forcing
+256 colours with:
+
+  :set t_Co=256
+
+to produce more pastel shades (add this to ~/.vimrc if successful).
+
+3. Switching between vsplit panes in vim is a multi-key sequence. The tool is 
+much easier to use if the sequence is mapped to a spare key. Here I use the
+§ and ± key on my Mac keyboard (add to ~/.vimrc):
+
+  map § ^Wl
+  map ± ^Wh 
+
+4. With easy switching between panes, constructing namelists in vimdiff just
+requires the following commands in addition to normal editing:
+
+  ]c    - Go to next block of the diff
+  dp    - Push version of the block under cursor into the other pane
+  do    - Pull version of the block under cursor from the other pane
+
+
