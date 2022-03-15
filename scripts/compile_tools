@@ -12,5 +12,5 @@ export OMP_NUM_THREADS=1
 
 # Compile tools
 for TOOL in DOMAINcfg REBUILD_NEMO WEIGHTS; do
-    ./maketools -m X86_ARCHER2-Gnu_4.2 -j 16 -n $TOOL || exit
+    ./maketools -m X86_ARCHER2-Gnu -j 16 -n $TOOL || exit
 done

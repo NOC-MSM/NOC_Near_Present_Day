@@ -13,5 +13,5 @@ export OMP_NUM_THREADS=1
 # Compile tools
 while read -r LINE; do
   CFG=${LINE%% *}
-  ./makenemo -m X86_ARCHER2-Gnu_4.2 -j 16 -r "$CFG" || exit
+  ./makenemo -m X86_ARCHER2-Gnu -j 16 -r "$CFG" || exit
 done <cfgs/work_cfgs.txt

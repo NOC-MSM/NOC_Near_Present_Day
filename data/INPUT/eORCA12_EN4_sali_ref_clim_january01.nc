@@ -1,1 +1,0 @@
-/work/n01/n01/atb299/GO8p7_eORCA12/eORCA12_EN4_sali_ref_clim_january01.nc

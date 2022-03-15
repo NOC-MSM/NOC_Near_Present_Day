@@ -1,1 +1,0 @@
-/work/n01/n01/atb299/GO8p7_eORCA12/EN.4.1.1.f.analysis.g10.1995-2014.eORCA12.SSS.teos10.nc

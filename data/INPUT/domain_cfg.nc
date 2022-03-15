@@ -1,1 +1,1 @@
-/work/n01/n01/atb299/GO8p7_eORCA12/domain_cfg.nc
+/work/n01/n01/atb299/eORCA12/NEMO_v4.2/domain_cfg.nc

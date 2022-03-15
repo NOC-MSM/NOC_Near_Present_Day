@@ -1,1 +1,0 @@
-/work/n01/n01/atb299/GO8p7_eORCA12/EN4.1.1_75L_monthly_19952014_reg1d_sss_noz.nc
