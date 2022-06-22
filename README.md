@@ -36,7 +36,7 @@ sbatch run_nemo-short.slurm
 
 Example `mkslurm_NPD` settings for production runs:
 ```shell
-../../../scripts/python/mkslurm_NPD -S 24 -s 16 -m 1 -C 5504 -g 0 -a n01-CLASS -j eORCA12 -t 1-00:00:00 --gnu > run_nemo.slurm
+../../../scripts/python/mkslurm_NPD -S 48 -s 16 -m 1 -C 5504 -g 0 -a n01-CLASS -j eORCA12 -t 1-00:00:00 --gnu > run_nemo.slurm
 ```
 
 ## Setup
