@@ -10,7 +10,7 @@
     cn_ocerst_in = 'CHANGEME',
     cn_ocerst_indir = './RESTARTS',
     cn_ocerst_outdir = './RESTARTS',
-    ln_mskland = .true.,
+    ln_mskland = .false.,
     ln_cfmeta = .true.,
 /
 
