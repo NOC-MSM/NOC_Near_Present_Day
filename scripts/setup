@@ -37,13 +37,12 @@ done
 shift $((OPTIND-1))
 
 # Check system is supported and ensure 'correct' case of $SYSTEM
-if [[ "$SYSTEM" =~ ^([aA][nN][eE][mM][oO][nN][eE])$ ]]
-    then
-    SYSTEM=Anemone
-    elif [[ "$SYSTEM" =~ ^([aA][rR][cC][hH][eE][rR][2])$ ]]
-    SYSTEM=Archer2
+if [[ "$SYSTEM" =~ ^([aA][nN][eE][mM][oO][nN][eE])$ ]]; then
+      SYSTEM=Anemone
+    elif [[ "$SYSTEM" =~ ^([aA][rR][cC][hH][eE][rR][2])$ ]]; then
+      SYSTEM=Archer2
     else
-    echo "System not recognised. Options are: Anemone, Archer2"
+      echo "System not recognised. Options are: Anemone, Archer2"
     exit
 fi
 
@@ -85,10 +84,13 @@ cp -r "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
 # System specific options
 echo "Setting up configuration and scripts for ${SYSTEM}"
 
-ln -sfT scripts/compile_nemo_${SYSTEM} scripts/compile_nemo
-ln -sfT scripts/compile_tools_${SYSTEM} scripts/compile_tools
+echo $PWD
 
-ln -sfT data/INPUT_${SYSTEM} INPUT
+ln -sfT compile_nemo_${SYSTEM} scripts/compile_nemo
+ln -sfT compile_tools_${SYSTEM} scripts/compile_tools
+ln -sfT mkslurm_NPD_${SYSTEM} scripts/python/mkslurm_NPD
+
+ln -sfT INPUT_${SYSTEM} data/INPUT
 
 
 ###########################################
