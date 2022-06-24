@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Set environment
+module purge
+module load GCCcore/11.2.0
+module load binutils/2.37-GCCcore-11.2.0
+module load zlib/1.2.11-GCCcore-11.2.0
+module load cURL/7.78.0-GCCcore-11.2.0
+module load numactl/2.0.14-GCCcore-11.2.0
+module load UCX/1.11.2-GCCcore-11.2.0
+module load OpenSSL/1.1
+
+module load HDF5/1.12.1-iimpi-2021b
+module load Szip/2.1.1-GCCcore-11.2.0
+module load netCDF/4.8.1-iimpi-2021b
+module load netCDF-Fortran/4.5.3-iimpi-2021b
+
+module load intel-compilers/2021.4.0
+module load impi/2021.4.0-intel-compilers-2021.4.0
+module load iimpi/2021b
+module load slurm/21.08.5
+module load lmod
+
+export OMP_NUM_THREADS=1
+
+# Compile tools
+for TOOL in DOMAINcfg REBUILD_NEMO WEIGHTS; do
+    ./maketools -m Anemone-ifort -j 16 -n $TOOL || exit
+done

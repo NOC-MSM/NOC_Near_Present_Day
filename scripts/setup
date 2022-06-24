@@ -2,6 +2,8 @@
 
 WD=$PWD
 
+SYSTEM=Archer2
+
 BRANCH=4.2.0
 #COMMIT=
 
@@ -9,8 +11,8 @@ NEMODIR=${WD}/nemo
 STOP=0
 
 # Handle arguments
-usage() { echo "Usage: $0 [-b branch] [-c commit] [-d directory] [-x stop_after_download]" 1>&2; exit 1; }
-while getopts ":b:c:d:x" o; do
+usage() { echo "Usage: $0 [-b branch] [-c commit] [-d directory] [-s system] [-x stop_after_download]" 1>&2; exit 1; }
+while getopts ":b:c:d:s:x" o; do
     case "${o}" in
         b)
             BRANCH=${OPTARG}
@@ -21,6 +23,9 @@ while getopts ":b:c:d:x" o; do
         d)
             NEMODIR=$(realpath "${OPTARG}")
             ;;
+        s)
+            SYSTEM=${OPTARG}
+            ;;
         x)
             STOP=1
             ;;
@@ -30,6 +35,18 @@ while getopts ":b:c:d:x" o; do
     esac
 done
 shift $((OPTIND-1))
+
+# Check system is supported and ensure 'correct' case of $SYSTEM
+if [[ "$SYSTEM" =~ ^([aA][nN][eE][mM][oO][nN][eE])$ ]]
+    then
+    SYSTEM=Anemone
+    elif [[ "$SYSTEM" =~ ^([aA][rR][cC][hH][eE][rR][2])$ ]]
+    SYSTEM=Archer2
+    else
+    echo "System not recognised. Options are: Anemone, Archer2"
+    exit
+fi
+
 
 # Download NEMO
 echo "Downloading NEMO"
@@ -61,6 +78,18 @@ fi
 # Copy
 echo "Copying customized files into ${NEMODIR}"
 cp -r "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
+
+###########################################
+# SYSTEM
+###########################################
+# System specific options
+echo "Setting up configuration and scripts for ${SYSTEM}"
+
+ln -sfT scripts/compile_nemo_${SYSTEM} scripts/compile_nemo
+ln -sfT scripts/compile_tools_${SYSTEM} scripts/compile_tools
+
+ln -sfT data/INPUT_${SYSTEM} INPUT
+
 
 ###########################################
 # TOOLS
