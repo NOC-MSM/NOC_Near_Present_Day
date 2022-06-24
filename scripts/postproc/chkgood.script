@@ -1,0 +1,31 @@
+#!/bin/bash
+#########################################################################
+# Check rebuild_nemo completed successfully                  
+# -  If yes, move the rebuilt files to YDIR and the raw file to ARCHIVE
+# -  If no, leave files in place for investigation
+#
+#   A. Blaker - 12/05/2021
+#########################################################################
+
+DIR=${PWD%/*}
+
+if [ $# -eq 0 ]
+then
+  echo "No arguments supplied"
+  exit
+fi
+
+export YY=$1
+[ ! -d ${YY} ] && mkdir ${YY} 
+
+for ff in `ls *${YY}*rpt`
+do
+  grep -q "NEMO rebuild completed successfully" $ff
+#      	grep -q "NEMO rebuild failed" $ff
+  if [ $? -eq 0 ] 
+  then 
+    mv $DIR/OUTPUTS/${ff%.*}.nc $DIR/TIDY/${YY}
+    mv $DIR/OUTPUTS/${ff%.*}_????.nc $DIR/TIDY/ARCHIVE
+    mv ${ff} rpts
+  fi
+done
