@@ -27,14 +27,25 @@ export OMP_NUM_THREADS=1
 #============================
 TIME1=`date +%s`
 
-ff=`ls ../OUTPUTS/*_1d*000.nc`
-xargs -n 1 -P 32 <<<$ff sh -c '/work/n01/n01/atb299/TOOLS/tools/REBUILD_NEMO/rebuild_nemo -p 4 -d 1 ${1%_*} 24 &> `basename ${1%_*}`.rpt' bash
+ff=`ls ../OUTPUT/*scalar*000.nc`
+if [ ! -z "$ff" ]; then
+  xargs -n 1 -P 73 <<<$ff sh -c 'mv ${1} ${1%_*}.nc; rm ${1%_*}_????.nc' bash
+fi
 
-ff=`ls ../OUTPUTS/*_1m*000.nc`
-xargs -n 1 -P 16 <<<$ff sh -c '/work/n01/n01/atb299/TOOLS/tools/REBUILD_NEMO/rebuild_nemo -p 4 -d 1 ${1%_*} 24 &> `basename ${1%_*}`.rpt' bash
+ff=`ls ../OUTPUT/*_1d*000.nc`
+if [ ! -z "$ff" ]; then
+  xargs -n 1 -P 32 <<<$ff sh -c '/work/n01/n01/atb299/TOOLS/tools/REBUILD_NEMO/rebuild_nemo -p 4 -d 1 ${1%_*} 48 &> `basename ${1%_*}`.rpt' bash
+fi
 
-ff=`ls ../OUTPUTS/*_5d*000.nc`
-xargs -n 1 -P 18 <<<$ff sh -c '/work/n01/n01/atb299/TOOLS/tools/REBUILD_NEMO/rebuild_nemo -p 4 -d 1 ${1%_*} 24 &> `basename ${1%_*}`.rpt' bash
+ff=`ls ../OUTPUT/*_1m*000.nc`
+if [ ! -z "$ff" ]; then
+  xargs -n 1 -P 16 <<<$ff sh -c '/work/n01/n01/atb299/TOOLS/tools/REBUILD_NEMO/rebuild_nemo -p 4 -d 1 ${1%_*} 48 &> `basename ${1%_*}`.rpt' bash
+fi
+
+ff=`ls ../OUTPUT/*_5d*000.nc`
+if [ ! -z "$ff" ]; then
+  xargs -n 1 -P 8 <<<$ff sh -c '/work/n01/n01/atb299/TOOLS/tools/REBUILD_NEMO/rebuild_nemo -p 4 -d 1 ${1%_*} 48 &> `basename ${1%_*}`.rpt' bash
+fi
 
 #============================
 # Job timing
