@@ -2,16 +2,15 @@
 
 ## Quick start on Archer2 (UK National Supercomputing Service)
 ```shell
-git clone git@github.com:NOC-MSM/NOC_Near_Present_Day.git
+git clone git@github.com:NOC-MSM/NOC_Near_Present_Day.git -b NEMO_v4.2
 cd NOC_Near_Present_Day
-git switch NEMO_v4.2        (optional: to switch to the NEMO_v4.2 branch)
-./setup
+./setup -s Anemone
 ```
 The setup script downloads nemo, compiles tools and configurations. Note the "--gnu" option may be necessary, depending on compiler choice. 
 
 To run NEMO:
 ```shell
-cd nemo/cfgs/GLOBAL_eORCA12/eORCA12
+cd nemo/cfgs/GLOBAL_QCO/eORCA12
 ../../../scripts/python/mkslurm_NPD -S 24 -s 16 -m 1 -C 3712 -g 0 -a n01-CLASS -q short -t 0-00:20:00 --gnu > run_nemo-short.slurm
 ```
 There are a few variables to set in `run_nemo-short.slurm`. For example, the following variables will generate a 2-hour simulation split in 1-hour jobs.
