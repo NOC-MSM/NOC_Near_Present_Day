@@ -1,10 +1,10 @@
 # NOC Near-Present-Day simulation
 
-## Quick start on Archer2 (UK National Supercomputing Service)
+## Quick start on {Archer2|Anemone} (UK National Supercomputing Service)
 ```shell
 git clone git@github.com:NOC-MSM/NOC_Near_Present_Day.git -b NEMO_v4.2
 cd NOC_Near_Present_Day
-./setup -s Anemone
+./setup -s {Archer2|Anemone}
 ```
 The setup script downloads nemo, compiles tools and configurations. Note the "--gnu" option may be necessary, depending on compiler choice. 
 
@@ -33,7 +33,7 @@ Finally:
 sbatch run_nemo-short.slurm
 ```
 
-Example `mkslurm_NPD` settings for production runs:
+Example `mkslurm_NPD` settings for production runs on Archer2:
 ```shell
 ../../../scripts/python/mkslurm_NPD -S 48 -s 16 -m 1 -C 5504 -g 0 -a n01-CLASS -j eORCA12 -t 1-00:00:00 --gnu > run_nemo.slurm
 
@@ -41,6 +41,12 @@ Example `mkslurm_NPD` settings for production runs:
 
 ../../../scripts/python/mkslurm_NPD -S 48 -s 16 -m 1 -C 11168 -g 0 -a n01-CLASS -j eORCA12 -t 0-00:10:00 --gnu > run_nemo11168_48X.slurm
 ```
+
+Example `mkslurm_NPD` settings for production runs on Anemone:
+```shell
+../../../scripts/python/mkslurm_NPD -S 20 -m 1 -C 2540 -j eORCA12 -t 00:20:00 > run_nemo2540_20X.slurm
+```
+
 
 ## Setup
 ### Global eORCA12
