@@ -68,11 +68,13 @@ PROGRAM rebuild_nemo
    CHARACTER(LEN=nf90_max_name), DIMENSION(2) :: dims
    CHARACTER(LEN=256) :: cnampath, cdimlst, cdim
    CHARACTER(LEN=50)  :: clibnc ! netcdf library version
+   CHARACTER(LEN=12)  :: clfmt
 
    INTEGER :: ndomain, ifile, ndomain_file, nslicesize, deflate_level
    INTEGER :: ncid, outid, idim, istop
    INTEGER :: natts, attid, xtype, varid, rbdims 
    INTEGER :: jv, ndims, nvars, dimlen, dimids(4)
+   !INTEGER :: jv, ndims, nvars, dimlen, dimids(6)
    INTEGER :: dimid, unlimitedDimId, di, dj, dr
    INTEGER :: nmax_unlimited, nt, ntslice 
    INTEGER :: fchunksize = 32000000  ! NetCDF global file chunk cache size
@@ -91,7 +93,7 @@ PROGRAM rebuild_nemo
    INTEGER, ALLOCATABLE  :: global_sizes(:), rebuild_dims(:)
    INTEGER, DIMENSION(2) :: halo_start, halo_end, local_sizes
    INTEGER, DIMENSION(2) :: idomain, jdomain, rdomain, start_pos
-   INTEGER :: ji, jj, jk, jl, jr
+   INTEGER :: ji, jj, jk, jl, jr, idg
    INTEGER :: nargs                 ! number of arguments
    INTEGER, EXTERNAL :: iargc
  
@@ -172,6 +174,7 @@ PROGRAM rebuild_nemo
    NAMELIST/nam_rebuild/ filebase, ndomain, dims, nslicesize, l_maskout, deflate_level, &
                        & nc4_xchunk, nc4_ychunk, nc4_zchunk, nc4_tchunk, fchunksize         
 
+   external      :: getarg
 
    !End of definitions 
 
@@ -198,14 +201,14 @@ PROGRAM rebuild_nemo
 
 !1.1 Get the namelist path
    !Determine the number of arguments on the command line
-   nargs=COMMAND_ARGUMENT_COUNT()
+   nargs=iargc()
    !Check that the required argument is present, if it is not then set it to the default value: nam_rebuild
    IF (nargs == 0) THEN
       WRITE(numout,*)
       WRITE(numout,*) 'W A R N I N G : Namelist path not supplied as command line argument. Using default, nam_rebuild.'
       cnampath='nam_rebuild'
    ELSE IF (nargs == 1) THEN
-      CALL GET_COMMAND_ARGUMENT(1, cnampath)
+      CALL getarg(1, cnampath)
    ELSE 
       WRITE(numerr,*) 'E R R O R ! : Incorrect number of command line arguments. Please supply only'
       WRITE(numerr,*) '         the path to the namelist file, or no arguments to use default value'
@@ -234,9 +237,10 @@ PROGRAM rebuild_nemo
 
    ALLOCATE(filenames(ndomain))
    IF (l_verbose) WRITE(numout,*) 'Rebuilding the following files:'
+   idg = MAX( INT(LOG10(REAL(MAX(1,ndomain-1),dp))) + 1, 4 )          ! how many digits to we need to write? min=4, max=9
+   WRITE(clfmt, "('(a,a,i', i1, '.', i1, ',a)')") idg, idg          ! '(a,a,ix.x,a)'
    DO ifile = 1, ndomain
-      WRITE(suffix,'(i4.4)') ifile-1
-      filenames(ifile) = TRIM(filebase)//'_'//TRIM(suffix)//'.nc'
+      WRITE(filenames(ifile),clfmt) TRIM(filebase),'_',ifile-1,'.nc'
       IF (l_verbose) WRITE(numout,*) TRIM(filenames(ifile))
    END DO
    ALLOCATE(inncids(ndomain))
@@ -369,7 +373,9 @@ PROGRAM rebuild_nemo
    ALLOCATE(mdiVals(nvars))
    mdiVals(:)=0
    DO jv = 1, nvars
+      !write(*,*) 'Var: ',jv
       CALL check_nf90( nf90_inquire_variable( ncid, jv, varname, xtype, ndims, dimids, natts ) )
+      !write(*,*) 'Var: ',jv," Ndims= ",ndims,dimids," Atts= ",natts,varname
       ALLOCATE(outdimids(ndims))
       ALLOCATE(chunksizes(ndims))
       IF( ndims > 0 ) then
@@ -415,21 +421,26 @@ PROGRAM rebuild_nemo
       ENDIF
       DEALLOCATE(outdimids)
       DEALLOCATE(chunksizes)
-      IF (l_verbose) WRITE(numout,*) 'Defining variable '//TRIM(varname)//'...' 
+      IF (l_verbose) WRITE(numout,*) 'Defining variable '//TRIM(varname)//'...',natts 
       IF( natts > 0 ) THEN
          DO attid = 1, natts
+            !write(*,*) 'Att: ',attid
             CALL check_nf90( nf90_inq_attname( ncid, varid, attid, attname ) )
+            !write(*,'(a,i5,a)') 'Att2: ',attid,attname
+            !CALL check_nf90( nf90_inq_attname( ncid, varid, attid, attname ) )
             IF ( attname == "_FillValue" ) THEN
                CALL check_nf90( nf90_get_att( ncid, varid, attname, rmdi ) )
                mdiVals(jv)=rmdi
             ENDIF
             CALL check_nf90( nf90_copy_att( ncid, varid, attname, outid, varid ) )
+            !write(*,*) 'Done Att: ',attid
          END DO
       ENDIF
    END DO
 
 !2.3 End definitions in output file and copy 1st file ncid to the inncids array
 
+   !WRITE(*,*) 'About to finish defining output file.'
    CALL check_nf90( nf90_enddef( outid ) )
    inncids(1) = ncid
    IF (l_verbose) WRITE(numout,*) 'Finished defining output file.'
