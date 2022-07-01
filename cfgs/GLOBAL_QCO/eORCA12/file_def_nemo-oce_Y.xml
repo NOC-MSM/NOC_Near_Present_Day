@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+
+<!--
+======================================================================================================
+=                                       output files definition                                      =
+=                                         for ocean dynamics                                         =
+======================================================================================================
+-->
+
+<file_definition min_digits="4" name="OUTPUT/@expname@_@freq@" sync_freq="30d" type="multiple_file" compression_level="1">
+
+  <file_group id="1y" output_freq="1y" split_freq="1y">
+    <file description="ocean T grid variables" id="file31" name_suffix="_grid_T">
+      <field field_ref="ssh"     name="zos"/>
+      <field field_ref="sst"     name="tos_con" standard_name="sea_surface_conservative_temperature" unit="degC"/>
+      <field field_ref="sst_pot" name="tos_pot" standard_name="sea_surface_potential_temperature"    unit="degC"/>
+      <field field_ref="sss"     name="sos_abs" standard_name="sea_surface_absolute_salinity"        unit="g kg-1"/>
+      
+      <field field_ref="botpres" prec="8"/> 
+
+      <field field_ref="e3t"      name="thkcello"/>
+      <field field_ref="toce"     name="thetao_con" freq_op="1y" cell_methods="time: mean (thickness weighted)" standard_name="sea_water_conservative_temperature" unit="degC"  > @toce_e3t / @e3t </field>
+      <field field_ref="toce_pot" name="thetao_pot" freq_op="1y" cell_methods="time: mean (thickness weighted)" standard_name="sea_water_potential_temperature"    unit="degC"  > @toce_pot_e3t / @e3t </field>
+      <field field_ref="soce"     name="so_abs"     freq_op="1y" cell_methods="time: mean (thickness weighted)" standard_name="sea_water_absolute_salinity"        unit="g kg-1"> @soce_e3t / @e3t </field>
+      
+      <field field_ref="mldkz5"/>
+      <field field_ref="mldr10_1"/>
+      <field field_ref="qsr"/>
+      <field field_ref="qt"          name="hfds"/>
+      <field field_ref="empmr"       name="sowaflup"/>
+      <field field_ref="ice_cover"   name="soicecov"/>
+      <field field_ref="emp_oce"     name="soemp_oce"/>
+      <field field_ref="emp_ice"     name="soemp_ice"/>
+      <field field_ref="snowpre"     name="snowpre"/>
+      <field field_ref="precip"      name="soprecip"/>
+      <field field_ref="fmmflx"      name="fsitherm"/>
+      <field field_ref="runoffs"     name="friver"/>
+      <field field_ref="erp"         name="so_erp"/>
+      <field field_ref="saltflx"     name="sfdsi"/>
+      <field field_ref="fwfisf_cav"  name="sowflisf_cav"/>
+      <field field_ref="fwfisf_par"  name="sowflisf_par"/>
+    </file>
+
+    <file description="ocean inner T grid variables" id="file32" name_suffix="_innerT">
+      <field field_ref="sbt" name="thetaob_con" standard_name="sea_water_conservative_temperature_at_sea_floor" unit="degC"/>
+      <field field_ref="sbs" name="sob_abs"     standard_name="sea_water_absolute_salinity_at_sea_floor"        unit="g kg-1"/>
+    </file>
+
+    <file description="ocean U grid variables" id="file33" name_suffix="_grid_U">
+      <field field_ref="ssu"  name="sozocrtx"/>
+      <field field_ref="utau" name="tauuo"/>
+      <field field_ref="e3u"  name="thkcello"/>
+      <field field_ref="uoce" name="uo" freq_op="1y" cell_methods="time: mean (thickness weighted)"> @uoce_e3u / @e3u </field>
+    </file>
+
+    <file description="ocean V grid variables" id="file34" name_suffix="_grid_V">
+      <field field_ref="ssv"  name="somecrty"/>
+      <field field_ref="vtau" name="tauvo"/>  
+      <field field_ref="e3v"  name="thkcello"/>
+      <field field_ref="voce" name="vo" freq_op="1y" cell_methods="time: mean (thickness weighted)"> @voce_e3v / @e3v </field>
+    </file>
+
+    <file description="ocean W grid variables" id="file35" name_suffix="_grid_W">
+      <field field_ref="e3w"  name="thkcello"/>  
+      <field field_ref="woce" name="wo" freq_op="1y" cell_methods="time: mean (thickness weighted)"> @woce_e3w / @e3w </field>
+    </file>
+
+    <file description="scalar variables" id="file36" name_suffix="_scalar">
+      <field field_ref="sshtot"/>
+      <field field_ref="voltot"/>
+      <field field_ref="temptot" standard_name="sea_water_conservative_temperature" unit="degC"/>
+      <field field_ref="saltot"  standard_name="sea_water_absolute_salinity"        unit="g kg-1"/>
+      <field field_ref="masstot"/>
+      <field field_ref="sshsteric"/>
+    </file>
+  </file_group>
+
+</file_definition>
+
+
