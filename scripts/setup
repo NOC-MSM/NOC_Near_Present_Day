@@ -74,10 +74,6 @@ fi
 #    find "$NEMODIR"/. -type f \( -name "*namelist*_ref" -o -name "*namelist*_cfg" \) -exec perl -pi -e "s/.$BOOL.(?!\s*,)/.$BOOL.,/g" {} +
 #done
 
-# Copy
-echo "Copying customized files into ${NEMODIR}"
-cp -r "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
-
 ###########################################
 # SYSTEM
 ###########################################
@@ -91,6 +87,11 @@ ln -sfT compile_tools_${SYSTEM} scripts/compile_tools
 ln -sfT mkslurm_NPD_${SYSTEM} scripts/python/mkslurm_NPD
 
 ln -sfT INPUT_${SYSTEM} data/INPUT
+
+
+# Copy
+echo "Copying customized files into ${NEMODIR}"
+cp -r "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
 
 
 ###########################################
