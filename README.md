@@ -6,7 +6,7 @@ git clone git@github.com:NOC-MSM/NOC_Near_Present_Day.git -b NEMO_v4.2
 cd NOC_Near_Present_Day
 ./setup -s {Archer2|Anemone}
 ```
-The setup script downloads nemo, compiles tools and configurations. Note the "--gnu" option may be necessary, depending on system and compiler choice. 
+The setup script downloads nemo, compiles tools and configurations.
 
 To run NEMO:
 ```shell
