@@ -1,0 +1,207 @@
+! Created by: print_concise_namelist_cfg -c ./namelist_cfg -r ./namelist_ref -overwrite False
+
+&namrun
+    cn_exp = 'eORCA025',
+	nn_it000 = CHANGEME,
+	nn_itend = CHANGEME,
+    nn_date0 = 19580101,
+	ln_rstart = CHANGEME,
+        ln_reset_ts=.false.,
+    nn_leapy = 1,
+    nn_rstctl = 2,
+	cn_ocerst_in = 'CHANGEME',
+    cn_ocerst_indir = './RESTARTS',
+    cn_ocerst_outdir = './RESTARTS',
+    nn_stock = 70128,
+    ln_mskland = .true.,
+/
+
+&namdom
+    rn_Dt = 1800.0,
+    rn_atfp = 0.03,
+    ln_meshmask = .false.,
+/
+
+&namcfg
+    ln_read_cfg = .true.,
+    cn_domcfg = './INPUT/domcfg.nc',
+    ln_closea    = .true.,
+/
+
+&namclo
+   ln_maskcs = .true.,
+/
+
+&namtsd
+    cn_dir = './INPUT/',
+	ln_tsd_init = .true.,
+    sn_tem = 'salinity_clim', -1, 'temperature', .true., .true., 'yearly',
+             '', '', '',
+    sn_sal = 'salinity_clim', -1, 'salinity', .true., .true., 'yearly',
+             '', '', '',
+/
+
+&namsbc
+    nn_fsbc = 1,
+    ln_blk = .true.,
+    nn_ice = 2,
+    ln_traqsr = .true.,
+    ln_ssr = .true.,
+    ln_rnf = .true.,
+    nn_fwb = 1,
+/
+
+&namsbc_blk
+    cn_dir = './INPUT/JRA/',
+    sn_humi = 'huss', 3, 'huss', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
+              '',
+    sn_prec = 'ptot', 3, 'ptot', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
+              '',
+    sn_qlw = 'rlds', 3, 'rlds', .false., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
+             '',
+    sn_qsr = 'rsds', 3, 'rsds', .false., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
+             '',
+    sn_slp = 'psl', 3, 'psl', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
+             '',
+    sn_snow = 'prsn', 3, 'prsn', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
+              '',
+    sn_tair = 'tas', 3, 'tas', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
+              '',
+    sn_wndi = 'uas', 3, 'uas', .true., .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc',
+              'Ume',
+    sn_wndj = 'vas', 3, 'vas', .true., .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc',
+              'Vme',
+/
+
+&namtra_qsr
+    sn_chl = 'merged_ESACCI_BIOMER4V1R1_CHL_REG05', -1, 'CHLA', .true.,
+             .true., 'yearly', 'weights_REG05_to_ORCA025_bilin.nc', '',
+             '',
+    cn_dir = '/dssgfs01/scratch/acc/eORCA1/',
+    ln_qsr_rgb = .true.,
+    nn_chldta = 1,
+/
+
+&namsbc_ssr
+    nn_sssr = 2,
+    rn_deds = -33.3333333,
+    cn_dir = './INPUT/',
+    sn_sss = 'salinity_clim', -1.0, 'salinity', .true., .true., 'yearly',
+             '', '', '',
+/
+
+&namsbc_rnf
+    cn_dir = './INPUT/',
+    sn_rnf = 'runoff_1m_nomask_eORCA025', -1.0, 'sornficbisf', .true., .true.,
+             'yearly', '', '', '',
+    sn_cnf = 'runoff_1m_nomask_eORCA025', 0.0, 'socoefr', .false., .true.,
+             'yearly', '', '', '',
+    ln_rnf_mouth = .true.,
+    rn_hrnf = 10.0,
+    rn_avt_rnf = 0.002,
+    rn_rnf_max = 0.05,
+/
+
+&namisf
+    ln_isf = .true.,
+    ln_isfpar_mlt = .true.,
+    sn_isfpar_fwf = 'INPUT/runoff_1m_nomask_eORCA025.nc', -1, 'sofwfisf', .false.,
+                    .true., 'yearly', '', '', '',
+    sn_isfpar_zmax = 'INPUT/runoff_1m_nomask_eORCA025.nc', -12, 'sozisfmax', .false.,
+                     .true., 'yearly', '', '', '',
+    sn_isfpar_zmin = 'INPUT/runoff_1m_nomask_eORCA025.nc', -12, 'sozisfmin', .false.,
+                     .true., 'yearly', '', '', '',
+/
+
+&namlbc
+    rn_shlat = 0.0,
+/
+
+&namdrg
+    ln_non_lin = .true.,
+/
+
+&namdrg_bot
+    ln_boost = .true.,
+/
+
+&nambbc
+    ln_trabbc = .true.,
+    cn_dir = './INPUT/',
+    sn_qgh = 'geothermal_heating.nc', -12, 'gh_flux', .false., .true., 'yearly',
+             'weights_eORCA1_to_eORCA025_bilin.nc', '', '',
+/
+
+&nambbl
+    ln_trabbl = .true.,
+/
+
+&nameos
+    ln_teos10 = .true.,
+/
+
+&namtra_adv
+    ln_traadv_fct = .true.,
+    nn_fct_h = 4,
+    nn_fct_v = 4,
+/
+
+&namtra_ldf
+    ln_traldf_lap = .true.,
+    ln_traldf_iso = .true.,
+    ln_traldf_msc = .true.,
+    nn_aht_ijk_t = 20,
+/
+
+&namtra_eiv
+    ln_ldfeiv = .true.,
+    rn_ue = 100.0,
+    rn_le = 1.5,
+    nn_aei_ijk_t = 21,
+    ln_ldfeiv_dia = .true.,
+/
+
+&namdyn_adv
+    ln_dynadv_vec = .true.,
+    nn_dynkeg = 1,
+/
+
+&namdyn_vor
+    ln_dynvor_een = .true.,
+/
+
+&namdyn_hpg
+    ln_hpg_sco = .true.,
+/
+
+&namdyn_spg
+    ln_dynspg_ts = .true.,
+/
+
+&namdyn_ldf
+    ln_dynldf_blp = .true.,
+    ln_dynldf_lev = .true.,
+    nn_ahm_ijk_t = 20,
+    rn_uv = 0.0838,
+/
+
+&namzdf
+    ln_zad_aimp = .true.,
+    ln_zdftke = .true.,
+    ln_zdfddm = .true.,
+    ln_zdfevd = .true.,
+    nn_evdm = 1,
+    rn_evd = 10.0,
+    nn_havtb = 1,
+/
+
+&namzdf_iwm
+    ln_mevar = .true.,
+/
+
+&namctl
+    sn_cfctl%l_runstat = .true.,
+    ln_timing = .true.,
+    ln_diacfl = .true.,
+/
+

@@ -1,0 +1,24 @@
+&nampar
+   nlay_i           =   4             !  number of ice  layers
+	cn_icerst_in = 'dummy',
+   cn_icerst_out    = "restart_ice"   !  suffix of ice restart name (output)
+   cn_icerst_indir='./RESTARTS'
+   cn_icerst_outdir = "./RESTARTS"    !  directory to write output ice restarts
+/
+
+&namitd
+   rn_himax         =  199.0           !  maximum ice thickness (m) allowed
+/
+
+&namthd_sal
+   nn_icesal        =   2             !  ice salinity option
+/
+&namthd_pnd
+   rn_apnd_max =   0.7          !     maximum ice fraction that contributes to melt pond. range: 0.7 -- 0.85 ??
+/
+
+&namini         !   Ice initialization
+   ln_iceini   = .true.       !  netcdf file provided for initialization (T) or not (F)
+   nn_iceini_file   = 0        !  netcdf file provided for initialization (T) or not (F)
+   cn_dir='./'
+/

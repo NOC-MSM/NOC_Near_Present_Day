@@ -1,0 +1,104 @@
+<?xml version="1.0" ?>
+
+<!--
+======================================================================================================
+=                                       output files definition                                      =
+=                                           for sea ice SI3                                          =
+======================================================================================================
+-->
+
+<file_definition min_digits="4" name="OUTPUT/@expname@_@freq@" sync_freq="30d" type="multiple_file" compression_level="1">
+
+  <file_group id="1y" output_freq="1y" split_freq="1y">
+    <file description="ice variables" id="file13" name_suffix="_icemod">
+      <!-- ice mask -->
+      <field field_ref="icemask"          name="simsk"   />
+      <field field_ref="icemask05"        name="simsk05" />
+      <field field_ref="icemask15"        name="simsk15" />
+      
+      <!-- general -->
+      <field field_ref="snwvolu"          name="snvolu" />
+      <field field_ref="icethic"          name="sithic" />
+      <field field_ref="icevolu"          name="sivolu" />
+      <field field_ref="iceconc"          name="siconc" />
+      <field field_ref="icesalt"          name="sisali" />
+      <field field_ref="iceapnd"          name="siapnd" />
+      <field field_ref="icehpnd"          name="sihpnd" />
+      <field field_ref="icevpnd"          name="sivpnd" />
+      <!-- sst_m is always the potential temperature even when using teos10 -->
+      <field field_ref="sst_m"            name="sst_m_pot"  />
+      <field field_ref="sss_m"            name="sss_m_abs"  />
+      
+      <!-- heat -->
+      <field field_ref="icetemp"          name="sitemp" />
+      <field field_ref="icettop"          name="sittop" />
+      <field field_ref="icetbot"          name="sitbot" /> 
+      
+      <!-- momentum -->
+      <field field_ref="uice"             name="sivelu"  />
+      <field field_ref="vice"             name="sivelv"  />
+      <field field_ref="icevel"           name="sivelo"  />
+      <field field_ref="utau_ai"          name="utau_ai" />
+      <field field_ref="vtau_ai"          name="vtau_ai" />
+      <field field_ref="utau_oi"          name="utau_oi" />
+      <field field_ref="vtau_oi"          name="vtau_oi" />
+      
+      <!-- rheology -->
+      <field field_ref="icediv"           name="sidive"  />
+      <field field_ref="iceshe"           name="sishea"  />
+      <field field_ref="icestr"           name="sistre"  />
+      <field field_ref="normstr"          name="normstr" />
+      <field field_ref="sheastr"          name="sheastr" />
+      <field field_ref="sig1_pnorm"/>
+      <field field_ref="sig2_pnorm"/>
+      
+      <!-- heat fluxes -->
+      <field field_ref="qt_oce_ai"        name="qt_oce_ai"  />
+      <field field_ref="qt_atm_oi"        name="qt_atm_oi"  />
+      <field field_ref="qt_ice"           name="qt_ice"     />
+      <field field_ref="qsr_ice"          name="qsr_ice"    />
+      <field field_ref="qns_ice"          name="qns_ice"    />
+      <field field_ref="qemp_ice"         name="qemp_ice"   />
+      <field field_ref="albedo"           name="albedo"     />
+
+      <field field_ref="hfxcndtop"        name="hfxcndtop"  />
+      <field field_ref="hfxcndbot"        name="hfxcndbot"  />
+      <field field_ref="hfxsensib"        name="hfxsensib"  />
+      
+      <!-- salt fluxes -->
+      <field field_ref="sfxice"           name="sfxice" />
+      
+      <!-- mass fluxes -->
+      <field field_ref="vfxice"           name="vfxice" />
+      <field field_ref="vfxsnw"           name="vfxsnw" />
+      
+      <!-- categories -->
+      <field field_ref="icemask_cat"      name="simskcat"/>
+      <field field_ref="snwthic_cat"      name="snthicat"/>
+      <field field_ref="iceconc_cat"      name="siconcat"/>
+      <field field_ref="icethic_cat"      name="sithicat"/>
+      <field field_ref="icesalt_cat"      name="sisalcat"/>
+      <field field_ref="icetemp_cat"      name="sitemcat"/>
+      <field field_ref="snwtemp_cat"      name="sntemcat"/>
+      
+      <!-- mass balance -->
+      <field field_ref="dmithd"           name="sidmassth"        />
+      <field field_ref="dmidyn"           name="sidmassdyn"       />
+      <field field_ref="dmiopw"           name="sidmassgrowthwat" />
+      <field field_ref="dmibog"           name="sidmassgrowthbot" />
+      <field field_ref="dmisni"           name="sidmasssi"        />
+      <field field_ref="dmisub"           name="sidmassevapsubl"  />
+      <field field_ref="dmisum"           name="sidmassmelttop"   />
+      <field field_ref="dmibom"           name="sidmassmeltbot"   />
+      <field field_ref="dmilam"           name="sidmassmeltlat"   />
+      <field field_ref="dmsspr"           name="sndmasssnf"       />
+      <field field_ref="dmsmel"           name="sndmassmelt"      />
+      <field field_ref="dmssub"           name="sndmasssubl"      />
+      <field field_ref="dmsdyn"           name="sndmassdyn"       />
+      <field field_ref="dmsssi"           name="sndmasssi"        />
+    </file>
+
+  </file_group>
+</file_definition>
+
+ 
