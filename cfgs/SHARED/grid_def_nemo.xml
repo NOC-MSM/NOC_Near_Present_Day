@@ -12,7 +12,7 @@
     <domain domain_ref="grid_T" />
   </grid>
   <grid id="grid_T_2D_inner" >
-    <domain domain_ref="grid_T_inner" />
+    <domain domain_ref="grid_T_inner" name="grid_T" />
   </grid>
   <!--  -->
   <grid id="grid_T_ncatice" >
@@ -20,7 +20,7 @@
     <axis axis_ref="ncatice" />
   </grid>
   <grid id="grid_T_ncatice_inner" >
-    <domain domain_ref="grid_T_inner" />
+    <domain domain_ref="grid_T_inner" name="grid_T" />
     <axis axis_ref="ncatice" />
   </grid>
   <!--  -->
@@ -29,7 +29,7 @@
     <axis axis_ref="deptht" />
   </grid>
   <grid id="grid_T_3D_inner" >
-    <domain domain_ref="grid_T_inner" />
+    <domain domain_ref="grid_T_inner" name="grid_T" />
     <axis axis_ref="deptht" />
   </grid>
   <!--  -->
@@ -38,7 +38,7 @@
     <axis axis_ref="profsed" />
   </grid>
   <grid id="grid_T_3DS_inner" >
-    <domain domain_ref="grid_T_inner" />
+    <domain domain_ref="grid_T_inner" name="grid_T" />
     <axis axis_ref="profsed" />
   </grid>
   <!--  -->
@@ -46,7 +46,7 @@
     <domain domain_ref="grid_U" />
   </grid>
   <grid id="grid_U_2D_inner" >
-    <domain domain_ref="grid_U_inner" />
+    <domain domain_ref="grid_U_inner" name="grid_U" />
   </grid>
   <!--  -->
   <grid id="grid_U_3D" >
@@ -54,7 +54,7 @@
     <axis axis_ref="depthu" />
   </grid>
   <grid id="grid_U_3D_inner" >
-    <domain domain_ref="grid_U_inner" />
+    <domain domain_ref="grid_U_inner" name="grid_U" />
     <axis axis_ref="depthu" />
   </grid>
   <!--  -->
@@ -62,7 +62,7 @@
     <domain domain_ref="grid_V" />
   </grid>
   <grid id="grid_V_2D_inner" >
-    <domain domain_ref="grid_V_inner" />
+    <domain domain_ref="grid_V_inner" name="grid_V" />
   </grid>
   <!--  -->
   <grid id="grid_V_3D" >
@@ -70,7 +70,7 @@
     <axis axis_ref="depthv" />
   </grid>
   <grid id="grid_V_3D_inner" >
-    <domain domain_ref="grid_V_inner" />
+    <domain domain_ref="grid_V_inner" name="grid_V" />
     <axis axis_ref="depthv" />
   </grid>
   <!--  -->
@@ -78,7 +78,7 @@
     <domain domain_ref="grid_W" />
   </grid>
   <grid id="grid_W_2D_inner" >
-    <domain domain_ref="grid_W_inner" />
+    <domain domain_ref="grid_W_inner" name="grid_W" />
   </grid>
   <!--  -->
   <grid id="grid_W_3D" >
@@ -86,7 +86,7 @@
     <axis axis_ref="depthw" />
   </grid>
   <grid id="grid_W_3D_inner" >
-    <domain domain_ref="grid_W_inner" />
+    <domain domain_ref="grid_W_inner" name="grid_W" />
     <axis axis_ref="depthw" />
   </grid>
   <!--  -->
@@ -94,7 +94,7 @@
     <domain domain_ref="grid_F" />
   </grid>
   <grid id="grid_F_2D_inner" >
-    <domain domain_ref="grid_F_inner" />
+    <domain domain_ref="grid_F_inner" name="grid_F" />
   </grid>
   <!--  -->
   <grid id="grid_F_3D" >
@@ -102,7 +102,7 @@
     <axis axis_ref="depthf" />
   </grid>
   <grid id="grid_F_3D_inner" >
-    <domain domain_ref="grid_F_inner" />
+    <domain domain_ref="grid_F_inner" name="grid_F" />
     <axis axis_ref="depthf" />
   </grid>
   <!--  -->
