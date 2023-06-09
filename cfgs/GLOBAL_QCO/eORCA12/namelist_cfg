@@ -6,6 +6,7 @@
     nn_itend = 'CHANGEME',
     nn_date0 = 20060101,
     ln_rstart = 'CHANGEME',
+        ln_reset_ts=.false.,
     nn_rstctl = 2,
     cn_ocerst_in = 'CHANGEME',
     cn_ocerst_indir = './RESTARTS',

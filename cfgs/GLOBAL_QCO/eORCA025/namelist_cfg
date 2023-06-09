@@ -4,7 +4,7 @@
     cn_exp = 'eORCA025',
 	nn_it000 = CHANGEME,
 	nn_itend = CHANGEME,
-    nn_date0 = 19580101,
+    nn_date0 = 19760101,
 	ln_rstart = CHANGEME,
         ln_reset_ts=.false.,
     nn_leapy = 1,
@@ -18,7 +18,7 @@
 
 &namdom
     rn_Dt = 1800.0,
-    rn_atfp = 0.03,
+    rn_atfp = 0.05,
     ln_meshmask = .false.,
 /
 
@@ -34,10 +34,10 @@
 
 &namtsd
     cn_dir = './INPUT/',
-	ln_tsd_init = .true.,
-    sn_tem = 'salinity_clim', -1, 'temperature', .true., .true., 'yearly',
+	ln_tsd_init = .false.,
+    sn_tem = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc', -1, 'temperature', .true., .true., 'yearly',
              '', '', '',
-    sn_sal = 'salinity_clim', -1, 'salinity', .true., .true., 'yearly',
+    sn_sal = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
@@ -52,25 +52,19 @@
 /
 
 &namsbc_blk
+    ln_crt_fbk = .true.,     !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
+       rn_stau_a = -2.9e-3   !     Alpha from eq. 10: Stau = Alpha * Wnd + Beta
+       rn_stau_b =  8.0e-3   !     Beta
     cn_dir = './INPUT/JRA/',
-    sn_humi = 'huss', 3, 'huss', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
-              '',
-    sn_prec = 'ptot', 3, 'ptot', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
-              '',
-    sn_qlw = 'rlds', 3, 'rlds', .false., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
-             '',
-    sn_qsr = 'rsds', 3, 'rsds', .false., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
-             '',
-    sn_slp = 'psl', 3, 'psl', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
-             '',
-    sn_snow = 'prsn', 3, 'prsn', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
-              '',
-    sn_tair = 'tas', 3, 'tas', .true., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc',
-              '',
-    sn_wndi = 'uas', 3, 'uas', .true., .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc',
-              'Ume',
-    sn_wndj = 'vas', 3, 'vas', .true., .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc',
-              'Vme',
+    sn_humi    = 'huss', 3, 'huss', .true.,  .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
+    sn_prec    = 'ptot', 3, 'ptot', .true.,  .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
+    sn_qlw     = 'rlds', 3, 'rlds', .false., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
+    sn_qsr     = 'rsds', 3, 'rsds', .false., .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
+    sn_slp     = 'psl',  3, 'psl',  .true.,  .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
+    sn_snow    = 'prsn', 3, 'prsn', .true.,  .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
+    sn_tair    = 'tas',  3, 'tas',  .true.,  .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
+    sn_wndi    = 'uas',  3, 'uas',  .true.,  .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Ume', ''
+    sn_wndj    = 'vas',  3, 'vas',  .true.,  .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Vme', ''
 /
 
 &namtra_qsr
@@ -84,19 +78,21 @@
 
 &namsbc_ssr
     nn_sssr = 2,
-    rn_deds = -33.3333333,
+    rn_deds = -166.67,
     cn_dir = './INPUT/',
-    sn_sss = 'salinity_clim', -1.0, 'salinity', .true., .true., 'yearly',
+    sn_sss = 'sss_1m_teos10_v4.2.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
 &namsbc_rnf
     cn_dir = './INPUT/',
-    sn_rnf = 'runoff_1m_nomask_eORCA025', -1.0, 'sornficbisf', .true., .true.,
+    sn_rnf = 'eORCA025_runoff_GO6_icb.nc', -1, 'sornficb', .true., .true.,
              'yearly', '', '', '',
-    sn_cnf = 'runoff_1m_nomask_eORCA025', 0.0, 'socoefr', .false., .true.,
+    sn_cnf = 'eORCA025_runoff_GO6_icb.nc', 0, 'socoefr', .false., .true.,
              'yearly', '', '', '',
+    sn_t_rnf='eORCA025_runoff_GO6_icb.nc',-12,'icbrnftemper',.false.,.true.,'yearly','','',''
     ln_rnf_mouth = .true.,
+    ln_rnf_tem   = .true.,
     rn_hrnf = 10.0,
     rn_avt_rnf = 0.002,
     rn_rnf_max = 0.05,
@@ -105,11 +101,11 @@
 &namisf
     ln_isf = .true.,
     ln_isfpar_mlt = .true.,
-    sn_isfpar_fwf = 'INPUT/runoff_1m_nomask_eORCA025.nc', -1, 'sofwfisf', .false.,
+    sn_isfpar_fwf = 'INPUT/eORCA025_runoff_GO6_icb.nc', -1, 'sofwfisf', .false.,
                     .true., 'yearly', '', '', '',
-    sn_isfpar_zmax = 'INPUT/runoff_1m_nomask_eORCA025.nc', -12, 'sozisfmax', .false.,
+    sn_isfpar_zmax = 'INPUT/eORCA025_runoff_GO6_icb.nc', -12, 'sozisfmax', .false.,
                      .true., 'yearly', '', '', '',
-    sn_isfpar_zmin = 'INPUT/runoff_1m_nomask_eORCA025.nc', -12, 'sozisfmin', .false.,
+    sn_isfpar_zmin = 'INPUT/eORCA025_runoff_GO6_icb.nc', -12, 'sozisfmin', .false.,
                      .true., 'yearly', '', '', '',
 /
 
@@ -134,6 +130,8 @@
 
 &nambbl
     ln_trabbl = .true.,
+    nn_bbl_adv  =  1,
+
 /
 
 &nameos
@@ -149,16 +147,19 @@
 &namtra_ldf
     ln_traldf_lap = .true.,
     ln_traldf_iso = .true.,
-    ln_traldf_msc = .true.,
+    ln_traldf_msc = .false.,
     nn_aht_ijk_t = 20,
+    rn_Ud        = 0.011
 /
 
 &namtra_eiv
     ln_ldfeiv = .true.,
-    rn_ue = 100.0,
-    rn_le = 1.5,
+    rn_ue = 1.5,
+    rn_le = 100.0,
     nn_aei_ijk_t = 21,
     ln_ldfeiv_dia = .true.,
+    nn_ldfeiv_shape = 2,
+
 /
 
 &namdyn_adv

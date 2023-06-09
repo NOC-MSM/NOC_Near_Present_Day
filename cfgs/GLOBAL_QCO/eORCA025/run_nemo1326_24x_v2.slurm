@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=WishB025
+#SBATCH --job-name=NPD_025
 #SBATCH --partition=compute
 #SBATCH --time=01:00:00
 #SBATCH --ntasks-per-core=1
