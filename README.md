@@ -1,5 +1,7 @@
 # NOC Near-Present-Day simulation
 
+Global configurations at eORCA12 and eORCA025
+
 ## Quick start on {Archer2|Anemone} ({UK National| NOC} Supercomputing Service)
 ```shell
 git clone git@github.com:NOC-MSM/NOC_Near_Present_Day.git {-b NEMO_v4.0}
@@ -11,10 +13,14 @@ The setup script downloads nemo, compiles tools and configurations.
 To run NEMO:
 ```shell
 cd nemo/cfgs/GLOBAL_QCO/eORCA12
+
+or 
+
+cd nemo/cfgs/GLOBAL_QCO/eORCA025
 ```
 and create a runscript.
 
-Example `mkslurm_NPD` settings for production runs on Archer2:
+Example `mkslurm_NPD` settings for eORCA12 production runs on Archer2:
 ```shell
 ../../../scripts/python/mkslurm_NPD -S 48 -s 16 -m 1 -C 5504 -g 0 -a n01-CLASS -j eORCA12 -t 1-00:00:00 --gnu > run_nemo5504_48X.slurm
 
@@ -26,6 +32,11 @@ Example `mkslurm_NPD` settings for production runs on Archer2:
 Example `mkslurm_NPD` settings for production runs on Anemone:
 ```shell
 ../../../scripts/python/mkslurm_NPD -S 24 -m 1 -C 3496 -j eORCA12 -t 00:20:00 > run_nemo3496_24X.slurm
+```
+
+For eORCA025, can use the existing runscript:
+```shell
+run_nemo1326_24x_v2.slurm
 ```
 
 
@@ -52,8 +63,13 @@ sbatch run_nemo.slurm
 
 
 
-## Setup
+## Setups
 ### Global eORCA12
 Resolution:
 - Horizontal: 1/12°
+- Vertical: 75 levels
+
+### Global eORCA025
+Resolution:
+- Horizontal: 1/4°
 - Vertical: 75 levels
