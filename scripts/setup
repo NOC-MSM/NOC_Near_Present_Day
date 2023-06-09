@@ -86,7 +86,8 @@ ln -sfT compile_nemo_${SYSTEM} scripts/compile_nemo
 ln -sfT compile_tools_${SYSTEM} scripts/compile_tools
 ln -sfT mkslurm_NPD_${SYSTEM} scripts/python/mkslurm_NPD
 
-ln -sfT INPUT_${SYSTEM} data/INPUT
+ln -sfT INPUT_eORCA025_${SYSTEM} data/INPUT_eORCA025
+ln -sfT INPUT_eORCA12_${SYSTEM} data/INPUT_eORCA12
 
 
 # Copy
