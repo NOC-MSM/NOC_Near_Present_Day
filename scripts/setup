@@ -4,8 +4,11 @@ WD=$PWD
 
 SYSTEM=Anemone
 
-BRANCH=4.2.0
-#COMMIT=
+#BRANCH=branch_4.2
+#COMMIT=405258c9896e0b1a3c430ea495fcda0fe55e2170
+
+BRANCH=main
+COMMIT=9a86d855a3ad9210b18ad8cf160dd5ecec4da466
 
 NEMODIR=${WD}/nemo
 STOP=0
@@ -82,6 +85,7 @@ ln -sfT INPUT_eORCA12_${SYSTEM} data/INPUT_eORCA12
 echo "Copying customized files into ${NEMODIR}"
 cp -r "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
 
+cp -r "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/EXP_MASTER/.
 
 ###########################################
 # TOOLS

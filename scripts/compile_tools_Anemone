@@ -10,5 +10,5 @@ export OMP_NUM_THREADS=1
 
 # Compile tools
 for TOOL in DOMAINcfg REBUILD_NEMO WEIGHTS; do
-    ./maketools -m Anemone-ifort -j 16 -n $TOOL || exit
+    ./maketools -m Anemone-ifort -j 32 -n $TOOL || exit
 done

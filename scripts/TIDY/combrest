@@ -1,0 +1,60 @@
+#!/bin/bash
+#SBATCH --job-name=combrest
+#SBATCH --time=16:20:0
+#SBATCH --ntasks=1
+#SBATCH --account=n01-CLASS
+#SBATCH --partition=serial
+#SBATCH --qos=serial
+#SBATCH --mem=40G
+
+export OMP_NUM_THREADS=1
+#============================
+TIME1=`date +%s`
+
+# Usage: sbatch {--export=YY="20070101"} combrest
+# Optionally supply restart subdiretory. If not provided script will attempt to recombine all available restarts.
+# Budget ~6 hours per restart.
+# Author: Adam Blaker (29/06/2022)
+
+
+echo "YY =" $YY
+
+# Array of restarts that need combining
+if [ ! -z "$YY" ]; then
+  A=(`find ../RESTARTS/${YY} -name "*_00000.nc"`)
+else
+  echo "No arguments supplied: try combining all restarts"
+  A=(`find ../RESTARTS -name "*_00000.nc"`)
+fi
+
+# Find length of the array
+Alen=${#A[@]}
+
+if [ $Alen = 0 ]; then
+  echo "No restarts found"
+  exit
+else
+  echo "Found" $Alen "restart to combine"
+fi
+
+# Find number of tiles  >> this will only work for 10^5 cores
+nf=`ls ${A[0]%_*}_?????.nc | wc -l`
+
+echo "Number of tiles =" $nf
+
+# Loop through restart files
+i="0"
+while [ $i -lt $Alen ]; do
+  echo /work/n01/n01/acc/NEMO/r4.0.5/dev_r4.0.5_NERC_latest/tools/REBUILD_NEMO/rebuild_nemo -d 1 ${A[$i]%_*} $nf
+  /work/n01/n01/acc/NEMO/r4.0.5/dev_r4.0.5_NERC_latest/tools/REBUILD_NEMO/rebuild_nemo -d 1 ${A[$i]%_*} $nf
+  i=$[$i+1]
+done
+
+#============================
+# Job timing
+
+TIME2=`date +%s`
+DIFFSEC=`expr ${TIME2} - ${TIME1}`
+echo Took ${DIFFSEC} seconds.
+echo Took `date +%H:%M:%S -ud @${DIFFSEC}`
+

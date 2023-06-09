@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# Generate md5sums for each file in a given year
+# Usage: ./chkit.script YYYY
+# Author: Adam Blaker 27/05/2021
+
+if [ $# -eq 0 ]
+then
+  echo "No arguments supplied"
+  exit
+fi
+
+export YY=$1
+
+ff=`ls ${YY}/*/*nc`
+
+xargs -n 1 -P 16 <<<$ff sh -c 'md5sum ${1} >> "${YY}"_files.txt' bash
+
+sort -k2 ${YY}_files.txt > ${YY}_md5s_files.txt
+
+rm ${YY}_files.txt

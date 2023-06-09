@@ -11,5 +11,5 @@ export OMP_NUM_THREADS=1
 # Compile tools
 while read -r LINE; do
   CFG=${LINE%% *}
-  ./makenemo -m Anemone-ifort -j 16 -r "$CFG" || exit
+  ./makenemo -m Anemone-ifort -j 32 -r "$CFG" || exit
 done <cfgs/work_cfgs.txt
