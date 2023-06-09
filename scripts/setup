@@ -2,7 +2,7 @@
 
 WD=$PWD
 
-SYSTEM=Archer2
+SYSTEM=Anemone
 
 BRANCH=4.2.0
 #COMMIT=
@@ -50,12 +50,6 @@ fi
 # Download NEMO
 echo "Downloading NEMO"
 
-# Checkout the NEMO code from the SVN Paris repository
-#svn co http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER --depth empty ${NEMODIR}
-#svn co http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER/src --depth infinity ${NEMODIR}/src
-#svn co http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER/cfgs/SHARED nemo/cfgs/SHARED
-#svn export http://forge.ipsl.jussieu.fr/nemo/svn/NEMO/releases/r4.0/r$NEMO_VER/cfgs/ref_cfgs.txt nemo/cfgs/ref_cfgs.txt
-
 # Checking out from NEMO GitLab
 git clone https://forge.nemo-ocean.eu/nemo/nemo.git -b "$BRANCH" "$NEMODIR" || exit
 if [ -n "${COMMIT}" ]; then
@@ -67,12 +61,6 @@ fi
 if [[ "$STOP" == 1 ]]; then
     exit
 fi
-
-# Add commas to namelists
-#echo "Adding commas to namelists"
-#for BOOL in true false TRUE FALSE; do
-#    find "$NEMODIR"/. -type f \( -name "*namelist*_ref" -o -name "*namelist*_cfg" \) -exec perl -pi -e "s/.$BOOL.(?!\s*,)/.$BOOL.,/g" {} +
-#done
 
 ###########################################
 # SYSTEM
@@ -102,28 +90,6 @@ cp -r "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
 echo "Compiling tools"
 cd "$NEMODIR"/tools || exit
 ../scripts/compile_tools || exit
-
-## Submit DOMAINcfg
-#echo "Submitting scripts to create domain files"
-#for DIR in "${WD}"/tools/DOMAINcfg/*/; do
-#    DIR=$(basename "$DIR")
-#    echo "$DIR"
-#    cd "$NEMODIR"/tools/DOMAINcfg/"$DIR"/ || exit
-#    if [ "$DIR" == "eORCA12_GSRIDGE36Z-GIBSTRA36Z" ] ; then
-#        DOMAIN_JOBID=$(sbatch --parsable build_domains.slurm) || exit
-#    else
-#        sbatch build_domains.slurm || exit
-#    fi
-#done
-#
-## Submit WEIGHTS
-#echo "Submitting scripts to create weights"
-#for DIR in "${WD}"/tools/WEIGHTS/*/; do
-#    DIR=$(basename "$DIR")
-#    echo "$DIR"
-#    cd "$NEMODIR"/tools/WEIGHTS/"$DIR"/ || exit
-#    sbatch --dependency=afterok:"$DOMAIN_JOBID" build_weights.slurm || exit
-#done
 
 ###########################################
 # CONFIGURATIONS
