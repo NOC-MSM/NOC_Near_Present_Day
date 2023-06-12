@@ -124,8 +124,8 @@
 &nambbc
     ln_trabbc = .true.,
     cn_dir = './INPUT/',
-    sn_qgh = 'geothermal_heating.nc', -12, 'gh_flux', .false., .true., 'yearly',
-             'weights_eORCA1_to_eORCA025_bilin.nc', '', '',
+    sn_qgh = 'geothermal_heating_orca025ext_extrap40_v4.2.nc', -12, 'gh_flux', .false., .true., 'yearly',
+             '', '', '',
 /
 
 &nambbl
