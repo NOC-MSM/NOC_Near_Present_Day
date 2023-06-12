@@ -588,7 +588,7 @@ CONTAINS
       INTEGER  ::   iimi, iima, ipk, it, itmod, ijmi, ijma   ! local integers
       INTEGER  ::   ipka                                     ! ABL
       INTEGER  ::   jn, ierror                               ! local integers
-      REAL(dp) ::   zsto, zout, zmax, zjulian                ! local scalars
+      REAL(wp) ::   zsto, zout, zmax, zjulian                ! local scalars
       !
       REAL(wp), DIMENSION(jpi,jpj    ) :: z2d     ! 2D workspace
       REAL(wp), DIMENSION(jpi,jpj,jpk) :: z3d     ! 3D workspace

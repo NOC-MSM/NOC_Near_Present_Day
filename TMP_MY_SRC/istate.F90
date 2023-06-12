@@ -50,7 +50,7 @@ MODULE istate
 #  include "domzgr_substitute.h90"
    !!----------------------------------------------------------------------
    !! NEMO/OCE 4.0 , NEMO Consortium (2018)
-   !! $Id: istate.F90 15052 2021-06-24 14:39:14Z smasson $
+   !! $Id: istate.F90 14991 2021-06-14 19:52:31Z techene $
    !! Software governed by the CeCILL license (see ./LICENSE)
    !!----------------------------------------------------------------------
 CONTAINS
@@ -138,38 +138,53 @@ CONTAINS
                END DO
                CALL usr_def_istate( zgdept, tmask, ts(:,:,:,:,Kbb), uu(:,:,:,Kbb), vv(:,:,:,Kbb) )
                ! make sure that periodicities are properly applied 
-               CALL lbc_lnk( 'istate', ts(:,:,:,jp_tem,Kbb), 'T',  1._dp, ts(:,:,:,jp_sal,Kbb), 'T',  1._dp,   &
-                  &                    uu(:,:,:,       Kbb), 'U', -1._dp, vv(:,:,:,       Kbb), 'V', -1._dp )
+               CALL lbc_lnk( 'istate', ts(:,:,:,jp_tem,Kbb), 'T',  1._wp, ts(:,:,:,jp_sal,Kbb), 'T',  1._wp,   &
+                  &                    uu(:,:,:,       Kbb), 'U', -1._wp, vv(:,:,:,       Kbb), 'V', -1._wp )
             ENDIF
             ts  (:,:,:,:,Kmm) = ts (:,:,:,:,Kbb)       ! set now values from to before ones
             uu    (:,:,:,Kmm) = uu   (:,:,:,Kbb)
             vv    (:,:,:,Kmm) = vv   (:,:,:,Kbb)
-
          ENDIF 
 #if defined key_agrif
       ENDIF
 #endif
       ! 
-      ! Initialize "now" and "before" barotropic velocities:
-      ! Do it whatever the free surface method, these arrays being eventually used
+#if defined key_RK3
+      IF( .NOT. ln_rstart ) THEN
+#endif
+         ! Initialize "before" barotropic velocities. "now" values are always set but 
+         ! "before" values may have been read from a restart to ensure restartability.
+         ! In the non-restart or non-RK3 cases they need to be initialised here:
+         uu_b(:,:,Kbb) = 0._wp   ;   vv_b(:,:,Kbb) = 0._wp
+         DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpkm1 )
+            uu_b(ji,jj,Kbb) = uu_b(ji,jj,Kbb) + e3u(ji,jj,jk,Kbb) * uu(ji,jj,jk,Kbb) * umask(ji,jj,jk)
+            vv_b(ji,jj,Kbb) = vv_b(ji,jj,Kbb) + e3v(ji,jj,jk,Kbb) * vv(ji,jj,jk,Kbb) * vmask(ji,jj,jk)
+         END_3D
+         uu_b(:,:,Kbb) = uu_b(:,:,Kbb) * r1_hu(:,:,Kbb)
+         vv_b(:,:,Kbb) = vv_b(:,:,Kbb) * r1_hv(:,:,Kbb)
+         ! 
+#if defined key_RK3
+      ENDIF
+#endif
       !
+      ! Initialize "now" barotropic velocities:
+      ! Do it whatever the free surface method, these arrays being used eventually 
+      !
+#if  defined key_RK3
+      IF( .NOT. ln_rstart ) THEN
+         uu_b(:,:,Kmm)   = uu_b(:,:,Kbb)   ! Kmm value set to Kbb for initialisation in Agrif_Regrid in namo_gcm
+         vv_b(:,:,Kmm)   = vv_b(:,:,Kbb)
+      ENDIF
+#else
+!!gm  the use of umask & vmask is not necessary below as uu(:,:,:,Kmm), vv(:,:,:,Kmm), uu(:,:,:,Kbb), vv(:,:,:,Kbb) are always masked
       uu_b(:,:,Kmm) = 0._wp   ;   vv_b(:,:,Kmm) = 0._wp
-      uu_b(:,:,Kbb) = 0._wp   ;   vv_b(:,:,Kbb) = 0._wp
-      !
-!!gm  the use of umsak & vmask is not necessary below as uu(:,:,:,Kmm), vv(:,:,:,Kmm), uu(:,:,:,Kbb), vv(:,:,:,Kbb) are always masked
       DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpkm1 )
          uu_b(ji,jj,Kmm) = uu_b(ji,jj,Kmm) + e3u(ji,jj,jk,Kmm) * uu(ji,jj,jk,Kmm) * umask(ji,jj,jk)
          vv_b(ji,jj,Kmm) = vv_b(ji,jj,Kmm) + e3v(ji,jj,jk,Kmm) * vv(ji,jj,jk,Kmm) * vmask(ji,jj,jk)
-         !
-         uu_b(ji,jj,Kbb) = uu_b(ji,jj,Kbb) + e3u(ji,jj,jk,Kbb) * uu(ji,jj,jk,Kbb) * umask(ji,jj,jk)
-         vv_b(ji,jj,Kbb) = vv_b(ji,jj,Kbb) + e3v(ji,jj,jk,Kbb) * vv(ji,jj,jk,Kbb) * vmask(ji,jj,jk)
       END_3D
-      !
       uu_b(:,:,Kmm) = uu_b(:,:,Kmm) * r1_hu(:,:,Kmm)
       vv_b(:,:,Kmm) = vv_b(:,:,Kmm) * r1_hv(:,:,Kmm)
-      !
-      uu_b(:,:,Kbb) = uu_b(:,:,Kbb) * r1_hu(:,:,Kbb)
-      vv_b(:,:,Kbb) = vv_b(:,:,Kbb) * r1_hv(:,:,Kbb)
+#endif
       !
    END SUBROUTINE istate_init
 

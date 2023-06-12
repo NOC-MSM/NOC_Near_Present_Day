@@ -55,6 +55,7 @@ MODULE iom
 #else
    LOGICAL, PUBLIC, PARAMETER ::   lk_iomput = .FALSE.       !: iom_put flag
 #endif
+   LOGICAL, PUBLIC            ::   l_iom = .TRUE.            !: RK3 iom flag prevent writing at stage 1&2
    PUBLIC iom_init, iom_init_closedef, iom_swap, iom_open, iom_close, iom_setkt, iom_varid, iom_get, iom_get_var
    PUBLIC iom_chkatt, iom_getatt, iom_putatt, iom_getszuld, iom_rstput, iom_delay_rst, iom_put
    PUBLIC iom_use, iom_context_finalize, iom_update_file_name, iom_miss_val
@@ -98,7 +99,7 @@ MODULE iom
 #  include "do_loop_substitute.h90"
    !!----------------------------------------------------------------------
    !! NEMO/OCE 4.0 , NEMO Consortium (2018)
-   !! $Id: iom.F90 15033 2021-06-21 10:24:45Z smasson $
+   !! $Id: iom.F90 15512 2021-11-15 17:22:03Z techene $
    !! Software governed by the CeCILL license (see ./LICENSE)
    !!----------------------------------------------------------------------
 CONTAINS
@@ -263,9 +264,7 @@ CONTAINS
 # if defined key_si3
          CALL iom_set_axis_attr( "ncatice", (/ (REAL(ji,wp), ji=1,jpl) /) )
          ! SIMIP diagnostics (4 main arctic straits)
-!         remove from si3 case to general case to use dct diagnostics over
-!         oce+ice
-!         CALL iom_set_axis_attr( "nstrait", (/ (REAL(ji,wp), ji=1,4) /) )
+         CALL iom_set_axis_attr( "nstrait", (/ (REAL(ji,wp), ji=1,4) /) )
 # endif
 #if defined key_top
          IF( ALLOCATED(profsed) ) CALL iom_set_axis_attr( "profsed", paxis = profsed )
@@ -278,12 +277,6 @@ CONTAINS
          INQUIRE( FILE = 'subbasins.nc', EXIST = ll_exist )
          nbasin = 1 + 4 * COUNT( (/ll_exist/) )
          CALL iom_set_axis_attr( "basin"  , (/ (REAL(ji,wp), ji=1,nbasin) /) )
-         ! Transport diagnostics diadct - max number of section 150 in diadct -> ! pb to ensure consistency here
-         IF( ln_diadct  ) THEN
-            CALL iom_set_axis_attr( "nstrait"  , (/ (REAL(ji,wp), ji=1,nb_sec) /) )
-         ELSE
-            CALL iom_set_axis_attr( "nstrait", (/ (REAL(ji,wp), ji=1,4) /) )
-         ENDIF
       ENDIF
       !
       ! automatic definitions of some of the xml attributs
@@ -1052,13 +1045,19 @@ CONTAINS
       INTEGER         , INTENT(in   )                         ::   kdom      ! Type of domain to be read
       CHARACTER(len=*), INTENT(in   )                         ::   cdvar     ! Name of the variable
       REAL(sp)        , INTENT(  out), DIMENSION(:)           ::   pvar      ! read field
+      REAL(dp)        , ALLOCATABLE  , DIMENSION(:)           ::   ztmp_pvar ! tmp var to read field
       INTEGER         , INTENT(in   )              , OPTIONAL ::   ktime     ! record number
       INTEGER         , INTENT(in   ), DIMENSION(1), OPTIONAL ::   kstart    ! start axis position of the reading
       INTEGER         , INTENT(in   ), DIMENSION(1), OPTIONAL ::   kcount    ! number of points in each axis
       !
       IF( kiomid > 0 ) THEN
-         IF( iom_file(kiomid)%nfid > 0 ) CALL iom_get_123d( kiomid, kdom, cdvar, pvsp1d = pvar,   &
-               &                                            ktime = ktime, kstart = kstart, kcount = kcount )
+         IF( iom_file(kiomid)%nfid > 0 ) THEN
+            ALLOCATE(ztmp_pvar(size(pvar,1)))
+            CALL iom_get_123d( kiomid, kdom       , cdvar        , pv_r1d=ztmp_pvar,   &
+              &                                                     ktime=ktime, kstart=kstart, kcount=kcount )
+            pvar = ztmp_pvar
+            DEALLOCATE(ztmp_pvar)
+         END IF
       ENDIF
    END SUBROUTINE iom_g1d_sp
 
@@ -1073,8 +1072,8 @@ CONTAINS
       INTEGER         , INTENT(in   ), DIMENSION(1), OPTIONAL ::   kcount    ! number of points in each axis
       !
       IF( kiomid > 0 ) THEN
-         IF( iom_file(kiomid)%nfid > 0 ) CALL iom_get_123d( kiomid, kdom, cdvar, pvdp1d = pvar,   &
-            &                                               ktime = ktime, kstart = kstart, kcount = kcount)
+         IF( iom_file(kiomid)%nfid > 0 ) CALL iom_get_123d( kiomid, kdom       , cdvar        , pv_r1d=pvar,   &
+              &                                                     ktime=ktime, kstart=kstart, kcount=kcount)
       ENDIF
    END SUBROUTINE iom_g1d_dp
 
@@ -1083,17 +1082,23 @@ CONTAINS
       INTEGER         , INTENT(in   )                         ::   kdom      ! Type of domain to be read
       CHARACTER(len=*), INTENT(in   )                         ::   cdvar     ! Name of the variable
       REAL(sp)        , INTENT(  out), DIMENSION(:,:)         ::   pvar      ! read field
+      REAL(dp)        , ALLOCATABLE  , DIMENSION(:,:)         ::   ztmp_pvar ! tmp var to read field
       INTEGER         , INTENT(in   )              , OPTIONAL ::   ktime     ! record number
       CHARACTER(len=1), INTENT(in   )              , OPTIONAL ::   cd_type   ! nature of grid-points (T, U, V, F, W)
-      REAL(sp)        , INTENT(in   )              , OPTIONAL ::   psgn      ! -1.(1.): (not) change sign across the north fold
+      REAL(dp)        , INTENT(in   )              , OPTIONAL ::   psgn      ! -1.(1.): (not) change sign across the north fold
       INTEGER         , INTENT(in   )              , OPTIONAL ::   kfill     ! value of kfillmode in lbc_lbk
       INTEGER         , INTENT(in   ), DIMENSION(2), OPTIONAL ::   kstart    ! start axis position of the reading
       INTEGER         , INTENT(in   ), DIMENSION(2), OPTIONAL ::   kcount    ! number of points in each axis
       !
       IF( kiomid > 0 ) THEN
-         IF( iom_file(kiomid)%nfid > 0 ) CALL iom_get_123d( kiomid, kdom, cdvar, pvsp2d = pvar,                 &
-            &                                               cd_type = cd_type, psgn_sp = psgn, kfill = kfill,   &
-            &                                               ktime = ktime, kstart = kstart, kcount = kcount )
+         IF( iom_file(kiomid)%nfid > 0 ) THEN
+            ALLOCATE(ztmp_pvar(size(pvar,1), size(pvar,2)))
+            CALL iom_get_123d( kiomid, kdom, cdvar      , pv_r2d = ztmp_pvar  , ktime = ktime,   &
+             &                                                      cd_type = cd_type, psgn   = psgn  , kfill = kfill,   &
+             &                                                      kstart  = kstart , kcount = kcount  )
+            pvar = ztmp_pvar
+            DEALLOCATE(ztmp_pvar)
+         ENDIF
       ENDIF
    END SUBROUTINE iom_g2d_sp
 
@@ -1110,9 +1115,9 @@ CONTAINS
       INTEGER         , INTENT(in   ), DIMENSION(2), OPTIONAL ::   kcount    ! number of points in each axis
       !
       IF( kiomid > 0 ) THEN
-         IF( iom_file(kiomid)%nfid > 0 ) CALL iom_get_123d( kiomid, kdom, cdvar, pvdp2d = pvar,                 &
-            &                                               cd_type = cd_type, psgn_dp = psgn, kfill = kfill,   &
-            &                                               ktime = ktime, kstart = kstart, kcount = kcount )
+         IF( iom_file(kiomid)%nfid > 0 ) CALL iom_get_123d( kiomid, kdom, cdvar      , pv_r2d = pvar  , ktime = ktime,   &
+            &                                                       cd_type = cd_type, psgn   = psgn  , kfill = kfill,   &
+            &                                                       kstart  = kstart , kcount = kcount                )
       ENDIF
    END SUBROUTINE iom_g2d_dp
 
@@ -1121,17 +1126,23 @@ CONTAINS
       INTEGER         , INTENT(in   )                         ::   kdom      ! Type of domain to be read
       CHARACTER(len=*), INTENT(in   )                         ::   cdvar     ! Name of the variable
       REAL(sp)        , INTENT(  out), DIMENSION(:,:,:)       ::   pvar      ! read field
+      REAL(dp)        , ALLOCATABLE  , DIMENSION(:,:,:)       ::   ztmp_pvar ! tmp var to read field
       INTEGER         , INTENT(in   )              , OPTIONAL ::   ktime     ! record number
       CHARACTER(len=1), INTENT(in   )              , OPTIONAL ::   cd_type   ! nature of grid-points (T, U, V, F, W)
-      REAL(sp)        , INTENT(in   )              , OPTIONAL ::   psgn      ! -1.(1.) : (not) change sign across the north fold
+      REAL(dp)        , INTENT(in   )              , OPTIONAL ::   psgn      ! -1.(1.) : (not) change sign across the north fold
       INTEGER         , INTENT(in   )              , OPTIONAL ::   kfill     ! value of kfillmode in lbc_lbk
       INTEGER         , INTENT(in   ), DIMENSION(3), OPTIONAL ::   kstart    ! start axis position of the reading
       INTEGER         , INTENT(in   ), DIMENSION(3), OPTIONAL ::   kcount    ! number of points in each axis
       !
       IF( kiomid > 0 ) THEN
-         IF( iom_file(kiomid)%nfid > 0 ) CALL iom_get_123d( kiomid, kdom, cdvar, pvsp3d = pvar,                 &
-            &                                               cd_type = cd_type, psgn_sp = psgn, kfill = kfill,   &
-            &                                               ktime = ktime, kstart = kstart, kcount = kcount )
+         IF( iom_file(kiomid)%nfid > 0 ) THEN
+            ALLOCATE(ztmp_pvar(size(pvar,1), size(pvar,2), size(pvar,3)))
+            CALL iom_get_123d( kiomid, kdom, cdvar      , pv_r3d = ztmp_pvar  , ktime = ktime,   &
+            &                                                       cd_type = cd_type, psgn   = psgn  , kfill = kfill,   &
+            &                                                       kstart  = kstart , kcount = kcount                )
+            pvar = ztmp_pvar
+            DEALLOCATE(ztmp_pvar)
+         END IF
       ENDIF
    END SUBROUTINE iom_g3d_sp
 
@@ -1148,16 +1159,18 @@ CONTAINS
       INTEGER         , INTENT(in   ), DIMENSION(3), OPTIONAL ::   kcount    ! number of points in each axis
       !
       IF( kiomid > 0 ) THEN
-         IF( iom_file(kiomid)%nfid > 0 ) CALL iom_get_123d( kiomid, kdom, cdvar, pvdp3d = pvar,                 &
-            &                                               cd_type = cd_type, psgn_dp = psgn, kfill = kfill,   &
-            &                                               ktime = ktime, kstart = kstart, kcount = kcount )
+         IF( iom_file(kiomid)%nfid > 0 ) THEN
+            CALL iom_get_123d( kiomid, kdom, cdvar      , pv_r3d = pvar  , ktime = ktime,   &
+            &                                                       cd_type = cd_type, psgn   = psgn  , kfill = kfill,   &
+            &                                                       kstart  = kstart , kcount = kcount                )
+         END IF
       ENDIF
    END SUBROUTINE iom_g3d_dp
 
    !!----------------------------------------------------------------------
 
-   SUBROUTINE iom_get_123d( kiomid , kdom, cdvar, pvsp1d, pvsp2d, pvsp3d, pvdp1d, pvdp2d, pvdp3d,   &
-         &                  ktime , cd_type, psgn_sp, psgn_dp, kfill, kstart, kcount )
+   SUBROUTINE iom_get_123d( kiomid , kdom, cdvar, pv_r1d, pv_r2d, pv_r3d, ktime ,   &
+         &                  cd_type, psgn, kfill, kstart, kcount )
       !!-----------------------------------------------------------------------
       !!                  ***  ROUTINE  iom_get_123d  ***
       !!
@@ -1168,16 +1181,12 @@ CONTAINS
       INTEGER                    , INTENT(in   )           ::   kiomid    ! Identifier of the file
       INTEGER                    , INTENT(in   )           ::   kdom      ! Type of domain to be read
       CHARACTER(len=*)           , INTENT(in   )           ::   cdvar     ! Name of the variable
-      REAL(sp), DIMENSION(:)     , INTENT(  out), OPTIONAL ::   pvsp1d    ! read field (1D case), single precision
-      REAL(sp), DIMENSION(:,:)   , INTENT(  out), OPTIONAL ::   pvsp2d    ! read field (2D case), single precision
-      REAL(sp), DIMENSION(:,:,:) , INTENT(  out), OPTIONAL ::   pvsp3d    ! read field (3D case), single precision
-      REAL(dp), DIMENSION(:)     , INTENT(  out), OPTIONAL ::   pvdp1d    ! read field (1D case), double precision
-      REAL(dp), DIMENSION(:,:)   , INTENT(  out), OPTIONAL ::   pvdp2d    ! read field (2D case), double precision
-      REAL(dp), DIMENSION(:,:,:) , INTENT(  out), OPTIONAL ::   pvdp3d    ! read field (3D case), double precision
+      REAL(dp), DIMENSION(:)     , INTENT(  out), OPTIONAL ::   pv_r1d    ! read field (1D case)
+      REAL(dp), DIMENSION(:,:)   , INTENT(  out), OPTIONAL ::   pv_r2d    ! read field (2D case)
+      REAL(dp), DIMENSION(:,:,:) , INTENT(  out), OPTIONAL ::   pv_r3d    ! read field (3D case)
       INTEGER                    , INTENT(in   ), OPTIONAL ::   ktime     ! record number
       CHARACTER(len=1)           , INTENT(in   ), OPTIONAL ::   cd_type   ! nature of grid-points (T, U, V, F, W)
-      REAL(sp)                   , INTENT(in   ), OPTIONAL ::   psgn_sp   ! -1.(1.) : (not) change sign across the north fold
-      REAL(dp)                   , INTENT(in   ), OPTIONAL ::   psgn_dp   ! -1.(1.) : (not) change sign across the north fold
+      REAL(dp)                   , INTENT(in   ), OPTIONAL ::   psgn      ! -1.(1.) : (not) change sign across the north fold
       INTEGER                    , INTENT(in   ), OPTIONAL ::   kfill     ! value of kfillmode in lbc_lbk
       INTEGER , DIMENSION(:)     , INTENT(in   ), OPTIONAL ::   kstart    ! start position of the reading in each axis
       INTEGER , DIMENSION(:)     , INTENT(in   ), OPTIONAL ::   kcount    ! number of points to be read in each axis
@@ -1198,36 +1207,22 @@ CONTAINS
       INTEGER, DIMENSION(jpmax_dims) ::   icnt        ! number of value to read along each axis
       INTEGER, DIMENSION(jpmax_dims) ::   idimsz      ! size of the dimensions of the variable
       INTEGER, DIMENSION(jpmax_dims) ::   ishape      ! size of the dimensions of the variable
-      REAL(sp)                       ::   zscf_sp, zofs_sp  ! sacle_factor and add_offset, single precision
-      REAL(dp)                       ::   zscf_dp, zofs_dp  ! sacle_factor and add_offset, double precision
-      REAL(sp)                       ::   zsgn_sp     ! local value of psgn, single precision
-      REAL(dp)                       ::   zsgn_dp     ! local value of psgn, double precision
+      REAL(dp)                       ::   zscf, zofs  ! sacle_factor and add_offset
+      REAL(wp)                       ::   zsgn        ! local value of psgn
       INTEGER                        ::   itmp        ! temporary integer
       CHARACTER(LEN=256)             ::   clinfo      ! info character
       CHARACTER(LEN=256)             ::   clname      ! file name
       CHARACTER(LEN=1)               ::   clrankpv, cldmspc      !
       CHARACTER(LEN=1)               ::   cl_type     ! local value of cd_type
       LOGICAL                        ::   ll_only3rd  ! T => if kstart, kcount present then *only* use values for 3rd spatial dimension.
-      LOGICAL                        ::   llis1d, llis2d, llis3d
-      LOGICAL                        ::   llsp        ! use single precision
       INTEGER                        ::   inlev       ! number of levels for 3D data
+      REAL(dp)                       ::   gma, gmi
       !---------------------------------------------------------------------
       CHARACTER(LEN=lc)                               ::   context
       !
       CALL set_xios_context(kiomid, context)
-      !
-      llsp = PRESENT(pvsp1d) .OR. PRESENT(pvsp2d) .OR. PRESENT(pvsp3d)
-      IF( llsp ) THEN 
-         llis1d = PRESENT(pvsp1d)   ;   IF( llis1d )   ishape(1:1) = SHAPE(pvsp1d)
-         llis2d = PRESENT(pvsp2d)   ;   IF( llis2d )   ishape(1:2) = SHAPE(pvsp2d)
-         llis3d = PRESENT(pvsp3d)   ;   IF( llis3d )   ishape(1:3) = SHAPE(pvsp3d)
-      ELSE
-         llis1d = PRESENT(pvdp1d)   ;   IF( llis1d )   ishape(1:1) = SHAPE(pvdp1d)
-         llis2d = PRESENT(pvdp2d)   ;   IF( llis2d )   ishape(1:2) = SHAPE(pvdp2d)
-         llis3d = PRESENT(pvdp3d)   ;   IF( llis3d )   ishape(1:3) = SHAPE(pvdp3d)
-      ENDIF
       inlev = -1
-      IF( llis3d )   inlev = ishape(3)
+      IF( PRESENT(pv_r3d) )   inlev = SIZE(pv_r3d, 3)
       !
       idom = kdom
       istop = nstop
@@ -1269,27 +1264,27 @@ CONTAINS
             itime = 1
             IF( PRESENT(ktime) ) itime = ktime
             !
-            irankpv = 1 * COUNT( (/ llis1d /) ) + 2 * COUNT( (/ llis2d /) ) + 3 * COUNT( (/ llis3d /) )
+            irankpv = 1 * COUNT( (/PRESENT(pv_r1d)/) ) + 2 * COUNT( (/PRESENT(pv_r2d)/) ) + 3 * COUNT( (/PRESENT(pv_r3d)/) )
             WRITE(clrankpv, fmt='(i1)') irankpv
             WRITE(cldmspc , fmt='(i1)') idmspc
             !
             IF(     idmspc <  irankpv ) THEN                     ! it seems we want to read more than we can...
-               IF(     llis3d .AND. idmspc == 2 ) THEN           !   3D input array from 2D spatial data in the file:
+               IF(     irankpv == 3 .AND. idmspc == 2 ) THEN     !   3D input array from 2D spatial data in the file:
                   llok = inlev == 1                              !     -> 3rd dimension must be equal to 1
-               ELSEIF( llis3d .AND. idmspc == 1 ) THEN           !   3D input array from 1D spatial data in the file:
-                  llok = inlev == 1 .AND. ishape(2) == 1         !     -> 2nd and 3rd dimensions must be equal to 1
-               ELSEIF( llis3d .AND. idmspc == 2 ) THEN           !   2D input array from 1D spatial data in the file:
-                  llok = ishape(2) == 1                          !     -> 2nd dimension must be equal to 1
+               ELSEIF( irankpv == 3 .AND. idmspc == 1 ) THEN     !   3D input array from 1D spatial data in the file:
+                  llok = inlev == 1 .AND. SIZE(pv_r3d, 2) == 1   !     -> 2nd and 3rd dimensions must be equal to 1
+               ELSEIF( irankpv == 2 .AND. idmspc == 2 ) THEN     !   2D input array from 1D spatial data in the file:
+                  llok = SIZE(pv_r2d, 2) == 1                    !     -> 2nd dimension must be equal to 1
                ELSE
                   llok = .FALSE.
                ENDIF
                IF( .NOT. llok )   CALL ctl_stop( TRIM(clinfo), 'The file has only '//cldmspc//' spatial dimension',   &
                   &                                            '=> cannot read a true '//clrankpv//'D array from this file...' )
             ELSEIF( idmspc == irankpv ) THEN
-               IF( llis1d .AND. idom /= jpdom_unknown )   &
+               IF( PRESENT(pv_r1d) .AND. idom /= jpdom_unknown )   &
                   &   CALL ctl_stop( TRIM(clinfo), 'case not coded...You must use jpdom_unknown' )
             ELSEIF( idmspc >  irankpv ) THEN                     ! it seems we want to read less than we should...
-                  IF( llis2d .AND. itime == 1 .AND. idimsz(3) == 1 .AND. idmspc == 3 ) THEN
+                  IF( PRESENT(pv_r2d) .AND. itime == 1 .AND. idimsz(3) == 1 .AND. idmspc == 3 ) THEN
                      CALL ctl_warn( TRIM(clinfo), '2D array input but 3 spatial dimensions in the file...'              ,   &
                            &         'As the size of the z dimension is 1 and as we try to read the first record, ',   &
                            &         'we accept this case, even if there is a possible mix-up between z and time dimension' )
@@ -1315,11 +1310,11 @@ CONTAINS
                ELSE
                   icnt  (1:idmspc) = idimsz(1:idmspc)
                ENDIF
-            ELSE   !   not a 1D array as pv(sd)p1d requires jpdom_unknown
+            ELSE   !   not a 1D array as pv_r1d requires jpdom_unknown
                ! we do not read the overlap and the extra-halos -> from Nis0 to Nie0 and from Njs0 to Nje0
                IF( idom == jpdom_global )   istart(1:2) = (/ mig0(Nis0), mjg0(Njs0) /)
                icnt(1:2) = (/ Ni_0, Nj_0 /)
-               IF( llis3d ) THEN
+               IF( PRESENT(pv_r3d) ) THEN
                   IF( idom == jpdom_auto_xy ) THEN
                      istart(3) = kstart(3)
                      icnt  (3) = kcount(3)
@@ -1343,28 +1338,21 @@ CONTAINS
             ! check that icnt matches the input array
             !-
             IF( idom == jpdom_unknown ) THEN
+               IF( irankpv == 1 )        ishape(1:1) = SHAPE(pv_r1d)
+               IF( irankpv == 2 )        ishape(1:2) = SHAPE(pv_r2d)
+               IF( irankpv == 3 )        ishape(1:3) = SHAPE(pv_r3d)
                ctmp1 = 'd'
-            ELSE                    ! we must redefine ishape as we don't read the full array
-               IF( llis2d ) THEN
-                  IF( llsp ) THEN   ;   ishape(1:2) = SHAPE(pvsp2d(Nis0:Nie0,Njs0:Nje0  ))
-                  ELSE              ;   ishape(1:2) = SHAPE(pvdp2d(Nis0:Nie0,Njs0:Nje0  ))
-                  ENDIF
-                  ctmp1 = 'd(Nis0:Nie0,Njs0:Nje0)'
+            ELSE
+               IF( irankpv == 2 ) THEN
+                  ishape(1:2) = SHAPE(pv_r2d(Nis0:Nie0,Njs0:Nje0  ))   ;   ctmp1 = 'd(Nis0:Nie0,Njs0:Nje0)'
                ENDIF
-               IF( llis3d ) THEN
-                  IF( llsp ) THEN   ;   ishape(1:3) = SHAPE(pvsp3d(Nis0:Nie0,Njs0:Nje0,:))
-                  ELSE              ;   ishape(1:3) = SHAPE(pvdp3d(Nis0:Nie0,Njs0:Nje0,:))
-                  ENDIF
-                  ctmp1 = 'd(Nis0:Nie0,Njs0:Nje0,:)'
+               IF( irankpv == 3 ) THEN
+                  ishape(1:3) = SHAPE(pv_r3d(Nis0:Nie0,Njs0:Nje0,:))   ;   ctmp1 = 'd(Nis0:Nie0,Njs0:Nje0,:)'
                ENDIF
             ENDIF
             DO jl = 1, irankpv
                WRITE( ctmp2, FMT="(', ', i1,'): ', i5,' /= icnt(', i1,'):', i5)" ) jl, ishape(jl), jl, icnt(jl)
-               IF( llsp ) THEN
-                  IF( ishape(jl) /= icnt(jl) )   CALL ctl_stop( TRIM(clinfo), 'size(pvsp'//clrankpv//TRIM(ctmp1)//TRIM(ctmp2) )
-               ELSE
-                  IF( ishape(jl) /= icnt(jl) )   CALL ctl_stop( TRIM(clinfo), 'size(pvdp'//clrankpv//TRIM(ctmp1)//TRIM(ctmp2) )
-               ENDIF
+               IF( ishape(jl) /= icnt(jl) )   CALL ctl_stop( TRIM(clinfo), 'size(pv_r'//clrankpv//TRIM(ctmp1)//TRIM(ctmp2) )
             END DO
 
          ENDIF
@@ -1378,32 +1366,21 @@ CONTAINS
             ELSE                               ;   ix1 = 1      ;   ix2 = icnt(1)   ;   iy1 = 1      ;   iy2 = icnt(2)
             ENDIF
 
-            CALL iom_nf90_get( kiomid, idvar, inbdim, istart, icnt, ix1, ix2, iy1, iy2,   &
-               &               pvsp1d, pvsp2d, pvsp3d, pvdp1d, pvdp2d, pvdp3d )
+            CALL iom_nf90_get( kiomid, idvar, inbdim, istart, icnt, ix1, ix2, iy1, iy2, pv_r1d, pv_r2d, pv_r3d )
 
             IF( istop == nstop ) THEN   ! no additional errors until this point...
                IF(lwp) WRITE(numout,"(10x,' read ',a,' (rec: ',i6,') in ',a,' ok')") TRIM(cdvar), itime, TRIM(iom_file(kiomid)%name)
 
                cl_type = 'T'
                IF( PRESENT(cd_type) )   cl_type = cd_type
-               IF( llsp ) THEN
-                  zsgn_sp = 1._sp
-                  IF( PRESENT(psgn_sp) )   zsgn_sp = psgn_sp
-                  IF(     llis2d .AND. idom /= jpdom_unknown .AND. cl_type /= 'Z' ) THEN
-                     CALL lbc_lnk( 'iom', pvsp2d, cl_type, zsgn_sp, kfillmode = kfill )
-                  ELSEIF( llis3d .AND. idom /= jpdom_unknown .AND. cl_type /= 'Z' ) THEN
-                     CALL lbc_lnk( 'iom', pvsp3d, cl_type, zsgn_sp, kfillmode = kfill )
-                  ENDIF
-               ELSE
-                  zsgn_dp = 1._dp
-                  IF( PRESENT(psgn_dp) )   zsgn_dp = psgn_dp
-                  IF(     llis2d .AND. idom /= jpdom_unknown .AND. cl_type /= 'Z' ) THEN
-                     CALL lbc_lnk( 'iom', pvdp2d, cl_type, zsgn_dp, kfillmode = kfill )
-                  ELSEIF( llis3d .AND. idom /= jpdom_unknown .AND. cl_type /= 'Z' ) THEN
-                     CALL lbc_lnk( 'iom', pvdp3d, cl_type, zsgn_dp, kfillmode = kfill )
-                  ENDIF
-               ENDIF
+               zsgn = 1._wp
+               IF( PRESENT(psgn   ) )   zsgn    = psgn
                !--- overlap areas and extra hallows (mpp)
+               IF(     PRESENT(pv_r2d) .AND. idom /= jpdom_unknown .AND. cl_type /= 'Z' ) THEN
+                  CALL lbc_lnk( 'iom', pv_r2d, cl_type, zsgn, kfillmode = kfill )
+               ELSEIF( PRESENT(pv_r3d) .AND. idom /= jpdom_unknown .AND. cl_type /= 'Z' ) THEN
+                  CALL lbc_lnk( 'iom', pv_r3d, cl_type, zsgn, kfillmode = kfill )
+               ENDIF
                !
             ELSE
                ! return if istop == nstop is false
@@ -1419,39 +1396,26 @@ CONTAINS
 !would be good to be able to check which context is active and swap only if current is not restart
          idvar = iom_varid( kiomid, cdvar )
          CALL iom_swap(context)
-         IF( llsp ) THEN
-            zsgn_sp = 1._sp   ;   IF( PRESENT(psgn_sp) )   zsgn_sp = psgn_sp
-         ELSE
-            zsgn_dp = 1._dp   ;   IF( PRESENT(psgn_dp) )   zsgn_dp = psgn_dp
-         ENDIF
+         zsgn = 1._wp
+         IF( PRESENT(psgn   ) )   zsgn    = psgn
          cl_type = 'T'
          IF( PRESENT(cd_type) )   cl_type = cd_type
 
-         IF(     llis3d ) THEN
+         IF( PRESENT(pv_r3d) ) THEN
             IF(lwp) WRITE(numout,*) 'XIOS RST READ (3D): ',TRIM(cdvar)
-            IF( llsp ) THEN   ;   CALL xios_recv_field( TRIM(cdvar), pvsp3d )
-            ELSE              ;   CALL xios_recv_field( TRIM(cdvar), pvdp3d )
-            ENDIF
+            CALL xios_recv_field( TRIM(cdvar), pv_r3d(:, :, :))
             IF(idom /= jpdom_unknown .AND. cl_type /= 'Z' ) THEN
-               IF( llsp ) THEN   ;   CALL lbc_lnk( 'iom', pvsp3d, cl_type, zsgn_sp, kfillmode = kfill)
-               ELSE              ;   CALL lbc_lnk( 'iom', pvdp3d, cl_type, zsgn_dp, kfillmode = kfill)
-               ENDIF
+               CALL lbc_lnk( 'iom', pv_r3d, cl_type, zsgn, kfillmode = kfill)
             ENDIF
-         ELSEIF( llis2d ) THEN
+         ELSEIF( PRESENT(pv_r2d) ) THEN
             IF(lwp) WRITE(numout,*) 'XIOS RST READ (2D): ', TRIM(cdvar)
-            IF( llsp ) THEN   ;   CALL xios_recv_field( TRIM(cdvar), pvsp2d )
-            ELSE              ;   CALL xios_recv_field( TRIM(cdvar), pvdp2d )
-            ENDIF
+            CALL xios_recv_field( TRIM(cdvar), pv_r2d(:, :))
             IF(idom /= jpdom_unknown .AND. cl_type /= 'Z' ) THEN
-               IF( llsp ) THEN   ;   CALL lbc_lnk('iom', pvsp2d, cl_type, zsgn_sp, kfillmode = kfill)
-               ELSE              ;   CALL lbc_lnk('iom', pvdp2d, cl_type, zsgn_dp, kfillmode = kfill)
-               ENDIF
+               CALL lbc_lnk('iom', pv_r2d, cl_type, zsgn, kfillmode = kfill)
             ENDIF
-         ELSEIF( llis1d ) THEN
+         ELSEIF( PRESENT(pv_r1d) ) THEN
             IF(lwp) WRITE(numout,*) 'XIOS RST READ (1D): ', TRIM(cdvar)
-            IF( llsp ) THEN   ;   CALL xios_recv_field( TRIM(cdvar), pvsp1d )
-            ELSE              ;   CALL xios_recv_field( TRIM(cdvar), pvdp1d )
-            ENDIF
+            CALL xios_recv_field( TRIM(cdvar), pv_r1d)
          ENDIF
          CALL iom_swap(cxios_context)
 #else
@@ -1461,32 +1425,17 @@ CONTAINS
       ENDIF
 
       !--- Apply scale_factor and offset
-      IF( llsp ) THEN
-         zscf_sp = iom_file(kiomid)%scf(idvar)      ! scale factor
-         zofs_sp = iom_file(kiomid)%ofs(idvar)      ! offset
-         IF(     llis1d ) THEN
-            IF( zscf_sp /= 1._sp )   pvsp1d(:    ) = pvsp1d(:    ) * zscf_sp
-            IF( zofs_sp /= 0._sp )   pvsp1d(:    ) = pvsp1d(:    ) + zofs_sp
-         ELSEIF( llis2d ) THEN
-            IF( zscf_sp /= 1._sp )   pvsp2d(:,:  ) = pvsp2d(:,:  ) * zscf_sp
-            IF( zofs_sp /= 0._sp )   pvsp2d(:,:  ) = pvsp2d(:,:  ) + zofs_sp
-         ELSEIF( llis3d ) THEN
-            IF( zscf_sp /= 1._sp )   pvsp3d(:,:,:) = pvsp3d(:,:,:) * zscf_sp
-            IF( zofs_sp /= 0._sp )   pvsp3d(:,:,:) = pvsp3d(:,:,:) + zofs_sp
-         ENDIF
-      ELSE
-         zscf_dp = iom_file(kiomid)%scf(idvar)      ! scale factor
-         zofs_dp = iom_file(kiomid)%ofs(idvar)      ! offset
-         IF(     llis1d ) THEN
-            IF( zscf_dp /= 1._dp )   pvdp1d(:    ) = pvdp1d(:    ) * zscf_dp
-            IF( zofs_dp /= 0._dp )   pvdp1d(:    ) = pvdp1d(:    ) + zofs_dp
-         ELSEIF( llis2d ) THEN
-            IF( zscf_dp /= 1._dp )   pvdp2d(:,:  ) = pvdp2d(:,:  ) * zscf_dp
-            IF( zofs_dp /= 0._dp )   pvdp2d(:,:  ) = pvdp2d(:,:  ) + zofs_dp
-         ELSEIF( llis3d ) THEN
-            IF( zscf_dp /= 1._dp )   pvdp3d(:,:,:) = pvdp3d(:,:,:) * zscf_dp
-            IF( zofs_dp /= 0._dp )   pvdp3d(:,:,:) = pvdp3d(:,:,:) + zofs_dp
-         ENDIF
+      zscf = iom_file(kiomid)%scf(idvar)      ! scale factor
+      zofs = iom_file(kiomid)%ofs(idvar)      ! offset
+      IF(     PRESENT(pv_r1d) ) THEN
+         IF( zscf /= 1._wp )   pv_r1d(:) = pv_r1d(:) * zscf
+         IF( zofs /= 0._wp )   pv_r1d(:) = pv_r1d(:) + zofs
+      ELSEIF( PRESENT(pv_r2d) ) THEN
+         IF( zscf /= 1._wp)   pv_r2d(:,:) = pv_r2d(:,:) * zscf
+         IF( zofs /= 0._wp)   pv_r2d(:,:) = pv_r2d(:,:) + zofs
+      ELSEIF( PRESENT(pv_r3d) ) THEN
+         IF( zscf /= 1._wp)   pv_r3d(:,:,:) = pv_r3d(:,:,:) * zscf
+         IF( zofs /= 0._wp)   pv_r3d(:,:,:) = pv_r3d(:,:,:) + zofs
       ENDIF
       !
    END SUBROUTINE iom_get_123d
@@ -1672,8 +1621,32 @@ CONTAINS
       INTEGER           :: ivid   ! variable id
       CHARACTER(LEN=lc) :: context
       !
-      CALL iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvsp0d = pvar )
-      !
+      CALL set_xios_context(kiomid, context)
+
+      llx = .NOT. (context == "NONE")
+
+      IF( llx ) THEN
+#ifdef key_xios
+         IF( kt == kwrite ) THEN
+            IF(lwp) write(numout,*) 'RESTART: write (XIOS 0D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_put(TRIM(cdvar), pvar)
+            CALL iom_swap(cxios_context)
+         ELSE
+            IF(lwp) write(numout,*) 'RESTART: define (XIOS 0D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_set_rstw_active( TRIM(cdvar), rs0 = pvar )
+            CALL iom_swap(cxios_context)
+         ENDIF
+#endif
+      ELSE
+         IF( kiomid > 0 ) THEN
+            IF( iom_file(kiomid)%nfid > 0 ) THEN
+               ivid = iom_varid( kiomid, cdvar, ldstop = .FALSE. )
+               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pv_r0d = real(pvar, dp) )
+            ENDIF
+         ENDIF
+      ENDIF
    END SUBROUTINE iom_rp0d_sp
 
    SUBROUTINE iom_rp0d_dp( kt, kwrite, kiomid, cdvar, pvar, ktype )
@@ -1688,8 +1661,32 @@ CONTAINS
       INTEGER           :: ivid   ! variable id
       CHARACTER(LEN=lc) :: context
       !
-      CALL iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvdp0d = pvar )
-      !
+      CALL set_xios_context(kiomid, context)
+
+      llx = .NOT. (context == "NONE")
+
+      IF( llx ) THEN
+#ifdef key_xios
+         IF( kt == kwrite ) THEN
+            IF(lwp) write(numout,*) 'RESTART: write (XIOS 0D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_put(TRIM(cdvar), pvar)
+            CALL iom_swap(cxios_context)
+         ELSE
+            IF(lwp) write(numout,*) 'RESTART: define (XIOS 0D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_set_rstw_active( TRIM(cdvar), rd0 = pvar )
+            CALL iom_swap(cxios_context)
+         ENDIF
+#endif
+      ELSE
+         IF( kiomid > 0 ) THEN
+            IF( iom_file(kiomid)%nfid > 0 ) THEN
+               ivid = iom_varid( kiomid, cdvar, ldstop = .FALSE. )
+               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pv_r0d = pvar )
+            ENDIF
+         ENDIF
+      ENDIF
    END SUBROUTINE iom_rp0d_dp
 
 
@@ -1705,8 +1702,32 @@ CONTAINS
       INTEGER           :: ivid   ! variable id
       CHARACTER(LEN=lc) :: context
       !
-      CALL iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvsp1d = pvar )
-      !
+      CALL set_xios_context(kiomid, context)
+
+      llx = .NOT. (context == "NONE")
+
+      IF( llx ) THEN
+#ifdef key_xios
+         IF( kt == kwrite ) THEN
+            IF(lwp) write(numout,*) 'RESTART: write (XIOS 1D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_put(TRIM(cdvar), pvar)
+            CALL iom_swap(cxios_context)
+         ELSE
+            IF(lwp) write(numout,*) 'RESTART: define (XIOS 1D)',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_set_rstw_active( TRIM(cdvar), rs1 = pvar )
+            CALL iom_swap(cxios_context)
+         ENDIF
+#endif
+      ELSE
+         IF( kiomid > 0 ) THEN
+            IF( iom_file(kiomid)%nfid > 0 ) THEN
+               ivid = iom_varid( kiomid, cdvar, ldstop = .FALSE. )
+               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pv_r1d = real(pvar, dp) )
+            ENDIF
+         ENDIF
+      ENDIF
    END SUBROUTINE iom_rp1d_sp
 
    SUBROUTINE iom_rp1d_dp( kt, kwrite, kiomid, cdvar, pvar, ktype )
@@ -1721,11 +1742,35 @@ CONTAINS
       INTEGER           :: ivid   ! variable id
       CHARACTER(LEN=lc) :: context
       !
-      CALL iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvdp1d = pvar )
-      !
+      CALL set_xios_context(kiomid, context)
+
+      llx = .NOT. (context == "NONE")
+
+      IF( llx ) THEN
+#ifdef key_xios
+         IF( kt == kwrite ) THEN
+            IF(lwp) write(numout,*) 'RESTART: write (XIOS 1D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_put(TRIM(cdvar), pvar)
+            CALL iom_swap(cxios_context)
+         ELSE
+            IF(lwp) write(numout,*) 'RESTART: define (XIOS 1D)',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_set_rstw_active( TRIM(cdvar), rd1 = pvar )
+            CALL iom_swap(cxios_context)
+         ENDIF
+#endif
+      ELSE
+         IF( kiomid > 0 ) THEN
+            IF( iom_file(kiomid)%nfid > 0 ) THEN
+               ivid = iom_varid( kiomid, cdvar, ldstop = .FALSE. )
+               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pv_r1d = pvar )
+            ENDIF
+         ENDIF
+      ENDIF
    END SUBROUTINE iom_rp1d_dp
 
-   
+
    SUBROUTINE iom_rp2d_sp( kt, kwrite, kiomid, cdvar, pvar, ktype )
       INTEGER         , INTENT(in)                         ::   kt       ! ocean time-step
       INTEGER         , INTENT(in)                         ::   kwrite   ! writing time-step
@@ -1738,8 +1783,32 @@ CONTAINS
       INTEGER            :: ivid   ! variable id
       CHARACTER(LEN=lc)  :: context
       !
-      CALL iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvsp2d = pvar )
-      !
+      CALL set_xios_context(kiomid, context)
+
+      llx = .NOT. (context == "NONE")
+
+      IF( llx ) THEN
+#ifdef key_xios
+         IF( kt == kwrite ) THEN
+            IF(lwp) write(numout,*) 'RESTART: write (XIOS 2D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_put(TRIM(cdvar), pvar)
+            CALL iom_swap(cxios_context)
+         ELSE
+            IF(lwp) write(numout,*) 'RESTART: define (XIOS 2D)',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_set_rstw_active( TRIM(cdvar), rs2 = pvar )
+            CALL iom_swap(cxios_context)
+         ENDIF
+#endif
+      ELSE
+         IF( kiomid > 0 ) THEN
+            IF( iom_file(kiomid)%nfid > 0 ) THEN
+               ivid = iom_varid( kiomid, cdvar, ldstop = .FALSE. )
+               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pv_r2d = real(pvar, dp) )
+            ENDIF
+         ENDIF
+      ENDIF
    END SUBROUTINE iom_rp2d_sp
 
    SUBROUTINE iom_rp2d_dp( kt, kwrite, kiomid, cdvar, pvar, ktype )
@@ -1754,8 +1823,32 @@ CONTAINS
       INTEGER           :: ivid   ! variable id
       CHARACTER(LEN=lc) :: context
       !
-      CALL iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvdp2d = pvar )
-      !
+      CALL set_xios_context(kiomid, context)
+
+      llx = .NOT. (context == "NONE")
+
+      IF( llx ) THEN
+#ifdef key_xios
+         IF( kt == kwrite ) THEN
+            IF(lwp) write(numout,*) 'RESTART: write (XIOS 2D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_put(TRIM(cdvar), pvar)
+            CALL iom_swap(cxios_context)
+         ELSE
+            IF(lwp) write(numout,*) 'RESTART: define (XIOS 2D)',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_set_rstw_active( TRIM(cdvar), rd2 = pvar )
+            CALL iom_swap(cxios_context)
+         ENDIF
+#endif
+      ELSE
+         IF( kiomid > 0 ) THEN
+            IF( iom_file(kiomid)%nfid > 0 ) THEN
+               ivid = iom_varid( kiomid, cdvar, ldstop = .FALSE. )
+               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pv_r2d = pvar )
+            ENDIF
+         ENDIF
+      ENDIF
    END SUBROUTINE iom_rp2d_dp
 
 
@@ -1771,8 +1864,32 @@ CONTAINS
       INTEGER           :: ivid   ! variable id
       CHARACTER(LEN=lc) :: context
       !
-      CALL iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvsp3d = pvar )
-      !
+      CALL set_xios_context(kiomid, context)
+
+      llx = .NOT. (context == "NONE")
+
+      IF( llx ) THEN
+#ifdef key_xios
+         IF( kt == kwrite ) THEN
+            IF(lwp) write(numout,*) 'RESTART: write (XIOS 3D) ',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_put(TRIM(cdvar), pvar)
+            CALL iom_swap(cxios_context)
+         ELSE
+            IF(lwp) write(numout,*) 'RESTART: define (XIOS 3D)',TRIM(cdvar)
+            CALL iom_swap(context)
+            CALL iom_set_rstw_active( TRIM(cdvar), rs3 = pvar )
+            CALL iom_swap(cxios_context)
+         ENDIF
+#endif
+      ELSE
+         IF( kiomid > 0 ) THEN
+            IF( iom_file(kiomid)%nfid > 0 ) THEN
+               ivid = iom_varid( kiomid, cdvar, ldstop = .FALSE. )
+               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pv_r3d = real(pvar, dp) )
+            ENDIF
+         ENDIF
+      ENDIF
    END SUBROUTINE iom_rp3d_sp
 
    SUBROUTINE iom_rp3d_dp( kt, kwrite, kiomid, cdvar, pvar, ktype )
@@ -1787,29 +1904,6 @@ CONTAINS
       INTEGER           :: ivid   ! variable id
       CHARACTER(LEN=lc) :: context
       !
-      CALL iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvdp3d = pvar )
-      !
-   END SUBROUTINE iom_rp3d_dp
-
-   SUBROUTINE iom_rp0123d( kt, kwrite, kiomid, cdvar, ktype, pvsp0d, pvsp1d, pvsp2d, pvsp3d, pvdp0d, pvdp1d, pvdp2d, pvdp3d )
-      INTEGER                    , INTENT(in)           ::   kt       ! ocean time-step
-      INTEGER                    , INTENT(in)           ::   kwrite   ! writing time-step
-      INTEGER                    , INTENT(in)           ::   kiomid   ! Identifier of the file
-      CHARACTER(len=*)           , INTENT(in)           ::   cdvar    ! time axis name
-      INTEGER                    , INTENT(in), OPTIONAL ::   ktype    ! variable external type
-      REAL(sp)                   , INTENT(in), OPTIONAL ::   pvsp0d    ! read field (0D case), single precision
-      REAL(sp), DIMENSION(:)     , INTENT(in), OPTIONAL ::   pvsp1d    ! read field (1D case), single precision
-      REAL(sp), DIMENSION(:,:)   , INTENT(in), OPTIONAL ::   pvsp2d    ! read field (2D case), single precision
-      REAL(sp), DIMENSION(:,:,:) , INTENT(in), OPTIONAL ::   pvsp3d    ! read field (3D case), single precision
-      REAL(dp)                   , INTENT(in), OPTIONAL ::   pvdp0d    ! read field (0D case), double precision
-      REAL(dp), DIMENSION(:)     , INTENT(in), OPTIONAL ::   pvdp1d    ! read field (1D case), double precision
-      REAL(dp), DIMENSION(:,:)   , INTENT(in), OPTIONAL ::   pvdp2d    ! read field (2D case), double precision
-      REAL(dp), DIMENSION(:,:,:) , INTENT(in), OPTIONAL ::   pvdp3d    ! read field (3D case), double precision
-      !
-      LOGICAL           :: llx                 ! local xios write flag
-      INTEGER           :: ivid   ! variable id
-      CHARACTER(LEN=lc) :: context
-      !
       CALL set_xios_context(kiomid, context)
 
       llx = .NOT. (context == "NONE")
@@ -1817,22 +1911,14 @@ CONTAINS
       IF( llx ) THEN
 #ifdef key_xios
          IF( kt == kwrite ) THEN
-            IF(lwp) write(numout,*) 'RESTART: write (XIOS) ',TRIM(cdvar)
+            IF(lwp) write(numout,*) 'RESTART: write (XIOS 3D) ',TRIM(cdvar)
             CALL iom_swap(context)
-            IF( PRESENT(pvsp0d) )   CALL iom_put(TRIM(cdvar), pvsp0d)
-            IF( PRESENT(pvsp1d) )   CALL iom_put(TRIM(cdvar), pvsp1d)
-            IF( PRESENT(pvsp2d) )   CALL iom_put(TRIM(cdvar), pvsp2d)
-            IF( PRESENT(pvsp3d) )   CALL iom_put(TRIM(cdvar), pvsp3d)
-            IF( PRESENT(pvdp0d) )   CALL iom_put(TRIM(cdvar), pvdp0d)
-            IF( PRESENT(pvdp1d) )   CALL iom_put(TRIM(cdvar), pvdp1d)
-            IF( PRESENT(pvdp2d) )   CALL iom_put(TRIM(cdvar), pvdp2d)
-            IF( PRESENT(pvdp3d) )   CALL iom_put(TRIM(cdvar), pvdp3d)
+            CALL iom_put(TRIM(cdvar), pvar)
             CALL iom_swap(cxios_context)
          ELSE
-            IF(lwp) write(numout,*) 'RESTART: define (XIOS)',TRIM(cdvar)
+            IF(lwp) write(numout,*) 'RESTART: define (XIOS 3D)',TRIM(cdvar)
             CALL iom_swap(context)
-            CALL iom_set_rstw_active( TRIM(cdvar), rs0 = pvsp0d, rs1 = pvsp1d, rs2 = pvsp2d, rs3 = pvsp3d   &
-               &                                 , rd0 = pvdp0d, rd1 = pvdp1d, rd2 = pvdp2d, rd3 = pvdp3d )
+            CALL iom_set_rstw_active( TRIM(cdvar), rd3 = pvar )
             CALL iom_swap(cxios_context)
          ENDIF
 #endif
@@ -1840,12 +1926,12 @@ CONTAINS
          IF( kiomid > 0 ) THEN
             IF( iom_file(kiomid)%nfid > 0 ) THEN
                ivid = iom_varid( kiomid, cdvar, ldstop = .FALSE. )
-               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pvsp0d, pvsp1d, pvsp2d, pvsp3d,   &
-                  &                                                          pvdp0d, pvdp1d, pvdp2d, pvdp3d )
+               CALL iom_nf90_rstput( kt, kwrite, kiomid, cdvar, ivid, ktype, pv_r3d = pvar )
             ENDIF
          ENDIF
       ENDIF
-   END SUBROUTINE iom_rp0123d
+   END SUBROUTINE iom_rp3d_dp
+
 
 
   SUBROUTINE iom_delay_rst( cdaction, cdcpnt, kncid )
@@ -1950,9 +2036,7 @@ CONTAINS
       IF( iom_use(cdname) ) THEN
 #if defined key_xios
          IF( is_tile(pfield2d) == 1 ) THEN
-#if ! defined key_xios3
             CALL xios_send_field( cdname, pfield2d, ntile - 1 )
-#endif
          ELSE IF( .NOT. l_istiled .OR. ntile == nijtile ) THEN
             CALL xios_send_field( cdname, pfield2d )
          ENDIF
@@ -1968,9 +2052,7 @@ CONTAINS
       IF( iom_use(cdname) ) THEN
 #if defined key_xios
          IF( is_tile(pfield2d) == 1 ) THEN
-#if ! defined key_xios3
             CALL xios_send_field( cdname, pfield2d, ntile - 1 )
-#endif
          ELSE IF( .NOT. l_istiled .OR. ntile == nijtile ) THEN
             CALL xios_send_field( cdname, pfield2d )
          ENDIF
@@ -1986,9 +2068,7 @@ CONTAINS
       IF( iom_use(cdname) ) THEN
 #if defined key_xios
          IF( is_tile(pfield3d) == 1 ) THEN
-#if ! defined key_xios3
             CALL xios_send_field( cdname, pfield3d, ntile - 1 )
-#endif
          ELSE IF( .NOT. l_istiled .OR. ntile == nijtile ) THEN
             CALL xios_send_field( cdname, pfield3d )
          ENDIF
@@ -2004,9 +2084,7 @@ CONTAINS
       IF( iom_use(cdname) ) THEN
 #if defined key_xios
          IF( is_tile(pfield3d) == 1 ) THEN
-#if ! defined key_xios3
             CALL xios_send_field( cdname, pfield3d, ntile - 1 )
-#endif
          ELSE IF( .NOT. l_istiled .OR. ntile == nijtile ) THEN
             CALL xios_send_field( cdname, pfield3d )
          ENDIF
@@ -2022,9 +2100,7 @@ CONTAINS
       IF( iom_use(cdname) ) THEN
 #if defined key_xios
          IF( is_tile(pfield4d) == 1 ) THEN
-#if ! defined key_xios3
             CALL xios_send_field( cdname, pfield4d, ntile - 1 )
-#endif
          ELSE IF( .NOT. l_istiled .OR. ntile == nijtile ) THEN
             CALL xios_send_field( cdname, pfield4d )
          ENDIF
@@ -2040,9 +2116,7 @@ CONTAINS
       IF( iom_use(cdname) ) THEN
 #if defined key_xios
          IF( is_tile(pfield4d) == 1 ) THEN
-#if ! defined key_xios3
             CALL xios_send_field( cdname, pfield4d, ntile - 1 )
-#endif
          ELSE IF( .NOT. l_istiled .OR. ntile == nijtile ) THEN
             CALL xios_send_field( cdname, pfield4d )
          ENDIF
@@ -2078,22 +2152,18 @@ CONTAINS
       IF( xios_is_valid_domain     (cdid) ) THEN
          CALL xios_set_domain_attr     ( cdid, ni_glo=ni_glo, nj_glo=nj_glo, ibegin=ibegin, jbegin=jbegin, ni=ni, nj=nj,   &
             &    data_dim=data_dim, data_ibegin=data_ibegin, data_ni=data_ni, data_jbegin=data_jbegin, data_nj=data_nj ,   &
-#if ! defined key_xios3
             &    ntiles=ntiles, tile_ibegin=tile_ibegin, tile_jbegin=tile_jbegin, tile_ni=tile_ni, tile_nj=tile_nj,        &
             &    tile_data_ibegin=tile_data_ibegin, tile_data_jbegin=tile_data_jbegin,                                     &
             &    tile_data_ni=tile_data_ni, tile_data_nj=tile_data_nj,                                                     &
-#endif
             &    lonvalue_1D=lonvalue, latvalue_1D=latvalue, mask_1D=mask, nvertex=nvertex, bounds_lon_1D=bounds_lon,      &
             &    bounds_lat_1D=bounds_lat, area=area, type='curvilinear')
       ENDIF
       IF( xios_is_valid_domaingroup(cdid) ) THEN
          CALL xios_set_domaingroup_attr( cdid, ni_glo=ni_glo, nj_glo=nj_glo, ibegin=ibegin, jbegin=jbegin, ni=ni, nj=nj,   &
             &    data_dim=data_dim, data_ibegin=data_ibegin, data_ni=data_ni, data_jbegin=data_jbegin, data_nj=data_nj ,   &
-#if ! defined key_xios3
             &    ntiles=ntiles, tile_ibegin=tile_ibegin, tile_jbegin=tile_jbegin, tile_ni=tile_ni, tile_nj=tile_nj,        &
             &    tile_data_ibegin=tile_data_ibegin, tile_data_jbegin=tile_data_jbegin,                                     &
             &    tile_data_ni=tile_data_ni, tile_data_nj=tile_data_nj,                                                     &
-#endif
             &    lonvalue_1D=lonvalue, latvalue_1D=latvalue, mask_1D=mask, nvertex=nvertex, bounds_lon_1D=bounds_lon,      &
             &    bounds_lat_1D=bounds_lat, area=area, type='curvilinear' )
       ENDIF
@@ -2274,11 +2344,9 @@ CONTAINS
       LOGICAL, INTENT(IN) :: ldxios, ldrxios
       !!----------------------------------------------------------------------
       !
-      ! nn_hls halo points
       CALL iom_set_domain_attr("grid_"//cdgrd, ni_glo=Ni0glo,nj_glo=Nj0glo,ibegin=mig0(Nis0)-1,jbegin=mjg0(Njs0)-1,ni=Ni_0,nj=Nj_0)
       CALL iom_set_domain_attr("grid_"//cdgrd, data_dim=2, data_ibegin = -nn_hls, data_ni=jpi, data_jbegin = -nn_hls, data_nj=jpj)
 
-      ! Inner domain only
       CALL iom_set_domain_attr("grid_"//cdgrd//"_inner", ni_glo = Ni0glo, nj_glo = Nj0glo,   &
          &                     ibegin = mig0(Nis0) - 1, jbegin = mjg0(Njs0) - 1, ni = Ni_0, nj = Nj_0)
       CALL iom_set_domain_attr("grid_"//cdgrd//"_inner", data_dim=2, data_ibegin = 0, data_ni=Ni_0, data_jbegin = 0, data_nj=Nj_0)
@@ -2290,16 +2358,14 @@ CONTAINS
             idb(jn) = -nn_hls                         ! Tile data offset (halo size)
          END DO
 
-         ! Data includes all halo points
+         ! Tile_[ij]begin are defined with respect to the processor data domain, so data_[ij]begin is added
          CALL iom_set_domain_attr("grid_"//cdgrd, ntiles=nijtile,                                     &
-            & tile_ibegin=ntsi_a(1:nijtile) - nn_hls - 1, tile_jbegin=ntsj_a(1:nijtile) - nn_hls - 1, &
+            & tile_ibegin=ntsi_a(1:nijtile) + idb(:) - 1, tile_jbegin=ntsj_a(1:nijtile) + idb(:) - 1, &
             & tile_ni=ini(:), tile_nj=inj(:),                                                         &
             & tile_data_ibegin=idb(:), tile_data_jbegin=idb(:),                                       &
             & tile_data_ni=ini(:) - 2 * idb(:), tile_data_nj=inj(:) - 2 * idb(:))
-         ! Data contains no halo points
-         idb(:) = 0
          CALL iom_set_domain_attr("grid_"//cdgrd//"_inner", ntiles=nijtile,                           &
-            & tile_ibegin=ntsi_a(1:nijtile) - nn_hls - 1, tile_jbegin=ntsj_a(1:nijtile) - nn_hls - 1, &
+            & tile_ibegin=ntsi_a(1:nijtile) + idb(:) - 1, tile_jbegin=ntsj_a(1:nijtile) + idb(:) - 1, &
             & tile_ni=ini(:), tile_nj=inj(:),                                                         &
             & tile_data_ibegin=idb(:), tile_data_jbegin=idb(:),                                       &
             & tile_data_ni=ini(:) - 2 * idb(:), tile_data_nj=inj(:) - 2 * idb(:))
@@ -2468,9 +2534,6 @@ CONTAINS
       f_op%timestep = nn_fsbc  ;  f_of%timestep =  0  ; CALL iom_set_field_attr('SBC'             , freq_op=f_op, freq_offset=f_of)
       f_op%timestep = nn_fsbc  ;  f_of%timestep =  0  ; CALL iom_set_field_attr('SBC_scalar'      , freq_op=f_op, freq_offset=f_of)
       f_op%timestep = nn_fsbc  ;  f_of%timestep =  0  ; CALL iom_set_field_attr('ABL'             , freq_op=f_op, freq_offset=f_of)
-      IF( ln_diadct  ) THEN
-        f_op%timestep = nn_dctwri ;  f_of%timestep =  0  ; CALL iom_set_field_attr('DCT'          , freq_op=f_op, freq_offset=f_of)
-      ENDIF
 
       ! output file names (attribut: name)
       DO ji = 1, 9
@@ -2599,7 +2662,7 @@ CONTAINS
       INTEGER            ::   jn, iln
       INTEGER            ::   itrlen
       INTEGER            ::   iyear, imonth, iday, isec
-      REAL(dp)           ::   zsec
+      REAL(wp)           ::   zsec
       LOGICAL            ::   llexist
       TYPE(xios_duration)   ::   output_freq
       !!----------------------------------------------------------------------
@@ -2699,14 +2762,14 @@ CONTAINS
       !!
       !! ** Purpose :   send back the date corresponding to the given julian day
       !!----------------------------------------------------------------------
-      REAL(dp), INTENT(in   )           ::   pjday    ! julian day
+      REAL(wp), INTENT(in   )           ::   pjday    ! julian day
       LOGICAL , INTENT(in   ), OPTIONAL ::   ld24     ! true to force 24:00 instead of 00:00
       LOGICAL , INTENT(in   ), OPTIONAL ::   ldfull   ! true to get the compleate date: yyyymmdd_hh:mm:ss
       !
       CHARACTER(LEN=20) ::   iom_sdate
       CHARACTER(LEN=50) ::   clfmt                         !  format used to write the date
       INTEGER           ::   iyear, imonth, iday, ihour, iminute, isec
-      REAL(dp)          ::   zsec
+      REAL(wp)          ::   zsec
       LOGICAL           ::   ll24, llfull
       !!----------------------------------------------------------------------
       !

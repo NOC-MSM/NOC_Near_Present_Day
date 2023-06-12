@@ -135,13 +135,13 @@ CONTAINS
       !! ** Action  :   ptsd   T-S data on medl mesh and interpolated at time-step kt
       !!----------------------------------------------------------------------
       INTEGER                          , INTENT(in   ) ::   kt     ! ocean time-step
-      REAL(dp), DIMENSION(A2D(nn_hls),jpk,jpts), INTENT(  out) ::   ptsd   ! T & S data
+      REAL(wp), DIMENSION(A2D(nn_hls),jpk,jpts), INTENT(  out) ::   ptsd   ! T & S data
       !
       INTEGER ::   ji, jj, jk, jl, jkk   ! dummy loop indicies
       INTEGER ::   ik, il0, il1, ii0, ii1, ij0, ij1   ! local integers
       INTEGER, DIMENSION(jpts), SAVE :: irec_b, irec_n
-      REAL(dp)::   zl, zi                             ! local scalars
-      REAL(dp), DIMENSION(jpk) ::  ztp, zsp   ! 1D workspace
+      REAL(wp)::   zl, zi                             ! local scalars
+      REAL(wp), DIMENSION(jpk) ::  ztp, zsp   ! 1D workspace
       !!----------------------------------------------------------------------
       !
       IF( .NOT. l_istiled .OR. ntile == 1 )  THEN                                         ! Do only for the full domain

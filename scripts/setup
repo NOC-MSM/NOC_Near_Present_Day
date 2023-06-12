@@ -4,11 +4,11 @@ WD=$PWD
 
 SYSTEM=Anemone
 
-#BRANCH=branch_4.2
-#COMMIT=405258c9896e0b1a3c430ea495fcda0fe55e2170
+BRANCH=branch_4.2
+COMMIT=b1b3d9e142670c8358f240a8eeb13979600d8039
 
-BRANCH=main
-COMMIT=9a86d855a3ad9210b18ad8cf160dd5ecec4da466
+#BRANCH=main
+#COMMIT=9a86d855a3ad9210b18ad8cf160dd5ecec4da466
 
 NEMODIR=${WD}/nemo
 STOP=0
@@ -91,9 +91,9 @@ cp -r "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/EXP_MASTER/.
 # TOOLS
 ###########################################
 # Compile tools
-echo "Compiling tools"
-cd "$NEMODIR"/tools || exit
-../scripts/compile_tools || exit
+#echo "Compiling tools"
+#cd "$NEMODIR"/tools || exit
+#../scripts/compile_tools || exit
 
 ###########################################
 # CONFIGURATIONS

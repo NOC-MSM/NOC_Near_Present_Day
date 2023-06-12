@@ -185,6 +185,10 @@ that are available in the tidal-forcing implementation (see
     <field id="alpha"        long_name="thermal expansion"                                                         unit="degC-1" grid_ref="grid_T_3D" />
     <field id="beta"         long_name="haline contraction"                                                        unit="1e3"    grid_ref="grid_T_3D" />
     <field id="rhop"         long_name="potential density (sigma0)"        standard_name="sea_water_sigma_theta"   unit="kg/m3"  grid_ref="grid_T_3D" />
+    <field id="RossRad"      long_name="Rossby radius"                                                             unit="m" />
+    <field id="RossRadlim"   long_name="Rossby radius (limited)"                                                   unit="m" />
+    <field id="Tclinic_recip" long_name="recip of baroclinic timescale"                                            unit="s-1" />
+    <field id="RR_GS"        long_name="Rossby radius / min(dx,dy)"                                                unit="1" />
 
     <!-- Energy - horizontal divergence -->
     <field id="sKE"          long_name="surface kinetic energy"  standard_name="specific_kinetic_energy_of_sea_water"   unit="m2/s2"  grid_ref="grid_T_2D_inner" />
