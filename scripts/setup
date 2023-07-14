@@ -5,23 +5,24 @@ WD=$PWD
 SYSTEM=Anemone
 
 BRANCH=branch_4.2
-COMMIT=b1b3d9e142670c8358f240a8eeb13979600d8039
-
-#BRANCH=main
-#COMMIT=9a86d855a3ad9210b18ad8cf160dd5ecec4da466
+#COMMIT=b1b3d9e142670c8358f240a8eeb13979600d8039
+TAG=4.2.1
 
 NEMODIR=${WD}/nemo
 STOP=0
 
 # Handle arguments
-usage() { echo "Usage: $0 [-b branch] [-c commit] [-d directory] [-s system] [-x stop_after_download]" 1>&2; exit 1; }
-while getopts ":b:c:d:s:x" o; do
+usage() { echo "Usage: $0 [-b branch] [-c commit | -t tag] [-d directory] [-s system] [-x stop_after_download]" 1>&2; exit 1; }
+while getopts ":b:c:t:d:s:x" o; do
     case "${o}" in
         b)
             BRANCH=${OPTARG}
             ;;
         c)
             COMMIT=${OPTARG}
+            ;;
+        t)
+            TAG=${OPTARG}
             ;;
         d)
             NEMODIR=$(realpath "${OPTARG}")
@@ -39,6 +40,12 @@ while getopts ":b:c:d:s:x" o; do
 done
 shift $((OPTIND-1))
 
+# Check only one of "-c" or "-t" is specified
+if [ -n "${COMMIT}" ] && [ -n "${TAG}" ]; then
+    echo "Specify only one of "-c" or "-t"."
+    exit
+fi
+
 # Check system is supported and ensure 'correct' case of $SYSTEM
 if [[ "$SYSTEM" =~ ^([aA][nN][eE][mM][oO][nN][eE])$ ]]; then
       SYSTEM=Anemone
@@ -55,9 +62,16 @@ echo "Downloading NEMO"
 
 # Checking out from NEMO GitLab
 git clone https://forge.nemo-ocean.eu/nemo/nemo.git -b "$BRANCH" "$NEMODIR" || exit
+
 if [ -n "${COMMIT}" ]; then
     cd "$NEMODIR" || exit
     git reset --hard "$COMMIT" || exit
+    cd "$WD" || exit
+fi
+
+if [ -n "${TAG}" ]; then
+    cd "$NEMODIR" || exit
+    git reset --hard "$TAG" || exit
     cd "$WD" || exit
 fi
 
