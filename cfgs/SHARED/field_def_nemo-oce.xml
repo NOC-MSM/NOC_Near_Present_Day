@@ -160,6 +160,7 @@ that are available in the tidal-forcing implementation (see
     <field id="somint"       long_name="vertical integral of salinity times density"        standard_name="integral_wrt_depth_of_product_of_density_and_salinity"  unit="(kg m2) x (1e-3)" grid_ref="grid_T_2D_inner" />
 
     <field id="taubot"       long_name="bottom stress module"   unit="N/m2"   grid_ref="grid_T_2D_inner" />
+    <field id="htau"         long_name="htau length scale" unit="m"/>
 
     <!-- Case EOS = TEOS-10 : output potential temperature -->
     <field id="toce_pot"     long_name="Sea Water Potential Temperature"              standard_name="sea_water_potential_temperature"   unit="degC"     grid_ref="grid_T_3D"/>

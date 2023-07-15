@@ -1211,6 +1211,7 @@
       nn_htau     =   1       !  type of exponential decrease of tke penetration below the ML
       !                       !        = 0  constant 10 m length scale
       !                       !        = 1  0.5m at the equator to 30m poleward of 40 degrees
+      rn_htau_scaling = 1.0   !  scaling factor to apply to depth of TKE penetration
    nn_eice     =   1       !  attenutaion of langmuir & surface wave breaking under ice
    !                       !           = 0 no impact of ice cover on langmuir & surface wave breaking
    !                       !           = 1 weigthed by 1-TANH(10*fr_i)

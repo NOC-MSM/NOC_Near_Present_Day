@@ -46,6 +46,7 @@ MODULE diawri
    USE zdf_oce        ! ocean vertical physics
    USE zdfdrg         ! ocean vertical physics: top/bottom friction
    USE zdfmxl         ! mixed layer
+   USE zdftke  , ONLY: htau
    USE zdfosm         ! mixed layer
    !
    USE lbclnk         ! ocean lateral boundary conditions (or mpp link)
@@ -295,6 +296,7 @@ CONTAINS
       CALL iom_put( "avt" , avt )                  ! T vert. eddy diff. coef.
       CALL iom_put( "avs" , avs )                  ! S vert. eddy diff. coef.
       CALL iom_put( "avm" , avm )                  ! T vert. eddy visc. coef.
+      CALL iom_put( "htau" , htau )                ! htau scaling
 
       IF( iom_use('logavt') )   CALL iom_put( "logavt", LOG( MAX( 1.e-20_wp, avt(:,:,:) ) ) )
       IF( iom_use('logavs') )   CALL iom_put( "logavs", LOG( MAX( 1.e-20_wp, avs(:,:,:) ) ) )

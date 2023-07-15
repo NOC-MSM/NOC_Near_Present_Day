@@ -197,6 +197,10 @@
     nn_havtb = 1,
 /
 
+&namzdf_tke
+    nn_htau  =  5
+/
+
 &namzdf_iwm
    ln_mevar    = .true.,   !  variable (T) or constant (F) mixing efficiency
    ln_tsdiff   = .true.,    !  account for differential T/S mixing (T) or not (F)
