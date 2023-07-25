@@ -826,7 +826,7 @@ CONTAINS
       !                               !* Check of some namelist values
       IF( nn_mxl  < 0   .OR.  nn_mxl  > 3 )   CALL ctl_stop( 'bad flag: nn_mxl is  0, 1, 2 or 3' )
       IF( nn_pdl  < 0   .OR.  nn_pdl  > 1 )   CALL ctl_stop( 'bad flag: nn_pdl is  0 or 1' )
-      IF( ( nn_htau < 0   .OR.  nn_htau > 1 ) .AND. nn_htau .NE. 4 .AND. nn_htau .NE. 5 )   CALL ctl_stop( 'bad flag: nn_htau is 0, 1 or 4 ' )
+      IF( ( nn_htau < 0   .OR.  nn_htau > 1 ) .AND. nn_htau .NE. 4 .AND. nn_htau .NE. 5 )   CALL ctl_stop( 'bad flag: nn_htau is 0, 1 , 4 or 5 ' )
       IF( nn_etau == 3 .AND. .NOT. ln_cpl )   CALL ctl_stop( 'nn_etau == 3 : HF taum only known in coupled mode' )
       !
       IF( ln_mxl0 ) THEN
@@ -838,7 +838,7 @@ CONTAINS
       IF( nn_etau /= 0 ) THEN
          SELECT CASE( nn_htau )             ! Choice of the depth of penetration
          CASE( 0 )                                 ! constant depth penetration (here 10 meters)
-            htau(:,:) = rn_htau_scaling*10._wp
+            htau(:,:) = rn_htau_scaling*10._wp 
          CASE( 1 )                                 ! F(latitude) : 0.5m to 30m poleward of 40 degrees
             htau(:,:) = MAX(  0.5_wp, MIN( 30._wp, 45._wp* ABS( SIN( rpi/180._wp * gphit(:,:) ) ) )   )
          CASE( 4 )                                 ! F(latitude) : 0.5m to 10m/30m poleward of 13/40 degrees north/south

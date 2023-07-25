@@ -418,5 +418,43 @@
       <duplicate_scalar />
     </axis>
   </grid>
+  
+  <grid id="grid_EqT" >
+    <domain id="EqT" />
+  </grid>
+  <!--  -->
+  <grid id="gznl_T_2D">
+    <domain id="ptr" />
+  </grid>
+  <!--  -->
+  <grid id="gznl_T_3D">
+    <domain id="ptr" />
+    <axis axis_ref="deptht" />
+  </grid>
+  <!--  -->
+  <grid id="gznl_W_2D">
+    <domain id="ptr" />
+  </grid>
+  <!--  -->
+  <grid id="gznl_W_3D">
+    <domain id="ptr" />
+    <axis axis_ref="depthw" />
+  </grid>
+  <grid id="vert_sum">
+    <domain id="grid_T"/>
+    <scalar>
+      <reduce_axis operation="sum" />
+    </scalar>
+  </grid>
+  <grid id="zoom_300">
+    <domain id="grid_T" />
+    <axis axis_ref="deptht300"/>
+  </grid>
+  <grid id="zoom_300_sum">
+    <domain id="grid_T" />
+    <scalar>
+      <reduce_axis operation="sum" />
+    </scalar>
+  </grid>
 
 </grid_definition>

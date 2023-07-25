@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+
+<!--
+============================================================================================================
+=                                           output files definition                                        =
+=                               Define your own files for ocean dynamics context                           =
+=                                         put the variables you want...                                    =
+============================================================================================================
+    -->
+   
+    <file_definition type="one_file" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
+    
+      <file_group id="1ts" output_freq="1ts"  output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
+
+      <file_group id="1h" output_freq="1h"  output_level="10" enabled=".TRUE."/> <!-- 1h files -->
+
+      <file_group id="2h" output_freq="2h"  output_level="10" enabled=".TRUE."/> <!-- 2h files -->
+
+      <file_group id="3h" output_freq="3h"  output_level="10" enabled=".TRUE."/> <!-- 3h files -->     
+
+      <file_group id="4h" output_freq="4h"  output_level="10" enabled=".TRUE."/> <!-- 4h files -->
+
+      <file_group id="6h" output_freq="6h"  output_level="10" enabled=".TRUE."/> <!-- 6h files -->     
+    
+
+      <file_group id="1d" output_freq="1d"  split_freq="1mo" output_level="10" enabled=".TRUE.">  <!-- 1d files -->   
+
+	<file id="file1" name_suffix="_grid_T" description="ocean T grid variables" >
+          <field field_ref="sst_con"         name="tos_con"   standard_name="sea_surface_temperature"                                 />
+          <field field_ref="sst2_con"        name="tossq_con"   />
+          <field field_ref="sss2_abs"        name="sossq_abs" long_name="Square of Sea Surface Salinity"   standard_name="square_of_sea_surface_Salinity" />
+          <field field_ref="sss_abs"         name="sos_abs"   standard_name="sea_surface_salinity"                                    />
+          <field field_ref="mldr0_3"         name="mlotst"    long_name="Ocean Mixed Layer Thickness Defined by Sigma T"         />
+	  <field field_ref="ssh"             name="zos"       standard_name="sea_surface_height_above_geoid" long_name="Sea Surface Height Above Geoid"      />
+          <field field_ref="botpres"         name="pbo"                                                                                />
+<!-- TO FIX
+          <field field_ref="20d"             name="t20d"  standard_name="depth_of_isosurface_of_sea_water_potential_temperature" />
+-->
+	</file>
+	
+	<file id="file2" name_suffix="_grid_U" description="ocean U grid variables" enabled=".TRUE." >
+          <field field_ref="ssu"             name="sozocrtx"   standard_name="sea_surface_eastward_sea_water_velocity"                 />
+	  <field field_ref="utau"            name="sozotaux"   standard_name="surface_downward_x_stress" />
+	</file>
+	
+	<file id="file3" name_suffix="_grid_V" description="ocean V grid variables"  enabled=".TRUE." >
+          <field field_ref="ssv"             name="somecrty"   standard_name="sea_surface_northward_sea_water_velocity"                 />
+	  <field field_ref="vtau"            name="sometauy"   standard_name="surface_downward_y_stress" />
+	</file>
+
+        <file id="file9" name_suffix="_scalar" description="scalar variables"  enabled=".TRUE." >
+<!-- TO FIX
+          <field field_ref="sshthster"       name="scsshtst"   />
+-->
+          <field field_ref="voltot"          name="scvoltot"   />
+          <field field_ref="temptot"         name="thetaoga"   />
+          <field field_ref="saltot"          name="soga"   />
+        </file>
+
+      </file_group>
+
+      <file_group id="2m" output_freq="2mo" output_level="10" enabled=".TRUE."/> <!-- real 2m files -->
+      <file_group id="3m" output_freq="3mo" output_level="10" enabled=".TRUE."/> <!-- real 3m files -->
+      <file_group id="4m" output_freq="4mo" output_level="10" enabled=".TRUE."/> <!-- real 4m files -->
+      <file_group id="6m" output_freq="6mo" output_level="10" enabled=".TRUE."/> <!-- real 6m files -->
+
+
+      <file_group id="2y"  output_freq="2y" output_level="10" enabled=".TRUE."/> <!-- real 2y files -->
+      <file_group id="5y"  output_freq="5y" output_level="10" enabled=".TRUE."/> <!-- real 5y files -->
+      <file_group id="10y" output_freq="10y" output_level="10" enabled=".TRUE."/> <!-- real 10y files -->
+
+   </file_definition>
+    
+
+
+

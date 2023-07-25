@@ -19,19 +19,19 @@
     </variable_definition>
 
 <!-- Fields definition -->
-    <field_definition src="./field_def_nemo-oce.xml"/>   <!--  NEMO ocean dynamics                     -->
-    <field_definition src="./field_def_nemo-ice.xml"/>   <!--  NEMO ocean sea ice                      -->
+    <field_definition src="./field_def_nemo-oce.xml"/>       <!--  NEMO ocean dynamics                     -->
+    <field_definition src="./field_def_nemo-ice.xml"/>       <!--  NEMO ocean sea ice                      -->
 
 
 <!-- Files definition -->
-    <file_definition src="./file_def_nemo-oce_1d.xml"/>  <!--  NEMO ocean dynamics                     -->
-    <file_definition src="./file_def_nemo-oce_5d.xml"/>  <!--  NEMO ocean dynamics                     -->
-    <file_definition src="./file_def_nemo-oce_M.xml"/>   <!--  NEMO ocean dynamics                     -->
-    <file_definition src="./file_def_nemo-oce_Y.xml"/>   <!--  NEMO ocean dynamics                     -->
+    <file_definition src="file_def_nemo-oce_1d_C6.xml"/>     <!--  NEMO ocean dynamics                     -->
+    <file_definition src="file_def_nemo-oce_5d_C6.xml"/>     <!--  NEMO ocean dynamics                     -->
+    <file_definition src="file_def_nemo-oce_1m_C6.xml"/>     <!--  NEMO ocean dynamics                     -->
+    <file_definition src="file_def_nemo-oce_1y_C6.xml"/>     <!--  NEMO ocean dynamics                     -->
 
-    <file_definition src="./file_def_nemo-ice_5d.xml"/>  <!--  NEMO ocean sea ice                      -->
-    <file_definition src="./file_def_nemo-ice_M.xml"/>   <!--  NEMO ocean sea ice                      -->
-    <file_definition src="./file_def_nemo-ice_Y.xml"/>   <!--  NEMO ocean sea ice                      -->
+    <file_definition src="./file_def_nemo-ice_5d_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
+    <file_definition src="./file_def_nemo-ice_1m_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
+    <file_definition src="./file_def_nemo-ice_1y_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
 
 <!-- Axis definition -->
     <axis_definition src="./axis_def_nemo.xml"/>

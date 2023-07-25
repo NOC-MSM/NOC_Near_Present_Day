@@ -72,7 +72,8 @@ MODULE ldftra
    REAL(wp), PUBLIC ::      rn_Ue               !: lateral diffusive velocity  [m/s]
    REAL(wp), PUBLIC ::      rn_Le               !: lateral diffusive length    [m]
    INTEGER,  PUBLIC ::   nn_ldfeiv_shape     !: shape of bounding coefficient (Treguier et al formulation only)
-   
+
+
    !                                  ! Flag to control the type of lateral diffusive operator
    INTEGER, PARAMETER, PUBLIC ::   np_ERROR  =-10   ! error in specification of lateral diffusion
    INTEGER, PARAMETER, PUBLIC ::   np_no_ldf = 00   ! without operator (i.e. no lateral diffusive trend)
@@ -495,8 +496,9 @@ CONTAINS
       INTEGER  ::   ierr, inum, ios, inn   ! local integer
       REAL(wp) ::   zah_max, zUfac         !   -   scalar
       !!
-      NAMELIST/namtra_eiv/ ln_ldfeiv   , ln_ldfeiv_dia, nn_ldfeiv_shape,   &   ! eddy induced velocity (eiv)
-         &                 nn_aei_ijk_t, rn_Ue, rn_Le         ! eiv  coefficient
+      NAMELIST/namtra_eiv/ ln_ldfeiv   , ln_ldfeiv_dia,   &   ! eddy induced velocity (eiv)
+         &                 nn_aei_ijk_t, rn_Ue, rn_Le,    &   ! eiv  coefficient
+         &                 nn_ldfeiv_shape
       !!----------------------------------------------------------------------
       !
       IF(lwp) THEN                      ! control print
@@ -640,18 +642,19 @@ CONTAINS
       INTEGER  ::   ji, jj, jk    ! dummy loop indices
       REAL(wp) ::   zfw, ze3w, zn2, z1_f20, zzaei, z2_3    ! local scalars
       REAL(wp), DIMENSION(jpi,jpj) ::   zn, zah, zhw, zRo, zRo_lim, zTclinic_recip, zaeiw, zratio   ! 2D workspace
-      REAL(wp), DIMENSION(jpi,jpj,jpk) :: zmodslp ! 3D workspace
+      REAL(wp), DIMENSION(jpi,jpj,jpk) :: zmodslp ! 3D workspace 
       !!----------------------------------------------------------------------
       !
       zn (:,:) = 0._wp        ! Local initialization
-      zmodslp(:,:,:) = 0._wp
+      zmodslp(:,:,:) = 0._wp 
       zhw(:,:) = 5._wp
       zah(:,:) = 0._wp
       zRo(:,:) = 0._wp
       zRo_lim(:,:) = 0._wp
       zTclinic_recip(:,:) = 0._wp
-      zratio(:,:) = 0._wp 
-      zaeiw(:,:) = 0._wp    
+      zratio(:,:) = 0._wp
+      zaeiw(:,:) = 0._wp
+
       !                       ! Compute lateral diffusive coefficient at T-point
       IF( ln_traldf_triad ) THEN
          DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpk )
@@ -678,8 +681,9 @@ CONTAINS
             ! eddies using the isopycnal slopes calculated in ldfslp.F :
             ! T^-1 = sqrt(m_jpk(N^2*(r1^2+r2^2)*e3w))
             ze3w = e3w(ji,jj,jk,Kmm) * wmask(ji,jj,jk)
-            zah(ji,jj) = zah(ji,jj) + zn2 * ( wslpi(ji,jj,jk) * wslpi(ji,jj,jk)   &
-               &                            + wslpj(ji,jj,jk) * wslpj(ji,jj,jk) ) * ze3w
+            zmodslp(ji,jj,jk) =  wslpi(ji,jj,jk) * wslpi(ji,jj,jk)   &
+                     &               + wslpj(ji,jj,jk) * wslpj(ji,jj,jk)
+            zah(ji,jj) = zah(ji,jj) + zn2 * zmodslp(ji,jj,jk) * ze3w
             zhw(ji,jj) = zhw(ji,jj) + ze3w
          END_3D
       ENDIF
@@ -689,76 +693,67 @@ CONTAINS
          ! Rossby radius at w-point taken betwenn 2 km and  40km
          zRo(ji,jj) = .4 * zn(ji,jj) / zfw
          zRo_lim(ji,jj) = MAX(  2.e3 , MIN( zRo(ji,jj), 40.e3 )  )
-         ! zRo(ji,jj) = MAX(  2.e3 , MIN( .4 * zn(ji,jj) / zfw, 40.e3 )  )
          ! Compute aeiw by multiplying Ro^2 and T^-1
          zTclinic_recip(ji,jj) = SQRT( MAX(zah(ji,jj),0._wp) / zhw(ji,jj) ) * tmask(ji,jj,1)
          zaeiw(ji,jj) = zRo_lim(ji,jj) * zRo_lim(ji,jj) * zTclinic_recip(ji,jj) 
-         ! zaeiw(ji,jj) = zRo(ji,jj) * zRo(ji,jj) * SQRT( MAX(zah(ji,jj),0._wp) / zhw(ji,jj) ) * tmask(ji,jj,1)
       END_2D
+      IF( iom_use('N_2d') ) CALL iom_put('N_2d',zn(:,:)/zhw(:,:))
+      IF( iom_use('modslp') ) CALL iom_put('modslp',SQRT(zmodslp(:,:,:)) )
       CALL iom_put('RossRad',zRo)
       CALL iom_put('RossRadlim',zRo_lim)
       CALL iom_put('Tclinic_recip',zTclinic_recip)
-
       !                                         !==  Bound on eiv coeff.  ==!
       z1_f20 = 1._wp / (  2._wp * omega * sin( rad * 20._wp )  )
       z2_3 = 2._wp/3._wp
 
       SELECT CASE(nn_ldfeiv_shape)
-         CASE(0) !! Standard shape applied - decrease in tropics and cap. 
+         CASE(0) !! Standard shape applied - decrease in tropics and cap.
             DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
                zzaei = MIN( 1._wp, ABS( ff_t(ji,jj) * z1_f20 ) ) * zaeiw(ji,jj)     ! tropical decrease
-               zaeiw(ji,jj) = MIN( zzaei , paei0 )                                  ! Max value = paei0
+               zaeiw(ji,jj) = MIN( zzaei, paei0 )
             END_2D
 
          CASE(1) !! Abrupt cut-off on Rossby radius:
 ! JD : modifications here to introduce scaling by local rossby radius of deformation vs local grid scale
 ! arbitrary decision that GM is de-activated if local rossy radius larger than 2 times local grid scale
 ! based on Hallberg (2013)
-             DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                IF ( zRo(ji,jj) >= ( 2._wp * MIN( e1t(ji,jj), e2t(ji,jj) ) ) ) THEN
+            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+               IF ( zRo(ji,jj) >= ( 2._wp * MIN( e1t(ji,jj), e2t(ji,jj) ) ) ) THEN
 ! TODO : use a version of zRo that integrates over a few time steps ?
-                    zaeiw(ji,jj) = 0._wp
-                ELSE
-                    zaeiw(ji,jj) = MIN( zaeiw(ji,jj), paei0 )
-                ENDIF
+                   zaeiw(ji,jj) = 0._wp
+               ELSE
+                   zaeiw(ji,jj) = MIN( zaeiw(ji,jj), paei0 )
+               ENDIF
             END_2D
-
          CASE(2) !! Rossby radius ramp type 1:
-             DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                zratio(ji,jj) = zRo(ji,jj)/MIN(e1t(ji,jj),e2t(ji,jj))
-                zaeiw(ji,jj) = MIN( zaeiw(ji,jj), MAX( 0._wp, MIN( 1._wp, z2_3*(2._wp - zratio(ji,jj)) ) ) * paei0 )
+            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+               zratio(ji,jj) = zRo(ji,jj)/MIN(e1t(ji,jj),e2t(ji,jj))
+               zaeiw(ji,jj) = MIN( zaeiw(ji,jj), MAX( 0._wp, MIN( 1._wp, z2_3*(2._wp - zratio(ji,jj)) ) ) * paei0 )
             END_2D
             CALL iom_put('RR_GS',zratio)
-
          CASE(3) !! Rossby radius ramp type 2:
             DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                zratio(ji,jj) = MIN(e1t(ji,jj),e2t(ji,jj))/zRo(ji,jj)
-                zaeiw(ji,jj) = MIN( zaeiw(ji,jj), MAX( 0._wp, MIN( 1._wp, z2_3*( zratio(ji,jj) - 0.5_wp ) ) ) * paei0 )
+               zratio(ji,jj) = MIN(e1t(ji,jj),e2t(ji,jj))/zRo(ji,jj)
+               zaeiw(ji,jj) = MIN( zaeiw(ji,jj), MAX( 0._wp, MIN( 1._wp, z2_3*( zratio(ji,jj) - 0.5_wp ) ) ) * paei0 )
             END_2D
-
          CASE(4) !! bathymetry ramp:
-             DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                zaeiw(ji,jj) = MIN( zaeiw(ji,jj), MAX( 0._wp, MIN( 1._wp, 0.001*(ht_0(ji,jj) - 2000._wp) ) ) * paei0 )
+            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+               zaeiw(ji,jj) = MIN( zaeiw(ji,jj), MAX( 0._wp, MIN( 1._wp, 0.001*(ht_0(ji,jj) - 2000._wp) ) ) * paei0 )
             END_2D
-
          CASE(5) !! Rossby radius ramp type 1 applied to Treguier et al coefficient rather than cap:
                  !! Note the ramp is RR/GS=[2.0,1.0] (not [2.0,0.5] as for cases 2,3) and we ramp up 
                  !! to 5% of the Treguier et al coefficient, aiming for peak values of around 100m2/s
                  !! at high latitudes rather than 2000m2/s which is what you get in eORCA025 with an 
                  !! uncapped coefficient.
-             DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                zratio(ji,jj) = zRo(ji,jj)/MIN(e1t(ji,jj),e2t(ji,jj))
-                zaeiw(ji,jj) = MAX( 0._wp, MIN( 1._wp, 2._wp - zratio(ji,jj) ) ) * 0.05 * zaeiw(ji,jj)
-                zaeiw(ji,jj) = MIN( zaeiw(ji,jj), paei0 )
+            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+               zratio(ji,jj) = zRo(ji,jj)/MIN(e1t(ji,jj),e2t(ji,jj))
+               zaeiw(ji,jj) = MAX( 0._wp, MIN( 1._wp, 2._wp - zratio(ji,jj) ) ) * 0.05 * zaeiw(ji,jj)
+               zaeiw(ji,jj) = MIN( zaeiw(ji,jj), paei0 )
             END_2D
             CALL iom_put('RR_GS',zratio)
-
          CASE DEFAULT
                CALL ctl_stop('ldf_eiv: Unrecognised option for nn_ldfeiv_shape.')         
-
       END SELECT
-
-
       IF( nn_hls == 1 )   CALL lbc_lnk( 'ldftra', zaeiw(:,:), 'W', 1.0_wp )   ! lateral boundary condition
       !
       DO_2D( 0, 0, 0, 0 )

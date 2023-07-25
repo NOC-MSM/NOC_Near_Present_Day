@@ -110,6 +110,9 @@
 /
 
 &namlbc
+    cn_shlat2d_file='shlat2d.nc',
+    cn_shlat2d_var='shlat2d',
+    ln_shlat2d=.true.,
     rn_shlat = 0.0,
 /
 
@@ -195,6 +198,12 @@
     nn_evdm = 1,
     rn_evd = 10.0,
     nn_havtb = 1,
+/
+
+&namzdf_mldzint
+    nn_mld_diag=2,
+    sn_mld1=1,10.0,0.2,0.1,
+    sn_mld2=1,10.0,-0.2,0,
 /
 
 &namzdf_tke

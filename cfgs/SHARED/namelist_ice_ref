@@ -24,10 +24,10 @@
    jpl              =   5             !  number of ice  categories
    nlay_i           =   2             !  number of ice  layers
    nlay_s           =   2             !  number of snow layers
-   ln_virtual_itd   =   .false.,       !  virtual ITD mono-category parameterization (jpl=1 only)
+   ln_virtual_itd   =   .false.       !  virtual ITD mono-category parameterization (jpl=1 only)
                                       !     i.e. enhanced thermal conductivity & virtual thin ice melting
-   ln_icedyn        = .true.,          !  ice dynamics (T) or not (F)
-   ln_icethd        = .true.,          !  ice thermo   (T) or not (F)
+   ln_icedyn        = .true.          !  ice dynamics (T) or not (F)
+   ln_icethd        = .true.          !  ice thermo   (T) or not (F)
    rn_amax_n        =   0.997         !  maximum tolerated ice concentration NH
    rn_amax_s        =   0.997         !  maximum tolerated ice concentration SH
    cn_icerst_in     = "restart_ice"   !  suffix of ice restart name (input)
@@ -38,9 +38,9 @@
 !------------------------------------------------------------------------------
 &namitd         !   Ice discretization
 !------------------------------------------------------------------------------
-   ln_cat_hfn       = .true.,          !  ice categories are defined by a function following rn_himean**(-0.05)
+   ln_cat_hfn       = .true.          !  ice categories are defined by a function following rn_himean**(-0.05)
       rn_himean     =   2.0           !  expected domain-average ice thickness (m)
-   ln_cat_usr       = .false.,         !  ice categories are defined by rn_catbnd below (m)
+   ln_cat_usr       = .false.         !  ice categories are defined by rn_catbnd below (m)
       rn_catbnd     =   0.,0.45,1.1,2.1,3.7,6.0  
    rn_himin         =   0.1           !  minimum ice thickness (m) allowed
    rn_himax         =  99.0           !  maximum ice thickness (m) allowed
@@ -48,14 +48,14 @@
 !------------------------------------------------------------------------------
 &namdyn         !   Ice dynamics
 !------------------------------------------------------------------------------
-   ln_dynALL        = .true.,          !  dyn.: full ice dynamics                  (rheology + advection + ridging/rafting + correction)
-   ln_dynRHGADV     = .false.,         !  dyn.: no ridge/raft & no corrections     (rheology + advection)
-   ln_dynADV1D      = .false.,         !  dyn.: only advection 1D                  (Schar & Smolarkiewicz 1996 test case)
-   ln_dynADV2D      = .false.,         !  dyn.: only advection 2D w prescribed vel.(rn_uvice + advection)
+   ln_dynALL        = .true.          !  dyn.: full ice dynamics                  (rheology + advection + ridging/rafting + correction)
+   ln_dynRHGADV     = .false.         !  dyn.: no ridge/raft & no corrections     (rheology + advection)
+   ln_dynADV1D      = .false.         !  dyn.: only advection 1D                  (Schar & Smolarkiewicz 1996 test case)
+   ln_dynADV2D      = .false.         !  dyn.: only advection 2D w prescribed vel.(rn_uvice + advection)
       rn_uice       =   0.5           !        prescribed ice u-velocity
       rn_vice       =   0.5           !        prescribed ice v-velocity
    rn_ishlat        =   2.            !  lbc : free slip (0) ; partial slip (0-2) ; no slip (2) ; strong slip (>2)
-   ln_landfast_L16  = .false.,         !  landfast: parameterization from Lemieux 2016
+   ln_landfast_L16  = .false.         !  landfast: parameterization from Lemieux 2016
       rn_lf_depfra  =   0.125         !        fraction of ocean depth that ice must reach to initiate landfast
                                       !          recommended range: [0.1 ; 0.25]
       rn_lf_bfr     =  15.            !        maximum bottom stress per unit volume [N/m3]
@@ -72,30 +72,30 @@
 &namdyn_rdgrft  !   Ice ridging/rafting
 !------------------------------------------------------------------------------
           ! -- ice_rdgrft_strength -- !
-   ln_str_H79       = .true.,          !  ice strength param.: Hibler_79   => P = pstar*<h>*exp(-c_rhg*A)
+   ln_str_H79       = .true.          !  ice strength param.: Hibler_79   => P = pstar*<h>*exp(-c_rhg*A)
       rn_pstar      =   2.0e+04       !     ice strength thickness parameter [N/m2]
       rn_crhg       =  20.0           !     ice strength conc. parameter (-)
-   ln_str_R75       = .false.,         !  ice strength param.: Rothrock_75 => P = fn of potential energy
+   ln_str_R75       = .false.         !  ice strength param.: Rothrock_75 => P = fn of potential energy
       rn_pe_rdg     =  17.0           !     coef accouting for frictional dissipation
-   ln_str_CST       = .false.,         !  ice strength param.: Constant
+   ln_str_CST       = .false.         !  ice strength param.: Constant
       rn_str        =   0.0           !     ice strength value
-   ln_str_smooth    = .true.,          !  spatial smoothing of the ice strength
+   ln_str_smooth    = .true.          !  spatial smoothing of the ice strength
                    ! -- ice_rdgrft -- !
-   ln_distf_lin     = .true.,          !  redistribution function of ridged ice: linear (Hibler 1980)
-   ln_distf_exp     = .false.,         !  redistribution function of ridged ice: exponential => not coded yet
+   ln_distf_lin     = .true.          !  redistribution function of ridged ice: linear (Hibler 1980)
+   ln_distf_exp     = .false.         !  redistribution function of ridged ice: exponential => not coded yet
       rn_murdg      =   3.0           !     e-folding scale of ridged ice (m**.5)
    rn_csrdg         =   0.5           !  fraction of shearing energy contributing to ridging
               ! -- ice_rdgrft_prep -- !
-   ln_partf_lin     = .false.,         !  Linear ridging participation function (Thorndike et al, 1975)
+   ln_partf_lin     = .false.         !  Linear ridging participation function (Thorndike et al, 1975)
       rn_gstar      =   0.15          !     fractional area of thin ice being ridged 
-   ln_partf_exp     = .true.,          !  Exponential ridging participation function (Lipscomb, 2007)
+   ln_partf_exp     = .true.          !  Exponential ridging participation function (Lipscomb, 2007)
       rn_astar      =   0.03          !     exponential measure of ridging ice fraction [set to 0.05 if hstar=100]
-   ln_ridging       = .true.,          !  ridging activated (T) or not (F)
+   ln_ridging       = .true.          !  ridging activated (T) or not (F)
       rn_hstar      =  25.0           !     determines the maximum thickness of ridged ice [m] (Hibler, 1980)
       rn_porordg    =   0.3           !     porosity of newly ridged ice (Lepparanta et al., 1995)
       rn_fsnwrdg    =   0.5           !     snow volume fraction that survives in ridging
       rn_fpndrdg    =   1.0           !     pond fraction that survives in ridging (small a priori)
-   ln_rafting       = .true.,          !  rafting activated (T) or not (F)
+   ln_rafting       = .true.          !  rafting activated (T) or not (F)
       rn_hraft      =   0.75          !     threshold thickness for rafting [m]
       rn_craft      =   5.0           !     squeezing coefficient used in the rafting function
       rn_fsnwrft    =   0.5           !     snow volume fraction that survives in rafting
@@ -104,9 +104,9 @@
 !------------------------------------------------------------------------------
 &namdyn_rhg     !   Ice rheology
 !------------------------------------------------------------------------------
-   ln_rhg_EVP       = .true.,          !  EVP rheology
-   ln_rhg_EAP       = .false.,         !  EAP rheology
-      ln_aEVP       = .true.,          !     adaptive rheology (Kimmritz et al. 2016 & 2017)
+   ln_rhg_EVP       = .true.          !  EVP rheology
+   ln_rhg_EAP       = .false.         !  EAP rheology
+      ln_aEVP       = .true.          !     adaptive rheology (Kimmritz et al. 2016 & 2017)
       rn_creepl     =   2.0e-9        !     creep limit [1/s]
       rn_ecc        =   2.0           !     eccentricity of the elliptical yield curve          
       nn_nevp       = 100             !     number of EVP subcycles                             
@@ -117,7 +117,7 @@
                                       !     = 1  check at the main time step (output xml: uice_cvg)
                                       !     = 2  check at both main and rheology time steps (additional output: ice_cvg.nc)
                                       !          this option 2 asks a lot of communications between cpu
-   ln_rhg_VP        = .false.,         !  VP rheology
+   ln_rhg_VP        = .false.         !  VP rheology
       nn_vp_nout    = 10              !     number of outer iterations
       nn_vp_ninn    = 1500            !     number of inner iterations
       nn_vp_chkcvg  = 5               !     iteration step for convergence check
@@ -125,8 +125,8 @@
 !------------------------------------------------------------------------------
 &namdyn_adv     !   Ice advection
 !------------------------------------------------------------------------------
-   ln_adv_Pra       = .true.,          !  Advection scheme (Prather)
-   ln_adv_UMx       = .false.,         !  Advection scheme (Ultimate-Macho)
+   ln_adv_Pra       = .true.          !  Advection scheme (Prather)
+   ln_adv_UMx       = .false.         !  Advection scheme (Ultimate-Macho)
       nn_UMx        =   5             !     order of the scheme for UMx (1-5 ; 20=centered 2nd order)
 /
 !------------------------------------------------------------------------------
@@ -144,8 +144,8 @@
                                       !     = 0  Average N(cat) fluxes then apply the average over the N(cat) ice
                                       !     = 1  Average N(cat) fluxes then redistribute over the N(cat) ice using T-ice and albedo sensitivity
                                       !     = 2  Redistribute a single flux over categories
-   ln_cndflx        = .false.,         !  Use conduction flux as surface boundary conditions (i.e. for Jules coupling)
-      ln_cndemulate = .false.,         !     emulate conduction flux (if not provided in the inputs)
+   ln_cndflx        = .false.         !  Use conduction flux as surface boundary conditions (i.e. for Jules coupling)
+      ln_cndemulate = .false.         !     emulate conduction flux (if not provided in the inputs)
    nn_qtrice        =   0             !  Solar flux transmitted thru the surface scattering layer:
                                       !     = 0  Grenfell and Maykut 1977 (depends on cloudiness and is 0 when there is snow) 
                                       !     = 1  Lebrun 2019 (equals 0.3 anytime with different melting/dry snw conductivities)
@@ -153,26 +153,26 @@
 !------------------------------------------------------------------------------
 &namthd         !   Ice thermodynamics
 !------------------------------------------------------------------------------
-   ln_icedH         = .true.,          !  activate ice thickness change from growing/melting (T) or not (F)
-   ln_icedA         = .true.,          !  activate lateral melting param. (T) or not (F)
-   ln_icedO         = .true.,          !  activate ice growth in open-water (T) or not (F)
-   ln_icedS         = .true.,          !  activate brine drainage (T) or not (F)
+   ln_icedH         = .true.          !  activate ice thickness change from growing/melting (T) or not (F)
+   ln_icedA         = .true.          !  activate lateral melting param. (T) or not (F)
+   ln_icedO         = .true.          !  activate ice growth in open-water (T) or not (F)
+   ln_icedS         = .true.          !  activate brine drainage (T) or not (F)
    !
-   ln_leadhfx       = .true.,          !  heat in the leads is used to melt sea-ice before warming the ocean
+   ln_leadhfx       = .true.          !  heat in the leads is used to melt sea-ice before warming the ocean
 /
 !------------------------------------------------------------------------------
 &namthd_zdf     !   Ice heat diffusion
 !------------------------------------------------------------------------------
-   ln_zdf_BL99      = .true.,          !  Heat diffusion follows Bitz and Lipscomb 1999
-   ln_cndi_U64      = .false.,         !  sea ice thermal conductivity: k = k0 + beta.S/T            (Untersteiner, 1964)
-   ln_cndi_P07      = .true.,          !  sea ice thermal conductivity: k = k0 + beta1.S/T - beta2.T (Pringle et al., 2007)
+   ln_zdf_BL99      = .true.          !  Heat diffusion follows Bitz and Lipscomb 1999
+   ln_cndi_U64      = .false.         !  sea ice thermal conductivity: k = k0 + beta.S/T            (Untersteiner, 1964)
+   ln_cndi_P07      = .true.          !  sea ice thermal conductivity: k = k0 + beta1.S/T - beta2.T (Pringle et al., 2007)
    rn_cnd_s         =   0.31          !  thermal conductivity of the snow (0.31 W/m/K, Maykut and Untersteiner, 1971)
                                       !     Obs: 0.1-0.5 (Lecomte et al, JAMES 2013)
    rn_kappa_i       =   1.0           !  radiation attenuation coefficient in sea ice                     [1/m]
    rn_kappa_s       =  10.0           !  nn_qtrice = 0: radiation attenuation coefficient in snow         [1/m]
    rn_kappa_smlt    =   7.0           !  nn_qtrice = 1: radiation attenuation coefficient in melting snow [1/m]
    rn_kappa_sdry    =  10.0           !                 radiation attenuation coefficient in dry snow     [1/m]
-   ln_zdf_chkcvg    = .false.,         !  check convergence of heat diffusion scheme (outputs: tice_cvgerr, tice_cvgstp)
+   ln_zdf_chkcvg    = .false.         !  check convergence of heat diffusion scheme (outputs: tice_cvgerr, tice_cvgstp)
 /
 !------------------------------------------------------------------------------
 &namthd_da      !   Ice lateral melting
@@ -189,7 +189,7 @@
 &namthd_do      !   Ice growth in open water
 !------------------------------------------------------------------------------
    rn_hinew         =   0.1           !  thickness for new ice formation in open water (m), must be larger than rn_himin
-   ln_frazil        = .false.,         !  Frazil ice parameterization (ice collection as a function of wind)
+   ln_frazil        = .false.         !  Frazil ice parameterization (ice collection as a function of wind)
       rn_maxfraz    =   1.0           !     maximum fraction of frazil ice collecting at the ice base
       rn_vfraz      =   0.417         !     thresold drift speed for frazil ice collecting at the ice bottom (m/s)
       rn_Cfraz      =   5.0           !     squeezing coefficient for frazil ice collecting at the ice bottom
@@ -212,22 +212,25 @@
 !------------------------------------------------------------------------------
 &namthd_pnd     !   Melt ponds
 !------------------------------------------------------------------------------
-   ln_pnd            = .true.,         !  activate melt ponds or not
-      ln_pnd_TOPO    = .false.,        !  topographic melt ponds
-      ln_pnd_LEV     = .true.,         !  level ice melt ponds
+   ln_pnd            = .true.         !  activate melt ponds or not
+      ln_pnd_TOPO    = .false.        !  topographic melt ponds
+      ln_pnd_LEV     = .true.         !  level ice melt ponds
          rn_apnd_min =   0.15         !     minimum meltwater fraction contributing to pond growth (TOPO and LEV)
          rn_apnd_max =   0.85         !     maximum meltwater fraction contributing to pond growth (TOPO and LEV)
          rn_pnd_flush=   0.1          !     pond flushing efficiency (tuning parameter) (LEV)
-      ln_pnd_CST     = .false.,        !  constant  melt ponds
+      ln_pnd_CST     = .false.        !  constant  melt ponds
          rn_apnd     =   0.2          !     prescribed pond fraction, at Tsu=0 degC
          rn_hpnd     =   0.05         !     prescribed pond depth,    at Tsu=0 degC
-      ln_pnd_lids    = .true.,         !  frozen lids on top of the ponds (only for ln_pnd_LEV)
-      ln_pnd_alb     = .true.,         !  effect of melt ponds on ice albedo
+      ln_pnd_lids    = .true.         !  frozen lids on top of the ponds (only for ln_pnd_LEV)
+      ln_pnd_alb     = .true.         !  effect of melt ponds on ice albedo
+      nn_pnd_brsal   = 0              !  brine salinity formulation 0 = Consistent expression with SI3 
+                                      !                                 (linear liquidus)
+                                      !                             1 = used in GOSI9
 /
 !------------------------------------------------------------------------------
 &namini         !   Ice initialization
 !------------------------------------------------------------------------------
-   ln_iceini        = .true.,          !  activate ice initialization (T) or not (F)
+   ln_iceini        = .true.          !  activate ice initialization (T) or not (F)
    nn_iceini_file   =   0             !     0 = Initialise sea ice based on SSTs
                                       !     1 = Initialise sea ice from single category netcdf file
                                       !     2 = Initialise sea ice from multi category restart file
@@ -280,12 +283,12 @@
 !------------------------------------------------------------------------------
 &namdia         !   Diagnostics
 !------------------------------------------------------------------------------
-   ln_icediachk     = .false.,         !  check online heat, mass & salt budgets
+   ln_icediachk     = .false.         !  check online heat, mass & salt budgets
       !                               !   rate of ice spuriously gained/lost at each time step => rn_icechk=1 <=> 1.e-6 m/hour
       rn_icechk_cel =  1.             !     check at each gridcell          (1.e-06m/h)=> stops the code if violated (and writes a file)
       rn_icechk_glo =  1.e-04         !     check over the entire ice cover (1.e-10m/h)=> only prints warnings
-   ln_icediahsb     = .false.,         !  output the heat, mass & salt budgets (T) or not (F)
-   ln_icectl        = .false.,         !  ice points output for debug (T or F)
+   ln_icediahsb     = .false.         !  output the heat, mass & salt budgets (T) or not (F)
+   ln_icectl        = .false.         !  ice points output for debug (T or F)
       iiceprt       =  10             !     i-index for debug
       jiceprt       =  10             !     j-index for debug
 /

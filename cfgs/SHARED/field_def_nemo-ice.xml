@@ -50,10 +50,11 @@
       <field id="icevpnd"      long_name="melt pond volume"                                        standard_name="sea_ice_meltpond_volume"                   unit="m" />
       <field id="icehlid"      long_name="melt pond lid depth"                                     standard_name="sea_ice_meltpondlid_depth"                 unit="m" />
       <field id="icevlid"      long_name="melt pond lid volume"                                    standard_name="sea_ice_meltpondlid_volume"                unit="m" />
-      <field id="dvpn_mlt"     long_name="pond volume tendency due to surface melt"                standard_name="sea_ice_pondvolume_tendency_melt"          unit="kg/m2/s" />
-      <field id="dvpn_lid"     long_name="pond volume tendency due to exchanges with lid"          standard_name="sea_ice_pondvolume_tendency_lids"          unit="kg/m2/s" />
-      <field id="dvpn_rnf"     long_name="pond volume tendency due to runoff"                      standard_name="sea_ice_pondvolume_tendency_runoff"        unit="kg/m2/s" />
-      <field id="dvpn_drn"     long_name="pond volume tendency due to drainage"                    standard_name="sea_ice_pondvolume_tendency_drainage"      unit="kg/m2/s" />
+      <field id="iceepnd"      long_name="melt pond effective concentration"                       standard_name="sea_ice_meltpond_effective_concentration"  unit=""  />
+      <field id="dvpn_mlt"     long_name="pond volume tendency due to surface melt"                standard_name="sea_ice_pondvolume_tendency_melt"          unit="cm/d" />
+      <field id="dvpn_lid"     long_name="pond volume tendency due to exchanges with lid"          standard_name="sea_ice_pondvolume_tendency_lids"          unit="cm/d" />
+      <field id="dvpn_rnf"     long_name="pond volume tendency due to runoff"                      standard_name="sea_ice_pondvolume_tendency_runoff"        unit="cm/d" />
+      <field id="dvpn_drn"     long_name="pond volume tendency due to drainage"                    standard_name="sea_ice_pondvolume_tendency_drainage"      unit="cm/d" />
 
       <!-- heat -->
       <field id="icetemp"      long_name="Mean ice temperature"                                                                                              unit="degC" detect_missing_value="true" />
@@ -94,6 +95,10 @@
       <field id="yield22"      long_name="yield surface tensor component 22"                       standard_name="yield22"                                   unit="N/m"  />
       <field id="yield12"      long_name="yield surface tensor component 12"                       standard_name="yield12"                                   unit="N/m"  />
       <field id="beta_evp"     long_name="Relaxation parameter of ice rheology (beta)"             standard_name="relaxation_parameter_of_ice_rheology"      unit=""  />
+
+      <field id="isig1"        long_name="1st principal stress component for EVP rhg"                                                                        unit=""     />
+      <field id="isig2"        long_name="2nd principal stress component for EVP rhg"                                                                        unit=""     />
+      <field id="isig3"        long_name="convergence measure for EVP rheology (must be around 1)"                                                           unit=""     />
 
       <!-- surface heat fluxes -->
       <field id="qt_ice"       long_name="total heat flux at ice surface"                          standard_name="surface_downward_heat_flux_in_air"         unit="W/m2" />
@@ -189,8 +194,15 @@
       <field id="icedrift_heat" long_name="Ice heat drift (conservation check)"   unit="W/m2"    />
 
       <!-- sbcssm variables -->
-      <field id="sst_m"    unit="degC" />
-      <field id="sss_m"    unit="psu"  />
+      <field id="sst_m_pot"    unit="degC" />
+      
+      <!-- EOS-80 -->
+      <field id="sss_m_pra"    unit="psu"  />
+      <!-- TEOS-10 -->
+      <field id="sss_m_abs"    unit="g/kg"  />
+      <!-- SEOS -->
+      <field id="sss_m_seos"   unit="psu"  />
+      
       <field id="ssu_m"    unit="m/s"  />
       <field id="ssv_m"    unit="m/s"  />
       <field id="ssh_m"    unit="m"    />
@@ -199,6 +211,12 @@
 
       <!-- rheology convergence tests -->
       <field id="uice_cvg"   long_name="sea ice velocity convergence"      standard_name="sea_ice_velocity_convergence"      unit="m/s" />
+
+      <!-- vp rheology convergence tests -->
+      <field id="velo_res" long_name="sea ice velocity residual"                        standard_name="sea_ice_velocity_residual"         unit="N/m2" />
+      <field id="velo_ero" long_name="sea ice velocity error last outer iteration"      standard_name="sea_ice_velocity_outer_error"      unit="m/s" />
+      <field id="uice_eri" long_name="uice velocity error last inner iteration"         standard_name="sea_ice_u_velocity_inner_error"    unit="m/s" />
+      <field id="vice_eri" long_name="vice velocity error last inner iteration"         standard_name="sea_ice_v_velocity_inner_error"    unit="m/s" />
 
       <!-- ================= -->
       <!-- Add-ons for SIMIP -->
@@ -401,9 +419,17 @@
       <field field_ref="iceapnd"          name="siapnd" />
       <field field_ref="icehpnd"          name="sihpnd" />
       <field field_ref="icevpnd"          name="sivpnd" />
+      <field field_ref="iceepnd"          name="siepnd" />
       <field field_ref="iceage"           name="siage"  />
-      <field field_ref="sst_m"            name="sst_m"  />
-      <field field_ref="sss_m"            name="sss_m"  />
+      
+      <field id="sst_m_pot"    unit="degC" />
+      
+      <!-- EOS-80 -->
+      <field id="sss_m_pra"    unit="psu"  />
+      <!-- TEOS-10 -->
+      <field id="sss_m_abs"    unit="g/kg"  />
+      <!-- SEOS -->
+      <field id="sss_m_seos"   unit="psu"  />
 
       <!-- heat -->
       <field field_ref="icetemp"          name="sitemp" />

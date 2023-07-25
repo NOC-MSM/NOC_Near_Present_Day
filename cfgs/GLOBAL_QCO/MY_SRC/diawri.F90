@@ -54,6 +54,7 @@ MODULE diawri
    USE dia25h         ! 25h Mean output
    USE iom            ! 
    USE ioipsl         ! 
+   USE eosbn2
 
 #if defined key_si3
    USE ice 
@@ -125,9 +126,33 @@ CONTAINS
       REAL(wp)::   ze3
       REAL(wp), DIMENSION(A2D(     0))     ::   z2d   ! 2D workspace
       REAL(wp), DIMENSION(A2D(nn_hls),jpk) ::   z3d   ! 3D workspace
+      CHARACTER(len=4),SAVE :: ttype , stype           ! temperature and salinity type
       !!----------------------------------------------------------------------
       ! 
       IF( ln_timing )   CALL timing_start('dia_wri')
+      !
+      IF( kt == nit000 ) THEN
+         IF( ln_TEOS10 ) THEN
+            IF ( iom_use("toce_pot") .OR. iom_use("soce_pra") .OR. iom_use("sst_pot") .OR. iom_use("sss_pra") &
+                  & .OR. iom_use("sbt_pot") .OR. iom_use("sbs_pra") .OR. iom_use("sstgrad_pot") .OR. iom_use("sstgrad2_pot") &
+                  & .OR. iom_use("tosmint_pot") .OR. iom_use("somint_pra"))  THEN 
+               CALL ctl_stop( 'diawri: potential temperature and practical salinity not available with ln_TEOS10' )
+            ELSE
+               ttype='con' ; stype='abs'   ! teos-10 using conservative temperature and absolute salinity
+            ENDIF 
+         ELSE IF( ln_EOS80  ) THEN
+            IF ( iom_use("toce_con") .OR. iom_use("soce_abs") .OR. iom_use("sst_con") .OR. iom_use("sss_abs") &
+                  & .OR. iom_use("sbt_con") .OR. iom_use("sbs_abs") .OR. iom_use("sstgrad_con") .OR. iom_use("sstgrad2_con") &
+                  & .OR. iom_use("tosmint_con") .OR. iom_use("somint_abs"))  THEN 
+               CALL ctl_stop( 'diawri: conservative temperature and absolute salinity not available with ln_EOS80' )
+            ELSE
+               ttype='pot' ; stype='pra'   ! eos-80 using potential temperature and practical salinity
+            ENDIF
+         ELSE IF ( ln_SEOS) THEN
+            ttype='seos' ; stype='seos' ! seos using Simplified Equation of state
+         ENDIF
+      ENDIF
+
       ! 
       ! Output the initial state and forcings
       IF( ninist == 1 ) THEN                       
@@ -208,25 +233,25 @@ CONTAINS
 #endif
 
       ! --- tracers T&S --- !      
-      CALL iom_put( "toce", ts(:,:,:,jp_tem,Kmm) )    ! 3D temperature
-      CALL iom_put(  "sst", ts(:,:,1,jp_tem,Kmm) )    ! surface temperature
+      CALL iom_put( "toce_"//ttype, ts(:,:,:,jp_tem,Kmm) )    ! 3D temperature
+      CALL iom_put(  "sst_"//ttype, ts(:,:,1,jp_tem,Kmm) )    ! surface temperature
 
-      IF ( iom_use("sbt") ) THEN
+      IF ( iom_use("sbt_"//ttype) ) THEN
          DO_2D( 0, 0, 0, 0 )
             ikbot = mbkt(ji,jj)
             z2d(ji,jj) = ts(ji,jj,ikbot,jp_tem,Kmm)
          END_2D
-         CALL iom_put( "sbt", z2d )                ! bottom temperature
+         CALL iom_put( "sbt_"//ttype, z2d )                ! bottom temperature
       ENDIF
       
-      CALL iom_put( "soce", ts(:,:,:,jp_sal,Kmm) )    ! 3D salinity
-      CALL iom_put(  "sss", ts(:,:,1,jp_sal,Kmm) )    ! surface salinity
-      IF ( iom_use("sbs") ) THEN
+      CALL iom_put( "soce_"//stype, ts(:,:,:,jp_sal,Kmm) )    ! 3D salinity
+      CALL iom_put(  "sss_"//stype, ts(:,:,1,jp_sal,Kmm) )    ! surface salinity
+      IF ( iom_use("sbs_"//stype) ) THEN
          DO_2D( 0, 0, 0, 0 )
             ikbot = mbkt(ji,jj)
             z2d(ji,jj) = ts(ji,jj,ikbot,jp_sal,Kmm)
          END_2D
-         CALL iom_put( "sbs", z2d )                ! bottom salinity
+         CALL iom_put( "sbs_"//stype, z2d )                ! bottom salinity
       ENDIF
 
       IF( .NOT.lk_SWE )   CALL iom_put( "rhop", rhop(:,:,:) )          ! 3D potential density (sigma0)
@@ -318,7 +343,7 @@ CONTAINS
          ENDIF
       ENDIF
          
-      IF ( iom_use("sstgrad") .OR. iom_use("sstgrad2") ) THEN
+      IF ( iom_use("sstgrad_"//ttype) .OR. iom_use("sstgrad2_"//ttype) ) THEN
          DO_2D( 0, 0, 0, 0 )                       ! sst gradient
             zztmp  = ts(ji,jj,1,jp_tem,Kmm)
             zztmpx = ( ts(ji+1,jj,1,jp_tem,Kmm) - zztmp ) * r1_e1u(ji,jj) + ( zztmp - ts(ji-1,jj  ,1,jp_tem,Kmm) ) * r1_e1u(ji-1,jj)
@@ -326,12 +351,12 @@ CONTAINS
             z2d(ji,jj) = 0.25_wp * ( zztmpx * zztmpx + zztmpy * zztmpy )   &
                &                 * umask(ji,jj,1) * umask(ji-1,jj,1) * vmask(ji,jj,1) * vmask(ji,jj-1,1)
          END_2D
-         CALL iom_put( "sstgrad2",  z2d )          ! square of module of sst gradient
-         IF ( iom_use("sstgrad") ) THEN
+         CALL iom_put( "sstgrad2_"//ttype,  z2d )          ! square of module of sst gradient
+         IF ( iom_use("sstgrad_"//ttype) ) THEN
             DO_2D( 0, 0, 0, 0 )
                z2d(ji,jj) = SQRT( z2d(ji,jj) )
             END_2D
-            CALL iom_put( "sstgrad",  z2d )        ! module of sst gradient
+            CALL iom_put( "sstgrad_"//ttype,  z2d )        ! module of sst gradient
          ENDIF
       ENDIF
          
@@ -466,19 +491,20 @@ CONTAINS
          CALL iom_put('aeiv_2d', z3d(:,:,1))
       ENDIF
 
-      IF( iom_use("tosmint") ) THEN
+
+      IF( iom_use("tosmint_"//ttype) ) THEN
          z2d(:,:) = 0._wp
          DO_3D( 0, 0, 0, 0, 1, jpkm1 )
             z2d(ji,jj) = z2d(ji,jj) + rho0 * e3t(ji,jj,jk,Kmm) * ts(ji,jj,jk,jp_tem,Kmm)
          END_3D
-         CALL iom_put( "tosmint", z2d )            ! Vertical integral of temperature
+         CALL iom_put( "tosmint_"//ttype, z2d )            ! Vertical integral of temperature
       ENDIF
-      IF( iom_use("somint") ) THEN
+      IF( iom_use("somint_"//stype) ) THEN
          z2d(:,:) = 0._wp
          DO_3D( 0, 0, 0, 0, 1, jpkm1 )
             z2d(ji,jj) = z2d(ji,jj) + rho0 * e3t(ji,jj,jk,Kmm) * ts(ji,jj,jk,jp_sal,Kmm)
          END_3D
-         CALL iom_put( "somint", z2d )             ! Vertical integral of salinity
+         CALL iom_put( "somint_"//stype, z2d )             ! Vertical integral of salinity
       ENDIF
 
       CALL iom_put( "bn2", rn2 )                   ! Brunt-Vaisala buoyancy frequency (N^2)

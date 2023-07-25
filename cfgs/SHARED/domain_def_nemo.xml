@@ -189,12 +189,14 @@
   <domain id="grid_F_inner" long_name="grid F inner"/>
 
   <!--   zonal mean grid   -->
-  <domain_group id="gznl">
-    <domain id="gznl" long_name="gznl"/>
-    <domain id="ptr" domain_ref="gznl" >
-      <zoom_domain id="ptr" ibegin="0000" jbegin="0" ni="1" nj="0000" />
-    </domain>
-  </domain_group>
+  <domain id="gznl" long_name="gznl"/>
+
+  <domain id="ptr" domain_ref="gznl" >
+    <zoom_domain id="ptr" ibegin="0000" jbegin="0" ni="1" nj="0000" />
+  </domain>
+  
+  <domain id="znl_T" domain_ref="gznl" > <zoom_domain id="znl_T"/> </domain>
+  <domain id="znl_W" domain_ref="gznl" > <zoom_domain id="znl_W"/> </domain>
 
 
   <!--   other grids   -->

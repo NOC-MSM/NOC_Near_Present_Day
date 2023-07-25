@@ -28,6 +28,7 @@ MODULE in_out_manager
    LOGICAL       ::   ln_rstart        !: start from (F) rest or (T) a restart file
    LOGICAL       ::   ln_reset_ts      !: use TS from initial condition file? (F) no or (T) yes
    LOGICAL       ::   ln_rst_list      !: output restarts at list of times (T) or by frequency (F)
+   LOGICAL       ::   ln_rst_eos       !: check equation of state used for the restart is consistent with model
    INTEGER       ::   nn_rstctl        !: control of the time step (0, 1 or 2)
    INTEGER       ::   nn_rstssh   = 0  !: hand made initilization of ssh or not (1/0)
    INTEGER       ::   nn_it000         !: index of the first time step
@@ -40,6 +41,7 @@ MODULE in_out_manager
    INTEGER       ::   nn_stock         !: restart file frequency
    INTEGER, DIMENSION(10) :: nn_stocklist  !: restart dump times
    LOGICAL       ::   ln_mskland       !: mask land points in NetCDF outputs (costly: + ~15%)
+   LOGICAL       ::   ln_rstdate       !: T=> stamp output restart files with date instead of timestep
    LOGICAL       ::   ln_cfmeta        !: output additional data to netCDF files required for compliance with the CF metadata standard
    LOGICAL       ::   ln_clobber       !: clobber (overwrite) an existing file
    INTEGER       ::   nn_chunksz       !: chunksize (bytes) for NetCDF file (works only with iom_nf90 routines)

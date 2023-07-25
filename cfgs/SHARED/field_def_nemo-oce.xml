@@ -109,18 +109,30 @@ that are available in the tidal-forcing implementation (see
   <!-- T grid -->
 
   <field_group id="grid_T" grid_ref="grid_T_2D" >
-    <field id="e3t"          long_name="T-cell thickness"                    standard_name="cell_thickness"        unit="m"   grid_ref="grid_T_3D" />
+    <field id="e3t"          long_name="T-cell thickness"                    standard_name="cell_thickness"        unit="m"   grid_ref="grid_T_3D"  />
     <field id="e3ts"         long_name="T-cell thickness"   field_ref="e3t"  standard_name="cell_thickness"        unit="m"   grid_ref="grid_T_SFC"/>
     <field id="e3t_0"        long_name="Initial T-cell thickness"            standard_name="ref_cell_thickness"    unit="m"   grid_ref="grid_T_3D" />
     <field id="e3tb"         long_name="bottom T-cell thickness"             standard_name="bottom_cell_thickness" unit="m"   grid_ref="grid_T_2D"/>
     <field id="e3t_300"      field_ref="e3t"                grid_ref="grid_T_zoom_300"       detect_missing_value="true" />
     <field id="e3t_vsum300"  field_ref="e3t_300"            grid_ref="grid_T_vsum"   detect_missing_value="true" />
     <field id="masscello"    long_name="Sea Water Mass per unit area"   standard_name="sea_water_mass_per_unit_area"   unit="kg/m2"   grid_ref="grid_T_3D"/>
-    <field id="volcello"     long_name="Ocean Volume"                   standard_name="ocean_volume"   unit="m3"       grid_ref="grid_T_3D"/>
-    <field id="toce"         long_name="temperature"                         standard_name="sea_water_potential_temperature"   unit="degC"     grid_ref="grid_T_3D"/>
-    <field id="toce_e3t"     long_name="temperature (thickness weighted)"                                                      unit="degC"     grid_ref="grid_T_3D" > toce * e3t </field >
-    <field id="soce"         long_name="salinity"                            standard_name="sea_water_practical_salinity"      unit="1e-3"     grid_ref="grid_T_3D"/>
-    <field id="soce_e3t"     long_name="salinity    (thickness weighted)"                                                      unit="1e-3"     grid_ref="grid_T_3D" > soce * e3t </field >
+    <field id="volcello"     long_name="Ocean Volume"                   standard_name="ocean_volume"   unit="m3"       grid_ref="grid_T_3D" />
+  
+    <!-- EOS80 -->
+    <field id="toce_pot"         long_name="potential temperature"           standard_name="sea_water_potential_temperature"      unit="degC"     grid_ref="grid_T_3D"/>
+    <field id="toce_pot_e3t"     long_name="potential temperature (thickness weighted)"                                           unit="degC"     grid_ref="grid_T_3D" > toce_pot * e3t </field >
+    <field id="soce_pra"         long_name="practical salinity"              standard_name="sea_water_practical_salinity"      unit="1e-3"     grid_ref="grid_T_3D"/>
+    <field id="soce_pra_e3t"     long_name="practical salinity    (thickness weighted)"                                        unit="1e-3"     grid_ref="grid_T_3D" > soce_pra * e3t </field >
+    <!-- TEOS10 -->
+    <field id="toce_con"         long_name="conservative temperature"        standard_name="sea_water_conservative_temperature"   unit="degC"     grid_ref="grid_T_3D"/>
+    <field id="toce_con_e3t"     long_name="conservative temperature (thickness weighted)"                                        unit="degC"     grid_ref="grid_T_3D" > toce_con * e3t </field >  
+    <field id="soce_abs"         long_name="absolute salinity"               standard_name="sea_water_absolute_salinity"       unit="g/kg"     grid_ref="grid_T_3D"/>
+    <field id="soce_abs_e3t"     long_name="absolute salinity    (thickness weighted)"                                         unit="g/kg"     grid_ref="grid_T_3D" > soce_abs * e3t </field >
+    <!-- SEOS -->
+    <field id="toce_seos"         long_name="temperature"        standard_name="sea_water_temperature"   unit="degC"     grid_ref="grid_T_3D"/>
+    <field id="toce_seos_e3t"     long_name="temperature (thickness weighted)"                                        unit="degC"     grid_ref="grid_T_3D" > toce_seos * e3t </field >
+    <field id="soce_seos"         long_name="salinity"               standard_name="sea_water_salinity"       unit="1e-3"     grid_ref="grid_T_3D"/>
+    <field id="soce_seos_e3t"     long_name="salinity    (thickness weighted)"                                         unit="1e-3"     grid_ref="grid_T_3D" > soce_seos * e3t </field >
 
     <field id="toce_e3t_300"      field_ref="toce_e3t"          unit="degree_C"     grid_ref="grid_T_zoom_300"      detect_missing_value="true" />
     <field id="toce_e3t_vsum300"  field_ref="toce_e3t_300"      unit="degress_C*m"  grid_ref="grid_T_vsum"  detect_missing_value="true" />
@@ -134,37 +146,80 @@ that are available in the tidal-forcing implementation (see
     <field id="sssgrad2"    long_name="square of module of surface salinity gradient"    unit="1e-6/m2"  grid_ref="grid_T_2D_inner"/>
     <field id="ke"          long_name="kinetic energy"          standard_name="specific_kinetic_energy_of_sea_water"   unit="m2/s2"  grid_ref="grid_T_3D" />
     <field id="ke_int"      long_name="vertical integration of kinetic energy"   unit="m3/s2"  grid_ref="grid_T_2D_inner" />
+    <field id="salt2c"      long_name="Salt content vertically integrated"       unit="1e-3*kg/m2" />
 
     <!-- t-eddy viscosity coefficients (ldfdyn) -->
     <field id="ahmt_2d"      long_name=" surface t-eddy viscosity coefficient"   unit="m2/s or m4/s"                      />
     <field id="ahmt_3d"      long_name=" 3D      t-eddy viscosity coefficient"   unit="m2/s or m4/s"  grid_ref="grid_T_3D"/>
 
-    <field id="sst"          long_name="Bulk sea surface temperature"                       standard_name="bulk_sea_surface_temperature"        unit="degC"     />
-    <field id="t_skin"       long_name="Skin temperature aka SSST"                          standard_name="skin_temperature"                    unit="degC"     />
-    <field id="sst2"         long_name="square of sea surface temperature"                  standard_name="square_of_sea_surface_temperature"   unit="degC2"     > sst * sst </field >
-    <field id="sstmax"       long_name="max of sea surface temperature"   field_ref="sst"   operation="maximum"                                                 />
-    <field id="sstmin"       long_name="min of sea surface temperature"   field_ref="sst"   operation="minimum"                                                 />
-    <field id="sstgrad"      long_name="module of sst gradient"                                                                                 unit="degC/m"   grid_ref="grid_T_2D_inner" />
-    <field id="sstgrad2"     long_name="square of module of sst gradient"                                                                       unit="degC2/m2" grid_ref="grid_T_2D_inner" />
-    <field id="sbt"          long_name="sea bottom temperature"                                                                                 unit="degC"     grid_ref="grid_T_2D_inner" />
-    <field id="tosmint"      long_name="vertical integral of temperature times density"     standard_name="integral_wrt_depth_of_product_of_density_and_potential_temperature"  unit="(kg m2) degree_C" grid_ref="grid_T_2D_inner" />
-    <field id="sst_wl"       long_name="Delta SST of warm layer"                                                                                unit="degC"     />
-    <field id="sst_cs"       long_name="Delta SST of cool skin"                                                                                 unit="degC"     />
-    <field id="temp_3m"      long_name="temperature at 3m"                                                                                      unit="degC"     />
+    
+       <!-- EOS80 -->
+        <field id="sst_pot"          long_name="sea surface potential temperature"                            standard_name="sea_surface_temperature"             unit="degC"     />
+        <field id="sst2_pot"         long_name="square of sea surface potential temperature"                  standard_name="square_of_sea_surface_temperature"   unit="degC2"     > sst_pot * sst_pot </field >
+        <field id="sstmax_pot"       long_name="max of sea surface potential temperature"   field_ref="sst_pot"   operation="maximum"                                                 />
+        <field id="sstmin_pot"       long_name="min of sea surface potential temperature"   field_ref="sst_pot"   operation="minimum"                                                 />
+        <field id="sstgrad_pot"      long_name="module of potential sst gradient"                                                                                 unit="degC/m"  grid_ref="grid_T_2D_inner" />
+        <field id="sstgrad2_pot"     long_name="square of module of potential sst gradient"                                                                       unit="degC2/m2" grid_ref="grid_T_2D_inner" />
+        <field id="sbt_pot"          long_name="sea bottom potential temperature"                                                                                 unit="degC"  grid_ref="grid_T_2D_inner" />
+        <field id="tosmint_pot"      long_name="vertical integral of potential temperature times density"     standard_name="integral_wrt_depth_of_product_of_density_and_potential_temperature"  unit="(kg m2) degree_C" grid_ref="grid_T_2D_inner" />
+        <field id="sst_wl_pot"       long_name="Delta potential SST of warm layer"                                                                                unit="degC"     />
+        <field id="sst_cs_pot"       long_name="Delta potential SST of cool skin"                                                                                 unit="degC"     />
+	<field id="temp_3m_pot"      long_name="potential temperature at 3m"                                                                                      unit="degC"     />
 
-    <field id="sss"          long_name="sea surface salinity"                               standard_name="sea_surface_salinity"                unit="1e-3"     />
-    <field id="sss2"         long_name="square of sea surface salinity"                                                                         unit="1e-6"      > sss * sss </field >
-    <field id="sssmax"       long_name="max of sea surface salinity"      field_ref="sss"   operation="maximum"                                                 />
-    <field id="sssmin"       long_name="min of sea surface salinity"      field_ref="sss"   operation="minimum"                                                 />
-    <field id="sbs"          long_name="sea bottom salinity"                                                                                    unit="0.001"   grid_ref="grid_T_2D_inner" />
-    <field id="somint"       long_name="vertical integral of salinity times density"        standard_name="integral_wrt_depth_of_product_of_density_and_salinity"  unit="(kg m2) x (1e-3)" grid_ref="grid_T_2D_inner" />
+        <field id="sss_pra"          long_name="sea surface practical salinity"                               standard_name="sea_surface_practical_salinity"                unit="1e-3"     />
+        <field id="sss2_pra"         long_name="square of sea surface practical salinity"                                                                         unit="1e-6"      > sss_pra * sss_pra </field >
+        <field id="sssmax_pra"       long_name="max of sea surface practical salinity"      field_ref="sss_pra"   operation="maximum"                                                 />
+        <field id="sssmin_pra"       long_name="min of sea surface practical salinity"      field_ref="sss_pra"   operation="minimum"                                                 />
+        <field id="sbs_pra"          long_name="sea bottom practical salinity"                                                                                    unit="0.001"    grid_ref="grid_T_2D_inner" />
+        <field id="somint_pra"       long_name="vertical integral of practical salinity times density"        standard_name="integral_wrt_depth_of_product_of_density_and_practical_salinity"  unit="(kg m2) x (1e-3)" grid_ref="grid_T_2D_inner" /> 
+        
+         <!-- TEOS10 -->
+        <field id="sst_con"          long_name="sea surface conservative temperature"                            standard_name="sea_surface_conservative_temperature"             unit="degC"     />
+        <field id="sst2_con"         long_name="square of sea surface conservative temperature"                  standard_name="square_of_sea_surface_temperature"   unit="degC2"     > sst_con * sst_con </field >
+        <field id="sstmax_con"       long_name="max of sea surface conservative temperature"   field_ref="sst_con"   operation="maximum"                                                 />
+        <field id="sstmin_con"       long_name="min of sea surface conservative temperature"   field_ref="sst_con"   operation="minimum"                                                 />
+        <field id="sstgrad_con"      long_name="module of conservative sst gradient"                                                                                 unit="degC/m"  grid_ref="grid_T_2D_inner" />
+        <field id="sstgrad2_con"     long_name="square of module of conservative sst gradient"                                                                       unit="degC2/m2" grid_ref="grid_T_2D_inner" />
+        <field id="sbt_con"          long_name="sea bottom conservative temperature"                                                                                 unit="degC"    grid_ref="grid_T_2D_inner" />
+        <field id="tosmint_con"      long_name="vertical integral of conservative temperature times density"     standard_name="integral_wrt_depth_of_product_of_density_and_conservative_temperature"  unit="(kg m2) degree_C" grid_ref="grid_T_2D_inner" />
+        <field id="sst_wl_con"       long_name="Delta conservative SST of warm layer"                                                                                unit="degC"     />
+        <field id="sst_cs_con"       long_name="Delta conservative SST of cool skin"                                                                                 unit="degC"     />
+	<field id="temp_3m_con"      long_name="conservative temperature at 3m"                                                                                      unit="degC"     />
+
+        <field id="sss_abs"          long_name="sea surface absolute salinity"                               standard_name="sea_surface_absolute_salinity"                unit="g/kg"     />
+        <field id="sss2_abs"         long_name="square of sea surface absolute salinity"                                                                         unit="1e-6"      > sss_abs * sss_abs </field >
+        <field id="sssmax_abs"       long_name="max of sea surface absolute salinity"      field_ref="sss_abs"   operation="maximum"                                                 />
+        <field id="sssmin_abs"       long_name="min of sea surface absolute salinity"      field_ref="sss_abs"   operation="minimum"                                                 />
+        <field id="sbs_abs"          long_name="sea bottom absolute salinity"                                                                                    unit="g/kg"   grid_ref="grid_T_2D_inner" />
+        <field id="somint_abs"       long_name="vertical integral of absolute salinity times density"        standard_name="integral_wrt_depth_of_product_of_density_and_absolute_salinity"  unit="(kg m2) x (1e-3)" grid_ref="grid_T_2D_inner" />
+
+        <!-- SEOS -->
+        <field id="sst_seos"          long_name="sea surface temperature"                            standard_name="sea_surface_temperature"             unit="degC"     />
+        <field id="sst2_seos"         long_name="square of sea surface temperature"                  standard_name="square_of_sea_surface_temperature"   unit="degC2"     > sst_seos * sst_seos </field >
+        <field id="sstmax_seos"       long_name="max of sea surface temperature"   field_ref="sst_seos"   operation="maximum"                                                 />
+        <field id="sstmin_seos"       long_name="min of sea surface temperature"   field_ref="sst_seos"   operation="minimum"                                                 />
+        <field id="sstgrad_seos"      long_name="module of sst gradient"                                                                                 unit="degC/m"  grid_ref="grid_T_2D_inner" />
+        <field id="sstgrad2_seos"     long_name="square of module of sst gradient"                                                                       unit="degC2/m2" grid_ref="grid_T_2D_inner" />
+        <field id="sbt_seos"          long_name="sea bottom temperature"                                                                                 unit="degC"     grid_ref="grid_T_2D_inner" />
+        <field id="tosmint_seos"      long_name="vertical integral of temperature times density"     standard_name="integral_wrt_depth_of_product_of_density_and_temperature"  unit="(kg m2) degree_C" grid_ref="grid_T_2D_inner" />
+        <field id="sst_wl_seos"       long_name="Delta SST of warm layer"                                                                                unit="degC"     />
+        <field id="sst_cs_seos"       long_name="Delta SST of cool skin"                                                                                 unit="degC"     />
+	<field id="temp_3m_seos"      long_name="temperature at 3m"                                                                                      unit="degC"     />
+
+        <field id="sss_seos"          long_name="sea surface salinity"                               standard_name="sea_surface_salinity"                unit="1e-3"     />
+        <field id="sss2_seos"         long_name="square of sea surface salinity"                                                                         unit="1e-6"      > sss_seos * sss_seos </field >
+        <field id="sssmax_seos"       long_name="max of sea surface salinity"      field_ref="sss_seos"   operation="maximum"                                                 />
+        <field id="sssmin_seos"       long_name="min of sea surface salinity"      field_ref="sss_seos"   operation="minimum"                                                 />
+        <field id="sbs_seos"          long_name="sea bottom salinity"                                                                                    unit="0.001"   grid_ref="grid_T_2D_inner" />
+        <field id="somint_seos"       long_name="vertical integral of salinity times density"        standard_name="integral_wrt_depth_of_product_of_density_and_salinity"  unit="(kg m2) x (1e-3)"  grid_ref="grid_T_2D_inner" />
+
+
+
 
     <field id="taubot"       long_name="bottom stress module"   unit="N/m2"   grid_ref="grid_T_2D_inner" />
     <field id="htau"         long_name="htau length scale" unit="m"/>
-
     <!-- Case EOS = TEOS-10 : output potential temperature -->
     <field id="toce_pot"     long_name="Sea Water Potential Temperature"              standard_name="sea_water_potential_temperature"   unit="degC"     grid_ref="grid_T_3D"/>
-    <field id="toce_pot_e3t" long_name="potential temperature (thickness weighted)"                                                     unit="degC"     grid_ref="grid_T_3D" > toce_pot * e3t </field >
     <field id="sst_pot"      long_name="potential sea surface temperature"             standard_name="sea_surface_temperature"             unit="degC"     />
     <field id="tosmint_pot"  long_name="vertical integral of potential temperature times density"   standard_name="integral_wrt_depth_of_product_of_density_and_potential_temperature"  unit="(kg m2) degree_C" />
 
@@ -178,20 +233,34 @@ that are available in the tidal-forcing implementation (see
     <field id="mldr10_1"     long_name="Mixed Layer Depth (dsigma = 0.01 wrt 10m)"          standard_name="ocean_mixed_layer_thickness_defined_by_sigma_theta"                                unit="m"          />
     <field id="mldr10_1max"  long_name="Max of Mixed Layer Depth (dsigma = 0.01 wrt 10m)"   field_ref="mldr10_1"   operation="maximum"                                                                          />
     <field id="mldr10_1min"  long_name="Min of Mixed Layer Depth (dsigma = 0.01 wrt 10m)"   field_ref="mldr10_1"   operation="minimum"                                                                          />
-    <field id="heatc"        long_name="Heat content vertically integrated"                 standard_name="integral_of_sea_water_potential_temperature_wrt_depth_expressed_as_heat_content"   unit="J/m2"      grid_ref="grid_T_2D_inner" />
-    <field id="saltc"        long_name="Salt content vertically integrated"                                                                                                                   unit="PSU*kg/m2"    grid_ref="grid_T_2D_inner" />
-    <field id="salt2c"       long_name="square of Salt content vertically integrated"                                                                                                         unit="PSU2*kg/m2"   grid_ref="grid_T_2D_inner" />
+    <field id="mldzint_1"    long_name="Mixed Layer Depth interpolated"                     standard_name="ocean_mixed_layer_thickness"                                                       unit="m"      grid_ref="grid_T_2D"    />
+    <field id="mldzint_2"    long_name="Mixed Layer Depth interpolated"                     standard_name="ocean_mixed_layer_thickness"                                                       unit="m"      grid_ref="grid_T_2D"    />
+    <field id="mldzint_3"    long_name="Mixed Layer Depth interpolated"                     standard_name="ocean_mixed_layer_thickness"                                                       unit="m"      grid_ref="grid_T_2D"    />
+    <field id="mldzint_4"    long_name="Mixed Layer Depth interpolated"                     standard_name="ocean_mixed_layer_thickness"                                                       unit="m"      grid_ref="grid_T_2D"    />
+    <field id="mldzint_5"    long_name="Mixed Layer Depth interpolated"                     standard_name="ocean_mixed_layer_thickness"                                                       unit="m"      grid_ref="grid_T_2D"    />
+    <field id="mldhtc_1"     long_name="Mixed Layer Depth integrated heat content"          standard_name="integral_of_sea_water_potential_temperature_wrt_depth_expressed_as_heat_content"   unit="J/m2"   grid_ref="grid_T_2D"    />
+    <field id="mldhtc_2"     long_name="Mixed Layer Depth integrated heat content"          standard_name="integral_of_sea_water_potential_temperature_wrt_depth_expressed_as_heat_content"   unit="J/m2"   grid_ref="grid_T_2D"   />
+    <field id="mldhtc_3"     long_name="Mixed Layer Depth integrated heat content"          standard_name="integral_of_sea_water_potential_temperature_wrt_depth_expressed_as_heat_content"   unit="J/m2"   grid_ref="grid_T_2D"    />
+    <field id="mldhtc_4"     long_name="Mixed Layer Depth integrated heat content"          standard_name="integral_of_sea_water_potential_temperature_wrt_depth_expressed_as_heat_content"   unit="J/m2"   grid_ref="grid_T_2D"    />
+    <field id="mldhtc_5"     long_name="Mixed Layer Depth integrated heat content"          standard_name="integral_of_sea_water_potential_temperature_wrt_depth_expressed_as_heat_content"   unit="J/m2"   grid_ref="grid_T_2D"    />
+    <field id="heatc"        long_name="Heat content vertically integrated"                 standard_name="integral_of_sea_water_potential_temperature_wrt_depth_expressed_as_heat_content"   unit="J/m2"   grid_ref="grid_T_2D_inner" />
+    <field id="saltc"        long_name="Salt content vertically integrated"                                                                                                                   unit="1e-3.m"    grid_ref="grid_T_2D_inner" />
+    <field id="saltc2"       long_name="square of Salt content vertically integrated"                                                                                                         unit="1e-6.m2"   grid_ref="grid_T_2D_inner" />
 
     <!-- EOS -->
     <field id="alpha"        long_name="thermal expansion"                                                         unit="degC-1" grid_ref="grid_T_3D" />
     <field id="beta"         long_name="haline contraction"                                                        unit="1e3"    grid_ref="grid_T_3D" />
     <field id="rhop"         long_name="potential density (sigma0)"        standard_name="sea_water_sigma_theta"   unit="kg/m3"  grid_ref="grid_T_3D" />
+    <field id="rhop_e3t"     long_name="potential density (sigma0) thickness weighted"        standard_name="sea_water_sigma_theta"   unit="kg/m3"  grid_ref="grid_T_3D"> rhop * e3t </field>
+    <field id="N_2d"         long_name="Depth-mean N"                                                              unit="m/s" />
+    <field id="modslp"       long_name="sqrt( slpi^2 + slpj^2 )"                                                   unit="1"      grid_ref="grid_T_3D" />
     <field id="RossRad"      long_name="Rossby radius"                                                             unit="m" />
     <field id="RossRadlim"   long_name="Rossby radius (limited)"                                                   unit="m" />
     <field id="Tclinic_recip" long_name="recip of baroclinic timescale"                                            unit="s-1" />
     <field id="RR_GS"        long_name="Rossby radius / min(dx,dy)"                                                unit="1" />
 
     <!-- Energy - horizontal divergence -->
+    <field id="eken"         long_name="kinetic energy"          standard_name="specific_kinetic_energy_of_sea_water"   unit="m2/s2"  grid_ref="grid_T_3D" />
     <field id="sKE"          long_name="surface kinetic energy"  standard_name="specific_kinetic_energy_of_sea_water"   unit="m2/s2"  grid_ref="grid_T_2D_inner" />
     <field id="hdiv"         long_name="horizontal divergence"                                                          unit="s-1"    grid_ref="grid_T_3D" />
 
@@ -269,6 +338,10 @@ that are available in the tidal-forcing implementation (see
     <field id="qhcisf3d_par"    long_name="Ice shelf heat content flux of injected water ( from isf to oce )" unit="W/m2"     grid_ref="grid_T_3D" />
     <field id="qconisf"         long_name="Conductive heat flux through the ice shelf ( from isf to oce )"    unit="W/m2"     />
 
+    <field id="qlatisf"      long_name="Ice shelf latent heat flux"                    unit="W/m2"     />
+    <field id="qhcisf"       long_name="Ice shelf heat content flux"                   unit="W/m2"     />
+    <field id="fwfisf"       long_name="Ice shelf melting"                             unit="kg/m2/s"  />
+
     <!-- top boundary layer properties -->
     <field id="isftfrz_cav"     long_name="freezing point temperature at ocean/isf interface"                unit="degC"     />
     <field id="isftfrz_par"     long_name="freezing point temperature in the parametrization boundary layer" unit="degC"     />
@@ -336,7 +409,12 @@ that are available in the tidal-forcing implementation (see
     <field id="zustar"              long_name="friction velocity"                        unit="m/s"     />
     <field id="zwstrl"              long_name="langmuir velocity scale"                  unit="m/s"     />
     <field id="zvstr"               long_name="mixed velocity scale"                     unit="m/s"     />
-    <field id="zla"                 long_name="langmuir number"                          unit="m/s"     />
+    <field id="zla"                 long_name="langmuir number"                          unit="#"       />
+    <field id="wmp"                 long_name="wave mean period"                         unit="s"       />
+    <field id="hsw"                 long_name="significant wave height"                  unit="m"       />
+    <field id="wmp_NP"              long_name="wave mean period from NP spectrum"        unit="s"       />
+    <field id="hsw_NP"              long_name="significant wave height from NP spectrum" unit="m"       />
+    <field id="wndm"                long_name="U_10"                                     unit="m/s"     />
     <field id="wind_wave_abs_power" long_name="\rho |U_s| x u*^2"                        unit="mW"      />
     <field id="wind_wave_power"     long_name="U_s \dot  tau"                            unit="mW"      />
     <field id="wind_power"          long_name="\rho  u*^3"                               unit="mW"      />
@@ -432,7 +510,7 @@ that are available in the tidal-forcing implementation (see
       <field id="qt"           long_name="Net Downward Heat Flux"                standard_name="surface_downward_heat_flux_in_sea_water"                              unit="W/m2"                           />
       <field id="qns"          long_name="non solar Downward Heat Flux"                                                                                               unit="W/m2"                           />
       <field id="qsr"          long_name="Shortwave Radiation"                   standard_name="net_downward_shortwave_flux_at_sea_water_surface"                     unit="W/m2"                           />
-      <field id="qsr3d"        long_name="Shortwave Radiation 3D distribution"   standard_name="downwelling_shortwave_flux_in_sea_water"                              unit="W/m2"      grid_ref="grid_T_3D" />
+      <field id="qsr3d"        long_name="Shortwave Radiation 3D distribution"   standard_name="downwelling_shortwave_flux_in_sea_water"                              unit="W/m2"      grid_ref="grid_T_3D_inner" />
       <field id="qrp"          long_name="Surface Heat Flux: Damping"            standard_name="heat_flux_into_sea_water_due_to_newtonian_relaxation"                 unit="W/m2"                           />
       <field id="qclosea"      long_name="closed sea heat content flux"          standard_name="closea_heat_content_downward_flux"                                    unit="W/m2"     />
       <field id="erp"          long_name="Surface Water Flux: Damping"           standard_name="water_flux_out_of_sea_water_due_to_newtonian_relaxation"              unit="kg/m2/s"                        />
@@ -527,6 +605,15 @@ that are available in the tidal-forcing implementation (see
       <!-- sbcssm variables -->
       <field id="sst_m"    unit="degC" />
       <field id="sss_m"    unit="psu"  />
+
+      <field id="sst_m_pot"    unit="degC" /> 
+      <!-- EOS-80 -->
+      <field id="sss_m_pra"    unit="psu"  />
+      <!-- TEOS-10 -->
+      <field id="sss_m_abs"    unit="g/kg"  />
+      <!-- SEOS -->
+      <field id="sss_m_seos"   unit="psu"  />
+
       <field id="ssu_m"    unit="m/s"  />
       <field id="ssv_m"    unit="m/s"  />
       <field id="ssh_m"    unit="m"    />
@@ -598,8 +685,8 @@ that are available in the tidal-forcing implementation (see
     <field id="uocetr_vsum_op"    long_name="ocean current along i-axis * e3u * e2u summed on the vertical"  read_access="true"  freq_op="1mo"    field_ref="e2u"       unit="m3/s"> @uocetr_vsum </field>
     <field id="uocetr_vsum_cumul" long_name="ocean current along i-axis * e3u * e2u cumulated from southwest point" freq_offset="_reset_" operation="instant" freq_op="1mo"  unit="m3/s" />
     <field id="msftbarot"         long_name="ocean_barotropic_mass_streamfunction"   unit="kg s-1" > uocetr_vsum_cumul * $rho0 </field>
-
-
+    
+    <field id="uoce2_e3u"         long_name="ocean current along i-axis squared (thickness weighted)"                                       unit="m3/s2"      grid_ref="grid_U_3D"  > uoce * uoce * e3u </field>
     <field id="ssu"          long_name="ocean surface current along i-axis"                                                                 unit="m/s"                             />
     <field id="sbu"          long_name="ocean bottom current along i-axis"                                                                  unit="m/s"  grid_ref="grid_U_2D_inner" />
     <field id="ubar"         long_name="ocean barotropic current along i-axis"                                                              unit="m/s"                             />
@@ -660,6 +747,8 @@ that are available in the tidal-forcing implementation (see
     <field id="vtau"         long_name="Wind Stress along j-axis"                               standard_name="surface_downward_y_stress"   unit="N/m2"                            />
     <field id="voce"         long_name="ocean current along j-axis"                             standard_name="sea_water_y_velocity"        unit="m/s"        grid_ref="grid_V_3D" />
     <field id="voce_e3v"     long_name="ocean current along j-axis  (thickness weighted)"                                                   unit="m/s"        grid_ref="grid_V_3D"  > voce * e3v </field>
+
+    <field id="voce2_e3v"    long_name="ocean current along j-axis squared (thickness weighted)"                                            unit="m3/s2"      grid_ref="grid_V_3D"  > voce * voce * e3v </field>
     <field id="ssv"          long_name="ocean surface current along j-axis"                                                                 unit="m/s"                             />
     <field id="sbv"          long_name="ocean bottom current along j-axis"                                                                  unit="m/s"  grid_ref="grid_V_2D_inner" />
     <field id="vbar"         long_name="ocean barotropic current along j-axis"                                                              unit="m/s"                             />
@@ -744,6 +833,8 @@ that are available in the tidal-forcing implementation (see
     <field id="mf_app"      long_name="convective area"        standard_name="mf_convective_area"    unit="%"      grid_ref="grid_W_3D" />
     <field id="mf_wp"       long_name="convective velocity"    standard_name="mf_convective_velo"    unit="m/s"    grid_ref="grid_W_3D" />
 
+    <!-- av_tmx: available with ln_zdftmx -->
+    <field id="av_tmx"      long_name="vertical diffusivity due to tidal mixing" unit="m2/s" />
 
     <!-- avt_tide: available with ln_zdfiwm=T -->
     <field id="av_ratio"     long_name="S over T diffusivity ratio"                     standard_name="salinity_over_temperature_diffusivity_ratio"                     unit="1"    />
@@ -766,7 +857,7 @@ that are available in the tidal-forcing implementation (see
     <field id="avt_k"        long_name="vertical eddy diffusivity from closure schemes" standard_name="ocean_vertical_eddy_diffusivity"       unit="m2/s" />
     <field id="avm_k"        long_name="vertical eddy viscosity from closure schemes"   standard_name="ocean_vertical_eddy_viscosity"         unit="m2/s" />
     <field id="ediss_k"      long_name="Kolmogorov energy dissipation (tke scheme)"     standard_name="Kolmogorov_energy_dissipation"         unit="W/kg" />
-    <field id="eshear_k"     long_name="energy source from vertical shear"              standard_name="energy_source_from_shear"              unit="W/kg" />
+    <field id="eshear_k"     long_name="energy source from vertical shear"              standard_name="energy_source_from_shear"                                                      unit="W/kg"   grid_ref="grid_W_3D_inner" />
     <field id="estrat_k"     long_name="energy sink from stratification"                standard_name="energy_sink_from_stratification"       unit="W/kg" />
     
   </field_group>
@@ -789,6 +880,31 @@ that are available in the tidal-forcing implementation (see
   <!-- f-eddy viscosity coefficients (ldfdyn) -->
   <field id="ahmf_2d"      long_name=" surface f-eddy viscosity coefficient"   unit="m2/s or m4/s" />
   <field id="ahmf_3d"      long_name=" 3D      f-eddy viscosity coefficient"   unit="m2/s or m4/s"  grid_ref="grid_T_3D"/>
+  
+  
+  <!-- product fields -->
+  <field_group id="diaprod">
+  
+    <field id="ut"           long_name="product_of_sea_water_x_velocity_and_potential_temperature"      unit="degree_C m/s"      grid_ref="grid_U_3D"   />
+    <field id="ut_e3u"       long_name="product_of_sea_water_x_velocity_and_potential_temperature * e3u"  unit="degree_C m2/s"   grid_ref="grid_U_3D" > ut * e3u </field >
+    <field id="us"           long_name="product_of_sea_water_x_velocity_and_salinity"                   unit="PSU m/s"       grid_ref="grid_U_3D"   />
+    <field id="us_e3u"       long_name="product_of_sea_water_x_velocity_and_salinity * e3u"             unit="PSU m2/s"      grid_ref="grid_U_3D" > us * e3u </field >
+    <field id="urhop"        long_name="product_of_sea_water_x_velocity_and_potential_density"          unit="(kg/m3).(m/s)" grid_ref="grid_U_3D"   />
+    <field id="urhop_e3u"    long_name="product_of_sea_water_x_velocity_and_potential_density * e3u"    unit="(kg/m3).(m2/s)"   grid_ref="grid_U_3D" > urhop * e3u </field >
+    <field id="vt"           long_name="product_of_sea_water_y_velocity_and_potential_temperature"      unit="degree_C m/s"      grid_ref="grid_V_3D"   />
+    <field id="vt_e3v"       long_name="product_of_sea_water_y_velocity_and_potential_temperature * e3v"  unit="degree_C m2/s"   grid_ref="grid_V_3D" > vt * e3v </field >
+    <field id="vs"           long_name="product_of_sea_water_y_velocity_and_salinity"                   unit="PSU m/s"       grid_ref="grid_V_3D"   />
+    <field id="vs_e3v"       long_name="product_of_sea_water_y_velocity_and_salinity * e3t"             unit="PSU m2/s"      grid_ref="grid_V_3D" > vs * e3v </field >
+    <field id="vrhop"        long_name="product_of_sea_water_y_velocity_and_potential_density"          unit="(kg/m3).(m/s)" grid_ref="grid_V_3D"   />
+    <field id="vrhop_e3v"    long_name="product_of_sea_water_y_velocity_and_potential_density * e3t"    unit="(kg/m3).(m2/s)"  grid_ref="grid_V_3D" > vrhop * e3v </field >
+    <field id="wt"           long_name="product_of_upward_sea_water_velocity_and_potential_temperature" unit="degree_C m/s"      grid_ref="grid_W_3D"   />
+    <field id="ws"           long_name="product_of_upward_sea_water_velocity_and_salinity"              unit="PSU m/s"       grid_ref="grid_W_3D"   />
+    <field id="wrhop"        long_name="product_of_upward_sea_water_velocity_and_potential_density"     unit="(kg/m3).(m/s)" grid_ref="grid_W_3D"   />
+    <field id="uv"           long_name="product_of_sea_water_x_velocity_and_sea_water_y_velocity"       unit="m2/s2   "      grid_ref="grid_T_3D"   />
+    <field id="uw"           long_name="product_of_upward_sea_water_velocity_and_sea_water_x_velocity"  unit="m2/s2   "      grid_ref="grid_W_3D"   />
+    <field id="vw"           long_name="product_of_upward_sea_water_velocity_and_sea_water_y_velocity"  unit="m2/s2"         grid_ref="grid_W_3D"   />
+  
+  </field_group>
 
   <field_group id="scalar"  grid_ref="grid_scalar"  >
     <!-- Need to have a salinity reference climatological file : sali_ref_clim_monthly -->
@@ -1151,18 +1267,39 @@ that are available in the tidal-forcing implementation (see
   </field_group>
 
   <field_group id="mooring" >
-    <field field_ref="toce"         name="thetao"   long_name="sea_water_potential_temperature"      />
-    <field field_ref="soce"         name="so"       long_name="sea_water_salinity"                   />
+
+    <!-- EOS80 -->
+    <field field_ref="toce_pot"     name="thetao_pot"   long_name="sea_water_potential_temperature"  />
+    <field field_ref="soce_pra"     name="so_pra"       long_name="sea_water_practical_salinity"     />
+    <!-- TEOS10 -->
+    <field field_ref="toce_con"     name="thetao_con"   long_name="sea_water_conservative_temperature" />
+    <field field_ref="soce_abs"     name="so_con"       long_name="sea_water_absolute_salinity"      />
+    <!-- SEOS -->
+    <field field_ref="toce_seos"    name="thetao_seos"   long_name="sea_water_temperature"           />
+    <field field_ref="soce_seos"    name="so_seos"       long_name="sea_water_salinity"              />
+
     <field field_ref="uoce"         name="uo"       long_name="sea_water_x_velocity"                 />
     <field field_ref="voce"         name="vo"       long_name="sea_water_y_velocity"                 />
     <field field_ref="woce"         name="wo"       long_name="sea_water_z_velocity"                 />
     <field field_ref="avt"          name="difvho"   long_name="ocean_vertical_heat_diffusivity"      />
     <field field_ref="avm"          name="difvmo"   long_name="ocean_vertical_momentum_diffusivity"  />
 
-    <field field_ref="sst"          name="tos"      long_name="sea_surface_temperature"                       />
-    <field field_ref="sst2"         name="tossq"    long_name="square_of_sea_surface_temperature"             />
-    <field field_ref="sstgrad"      name="tosgrad"  long_name="module_of_sea_surface_temperature_gradient"    />
-    <field field_ref="sss"          name="sos"      long_name="sea_surface_salinity"                          />
+      <!-- EOS80 -->
+    <field field_ref="sst_pot"          name="tos_pot"      long_name="sea_surface_potential_temperature"                       />
+    <field field_ref="sst2_pot"         name="tossq_pot"    long_name="square_of_sea_surface_potential_temperature"             />
+    <field field_ref="sstgrad_pot"      name="tosgrad_pot"  long_name="module_of_sea_surface_potential_temperature_gradient"    />
+    <field field_ref="sss_pra"          name="sos_pra"      long_name="sea_surface_absolute_salinity"                          />
+    <!-- TEOS10 -->
+    <field field_ref="sst_con"          name="tos_con"      long_name="sea_surface_conservative_temperature"                       />
+    <field field_ref="sst2_con"         name="tossq_con"    long_name="square_of_sea_surface_conservative_temperature"             /> 
+    <field field_ref="sstgrad_con"      name="tosgrad_con" long_name="module_of_sea_surface_conservative_temperature_gradient"    />
+    <field field_ref="sss_abs"          name="sos_abs"      long_name="sea_surface_absolute_salinity"                          />
+    <!-- SEOS -->
+    <field field_ref="sst_seos"          name="tos_seos"      long_name="sea_surface_temperature"                       />    
+    <field field_ref="sst2_seos"         name="tossq_seos"    long_name="square_of_sea_surface_temperature"             />
+    <field field_ref="sstgrad_seos"      name="tosgrad_seos"  long_name="module_of_sea_surface_temperature_gradient"    />
+    <field field_ref="sss_seos"          name="sos_seos"      long_name="sea_surface_salinity"                          />
+
     <field field_ref="ssh"          name="zos"      long_name="sea_surface_height_above_geoid"                />
     <field field_ref="empmr"        name="wfo"      long_name="water_flux_into_sea_water"                     />
     <field field_ref="qsr"          name="rsntds"   long_name="surface_net_downward_shortwave_flux"           />
@@ -1185,11 +1322,26 @@ that are available in the tidal-forcing implementation (see
   </field_group>
 
   <field_group id="groupT" >
-    <field field_ref="toce"         name="thetao"   long_name="sea_water_potential_temperature"               />
-    <field field_ref="soce"         name="so"       long_name="sea_water_salinity"                            />
-    <field field_ref="sst"          name="tos"      long_name="sea_surface_temperature"                       />
-    <field field_ref="sst2"         name="tossq"    long_name="square_of_sea_surface_temperature"             />
-    <field field_ref="sss"          name="sos"      long_name="sea_surface_salinity"                          />
+  <!-- EOS80 -->
+    <field id="toce_pot"           long_name="sea_water_potential_temperature"                grid_ref="grid_T_3D"      />
+    <field id="soce_pra"           long_name="sea_water_practical_salinity"                   grid_ref="grid_T_3D"      />
+    <field id="sst_pot"            long_name="sea_surface_potential_temperature"              grid_ref="grid_T_2D"      />
+    <field id="sst2_pot"           long_name="square_of_sea_surface_potential_temperature"    grid_ref="grid_T_2D"      />
+    <field id="sss_pra"            long_name="sea_surface_practical_salinity"                 grid_ref="grid_T_2D"      />
+  <!-- TEOS10 -->
+    <field id="toce_con"           long_name="sea_water_conservative_temperature"             grid_ref="grid_T_3D"      />
+    <field id="soce_abs"           long_name="sea_water_absolute_salinity"                    grid_ref="grid_T_3D"      />
+    <field id="sst_con"            long_name="sea_surface_conservative_temperature"           grid_ref="grid_T_2D"   unit="degC"   />                
+    <field id="sst2_con"           long_name="square_of_sea_surface_conservative_temperature" grid_ref="grid_T_2D"      /> 
+    <field id="sss_abs"            long_name="sea_surface_absolute_salinity"                  grid_ref="grid_T_2D"      />
+  <!-- SEOS -->
+    <field id="toce_seos"          long_name="sea_water_temperature"                        grid_ref="grid_T_3D"      />
+    <field id="soce_seos"          long_name="sea_water_salinity"                           grid_ref="grid_T_3D"      />
+    <field id="sst_seos"           long_name="sea_surface_temperature"                      grid_ref="grid_T_2D"      />
+    <field id="sst2_seos"          long_name="square_of_sea_surface_temperature"            grid_ref="grid_T_2D"      />
+    <field id="sss_seos"           long_name="sea_surface_salinity"                         grid_ref="grid_T_2D"      />
+    
+    <field field_ref="rhop"         name="sigma0"   long_name="potential density"                             />
     <field field_ref="ssh"          name="zos"      long_name="sea_surface_height_above_geoid"                />
     <field field_ref="empmr"        name="wfo"      long_name="water_flux_into_sea_water"                     />
     <field field_ref="qsr"          name="rsntds"   long_name="surface_net_downward_shortwave_flux"           />
@@ -1223,6 +1375,30 @@ that are available in the tidal-forcing implementation (see
 
   <!-- TMB diagnostic output -->
   <field_group  id="1h_grid_T_tmb" grid_ref="grid_T_2D" operation="instant">
+
+
+    <!-- EOS80 -->
+    <field id="top_temp_pot"           name="votemper_top_pot"  unit="degC"  />
+    <field id="mid_temp_pot"           name="votemper_mid_pot"  unit="degC"  />
+    <field id="bot_temp_pot"           name="votemper_bot_pot"  unit="degC"  />
+    <field id="top_sal_pra"            name="vosaline_top_pra"  unit="psu"   />
+    <field id="mid_sal_pra"            name="vosaline_mid_pra"  unit="psu"   />
+    <field id="bot_sal_pra"            name="vosaline_bot_pra"  unit="psu"   />
+    <!-- TEOS10 -->
+    <field id="top_temp_con"           name="votemper_top_con"  unit="degC"  />
+    <field id="mid_temp_con"           name="votemper_mid_con"  unit="degC"  />
+    <field id="bot_temp_con"           name="votemper_bot_con"  unit="degC"  />
+    <field id="top_sal_abs"            name="vosaline_top_abs"  unit="g/kg"   />
+    <field id="mid_sal_abs"            name="vosaline_mid_abs"  unit="g/kg"   />
+    <field id="bot_sal_abs"            name="vosaline_bot_abs"  unit="g/kg"   />
+    <!-- SEOS -->
+    <field id="top_temp_seos"           name="votemper_top_seos"  unit="degC"  />
+    <field id="mid_temp_seos"           name="votemper_mid_seos"  unit="degC"  />
+    <field id="bot_temp_seos"           name="votemper_bot_seos"  unit="degC"  />
+    <field id="top_sal_seos"            name="vosaline_top_seos"  unit="psu"   />
+    <field id="mid_sal_seos"            name="vosaline_mid_seos"  unit="psu"   />
+    <field id="bot_sal_seos"            name="vosaline_bot_seos"  unit="psu"   />
+
     <field id="top_temp"           name="votemper_top"  unit="degC"  />
     <field id="mid_temp"           name="votemper_mid"  unit="degC"  />
     <field id="bot_temp"           name="votemper_bot"  unit="degC"  />
@@ -1248,10 +1424,19 @@ that are available in the tidal-forcing implementation (see
 
   <!-- 25h diagnostic output -->
   <field_group id="25h_grid_T" grid_ref="grid_T_3D_inner" operation="instant">
-    <field id="temper25h"         name="potential temperature 25h mean"    unit="degC" />
-    <field id="tempis25h"         name="insitu temperature 25h mean"    unit="degC" />
-    <field id="salin25h"          name="salinity 25h mean"                 unit="psu"  />
-    <field id="ssh25h"            name="sea surface height 25h mean"  grid_ref="grid_T_2D_inner"      unit="m"    />
+    <field id="tempis25h"         name="insitu temperature 25h mean"       unit="degC" />
+
+    <!-- EOS80 -->
+    <field id="temper25h_pot"     name="potential temperature 25h mean"    unit="degC" />
+    <field id="salin25h_pra"      name="practical salinity 25h mean"       unit="psu"  />
+    <!-- TEOS10 -->
+    <field id="temper25h_con"     name="conservative temperature 25h mean" unit="degC" />
+    <field id="salin25h_abs"      name="absolute salinity 25h mean"        unit="g/kg"  />
+    <!-- SEOS -->
+    <field id="temper25h_seos"    name="temperature 25h mean"              unit="degC" />
+    <field id="salin25h_seos"     name="salinity 25h mean"                 unit="psu"  />
+    
+    <field id="ssh25h"            name="sea surface height 25h mean"       unit="m" grid_ref="grid_T_2D"   />
   </field_group>
 
   <field_group id="25h_grid_U" grid_ref="grid_U_3D_inner" operation="instant" >
@@ -1273,23 +1458,6 @@ that are available in the tidal-forcing implementation (see
   <!--
       ============================================================================================================
   -->
-  <!-- output variables for my configuration (example) -->
-
-  <field_group id="myvarOCE" >
-    <!-- grid T -->
-    <field field_ref="e3t"          name="e3t"      long_name="vertical scale factor"           />
-    <field field_ref="sst"          name="tos"      long_name="sea_surface_temperature"         />
-    <field field_ref="sss"          name="sos"      long_name="sea_surface_salinity"            />
-    <field field_ref="ssh"          name="zos"      long_name="sea_surface_height_above_geoid"  />
-
-    <!-- grid U -->
-    <field field_ref="e3u"          name="e3u"     long_name="vertical scale factor"            />
-    <field field_ref="ssu"          name="uos"     long_name="sea_surface_x_velocity"           />
-
-    <!-- grid V -->
-    <field field_ref="e3v"          name="e3v"     long_name="vertical scale factor"            />
-    <field field_ref="ssv"          name="vos"     long_name="sea_surface_y_velocity"           />
-  </field_group>
 
   <!--============================-->
   <!--  CONSERVATION diagnostics  -->
