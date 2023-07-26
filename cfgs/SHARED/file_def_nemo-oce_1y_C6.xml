@@ -8,7 +8,7 @@
 ============================================================================================================
     -->
    
-    <file_definition type="one_file" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
+    <file_definition type="multiple_file" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
     
       <file_group id="1ts" output_freq="1ts"  output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
 
