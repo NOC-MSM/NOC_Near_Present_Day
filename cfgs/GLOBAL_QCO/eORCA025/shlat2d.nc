@@ -1,0 +1,1 @@
+/dssgfs01/working/atb299/NEMO_cfgs/eORCA025_v4.2/shlat2d_eORCA025_southps_v4.2.nc
