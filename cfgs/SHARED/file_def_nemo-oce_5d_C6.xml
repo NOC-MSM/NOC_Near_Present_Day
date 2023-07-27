@@ -98,7 +98,6 @@
 -->
           <field field_ref="sbt_con"         name="sbt_con" />
           <field field_ref="sbs_abs"         name="sbs_abs" />
-          <field field_ref="bn2"             name="obvfsq" />
 <!-- trend diagnostics-->
           <field field_ref="ttrd_totad_li"   name="ocontempadvect"  unit="W/m2"    />
           <field field_ref="ttrd_iso_li"     name="ocontemppmdiff"  unit="W/m2"    />
@@ -165,6 +164,7 @@
           <field field_ref="w_masstr"        name="wmo" />
 	  <field field_ref="woce"            name="wo"       standard_name="upward_sea_water_velocity" long_name="W"                  />
           <field field_ref="woce"            name="w2o"      standard_name="square_of_upward_sea_water_velocity" long_name="WW"  operation="average" > woce * woce </field>
+          <field field_ref="bn2"             name="obvfsq" />
 <!-- TO FIX
           <field field_ref="wt"              name="wt"         standard_name="product_of_upward_sea_water_velocity_and_temperature" long_name="WT"         />
           <field field_ref="ws"              name="ws"         standard_name="product_of_upward_sea_water_velocity_and_salinity" long_name="WS"            />
