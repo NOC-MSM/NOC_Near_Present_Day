@@ -99,7 +99,8 @@ ln -sfT INPUT_eORCA12_${SYSTEM} data/INPUT_eORCA12
 echo "Copying customized files into ${NEMODIR}"
 cp -r "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
 
-cp -r "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/EXP_MASTER/.
+cp -r "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA025/.
+cp -r "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA12/.
 
 ###########################################
 # TOOLS
