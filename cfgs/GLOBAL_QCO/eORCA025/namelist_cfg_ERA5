@@ -1,0 +1,240 @@
+! Created by: print_concise_namelist_cfg -c ./namelist_cfg -r ./namelist_ref -overwrite False
+
+&namrun
+    cn_exp = 'eORCA025',
+	nn_it000 = CHANGEME,
+	nn_itend = CHANGEME,
+    nn_date0 = 19760101,
+	ln_rstart = CHANGEME,
+        ln_reset_ts=.false.,
+    nn_leapy = 1,
+    nn_rstctl = 2,
+	cn_ocerst_in = 'CHANGEME',
+    cn_ocerst_indir = './RESTARTS',
+    cn_ocerst_outdir = './RESTARTS',
+    nn_stock = 70128,
+    ln_mskland = .true.,
+/
+
+&namdom
+    rn_Dt = 1800.0,
+    rn_atfp = 0.05,
+    ln_meshmask = .false.,
+/
+
+&namcfg
+    ln_read_cfg = .true.,
+    cn_domcfg = './INPUT/domcfg.nc',
+    ln_closea    = .true.,
+/
+
+&namclo
+   ln_maskcs = .true.,
+/
+
+&namtsd
+    cn_dir = './INPUT/',
+	ln_tsd_init = .false.,
+    sn_tem = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc', -1, 'temperature', .true., .true., 'yearly',
+             '', '', '',
+    sn_sal = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc', -1, 'salinity', .true., .true., 'yearly',
+             '', '', '',
+/
+
+&namsbc
+    nn_fsbc = 1,
+    ln_blk = .true.,
+    nn_ice = 2,
+    ln_traqsr = .true.,
+    ln_ssr = .true.,
+    ln_rnf = .true.,
+    nn_fwb = 1,
+/
+
+&namsbc_blk
+    ln_NCAR      = .false.,  ! "NCAR"      algorithm   (Large and Yeager 2008)
+    ln_ECMWF     = .true.,   ! "ECMWF"     algorithm   (IFS cycle 45r1)
+       rn_zqt       = 2.,    !  Air temperature & humidity reference height (m)
+    ln_humi_sph  = .false.,  !  humidity "sn_humi" is specific humidity  [kg/kg]
+    ln_humi_dpt  = .true.,   !  humidity "sn_humi" is dew-point temperature [K]
+    ln_crt_fbk   = .true.,   !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
+       rn_stau_a = -2.9e-3   !     Alpha from eq. 10: Stau = Alpha * Wnd + Beta
+       rn_stau_b =  8.0e-3   !     Beta
+
+    cn_dir = './INPUT/ERA5/',
+    sn_humi    = 'd2m',      1, 'd2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
+    sn_prec    = 'mtpr',     1, 'mtpr',     .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
+    sn_qlw     = 'msdwlwrf', 1, 'msdwlwrf', .false., .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
+    sn_qsr     = 'msdwswrf', 1, 'msdwswrf', .false., .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
+    sn_slp     = 'msl',      1, 'msl',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
+    sn_snow    = 'msr',      1, 'msr',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
+    sn_tair    = 't2m',      1, 't2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
+    sn_wndi    = 'u10',      1, 'u10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bicub.nc', 'Ume', ''
+    sn_wndj    = 'v10',      1, 'v10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bicub.nc', 'Vme', ''
+/
+
+&namtra_qsr
+    sn_chl = 'merged_ESACCI_BIOMER4V1R1_CHL_REG05', -1, 'CHLA', .true.,
+             .true., 'yearly', 'weights_REG05_to_ORCA025_bilin.nc', '',
+             '',
+    cn_dir = '/dssgfs01/scratch/acc/eORCA1/',
+    ln_qsr_rgb = .true.,
+    nn_chldta = 1,
+/
+
+&namsbc_ssr
+    nn_sssr = 2,
+    rn_deds = -166.67,
+    cn_dir = './INPUT/',
+    sn_sss = 'sss_1m_teos10_v4.2.nc', -1, 'salinity', .true., .true., 'yearly',
+             '', '', '',
+/
+
+&namsbc_rnf
+    cn_dir = './INPUT/',
+    sn_rnf = 'eORCA025_runoff_GO6_icb.nc', -1, 'sornficb', .true., .true.,
+             'yearly', '', '', '',
+    sn_cnf = 'eORCA025_runoff_GO6_icb.nc', 0, 'socoefr', .false., .true.,
+             'yearly', '', '', '',
+    sn_t_rnf='eORCA025_runoff_GO6_icb.nc',-12,'icbrnftemper',.false.,.true.,'yearly','','',''
+    ln_rnf_mouth = .true.,
+    ln_rnf_tem   = .true.,
+    rn_hrnf = 10.0,
+    rn_avt_rnf = 0.002,
+    rn_rnf_max = 0.05,
+/
+
+&namisf
+    ln_isf = .true.,
+    ln_isfpar_mlt = .true.,
+    sn_isfpar_fwf = 'INPUT/eORCA025_runoff_GO6_icb.nc', -1, 'sofwfisf', .false.,
+                    .true., 'yearly', '', '', '',
+    sn_isfpar_zmax = 'INPUT/eORCA025_runoff_GO6_icb.nc', -12, 'sozisfmax', .false.,
+                     .true., 'yearly', '', '', '',
+    sn_isfpar_zmin = 'INPUT/eORCA025_runoff_GO6_icb.nc', -12, 'sozisfmin', .false.,
+                     .true., 'yearly', '', '', '',
+/
+
+&namlbc
+    cn_shlat2d_file='shlat2d.nc',
+    cn_shlat2d_var='shlat2d',
+    ln_shlat2d=.true.,
+    rn_shlat = 0.0,
+/
+
+&namdrg
+    ln_non_lin = .true.,
+/
+
+&namdrg_bot
+    ln_boost = .true.,
+/
+
+&nambbc
+    ln_trabbc = .true.,
+    cn_dir = './INPUT/',
+    sn_qgh = 'geothermal_heating_orca025ext_extrap40_v4.2.nc', -12, 'heatflow', .false., .true., 'yearly',
+             '', '', '',
+/
+
+&nambbl
+    ln_trabbl = .true.,
+    nn_bbl_adv  =  1,
+
+/
+
+&nameos
+    ln_teos10 = .true.,
+/
+
+&namtra_adv
+    ln_traadv_fct = .true.,
+    nn_fct_h = 4,
+    nn_fct_v = 4,
+/
+
+&namtra_ldf
+    ln_traldf_lap = .true.,
+    ln_traldf_iso = .true.,
+    ln_traldf_msc = .false.,
+    nn_aht_ijk_t = 20,
+    rn_Ud        = 0.011
+/
+
+&namtra_eiv
+    ln_ldfeiv = .true.,
+    rn_ue = 1.5,
+    rn_le = 100.0,
+    nn_aei_ijk_t = 21,
+    ln_ldfeiv_dia = .true.,
+    nn_ldfeiv_shape = 2,
+
+/
+
+&namdyn_adv
+    ln_dynadv_vec = .true.,
+    nn_dynkeg = 1,
+/
+
+&namdyn_vor
+    ln_dynvor_een = .true.,
+/
+
+&namdyn_hpg
+    ln_hpg_sco = .true.,
+/
+
+&namdyn_spg
+    ln_dynspg_ts = .true.,
+/
+
+&namdyn_ldf
+    ln_dynldf_blp = .true.,
+    ln_dynldf_lev = .true.,
+    nn_ahm_ijk_t = 20,
+    rn_uv = 0.0838,
+/
+
+&namzdf
+    ln_zad_aimp = .true.,
+    ln_zdftke = .true.,
+    ln_zdfddm = .true.,
+    ln_zdfevd = .true.,
+    ln_zdfiwm = .true.,
+    nn_evdm = 1,
+    rn_evd = 10.0,
+    nn_havtb = 1,
+/
+
+&namzdf_mldzint
+    nn_mld_diag=2,
+    sn_mld1=1,10.0,0.2,0.1,
+    sn_mld2=1,10.0,-0.2,0,
+/
+
+&namzdf_tke
+    nn_htau  =  5
+/
+
+&namzdf_iwm
+   ln_mevar    = .true.,   !  variable (T) or constant (F) mixing efficiency
+   ln_tsdiff   = .true.,    !  account for differential T/S mixing (T) or not (F)
+
+   cn_dir      = './INPUT/'      !  root directory for the iwm data location
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_mpb      = 'zdfiwm_forcing_eORCA025.nc'  , -12.         , 'power_bot' , .false.  , .true. , 'yearly' , '' , ''  , ''
+   sn_mpc      = 'zdfiwm_forcing_eORCA025.nc'  , -12.         , 'power_cri' , .false.  , .true. , 'yearly' , '' , ''  , ''
+   sn_mpn      = 'zdfiwm_forcing_eORCA025.nc'  , -12.         , 'power_nsq' , .false.  , .true. , 'yearly' , '' , ''  , ''
+   sn_mps      = 'zdfiwm_forcing_eORCA025.nc'  , -12.         , 'power_sho' , .false.  , .true. , 'yearly' , '' , ''  , ''
+   sn_dsb      = 'zdfiwm_forcing_eORCA025.nc'  , -12.         , 'scale_bot' , .false.  , .true. , 'yearly' , '' , ''  , ''
+   sn_dsc      = 'zdfiwm_forcing_eORCA025.nc'  , -12.         , 'scale_cri' , .false.  , .true. , 'yearly' , '' , ''  , ''
+/
+
+&namctl
+    sn_cfctl%l_runstat = .true.,
+    ln_timing = .true.,
+    ln_diacfl = .true.,
+/
+
