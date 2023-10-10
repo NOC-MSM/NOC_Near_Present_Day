@@ -2,7 +2,7 @@
 
 Global configurations at eORCA12 and eORCA025
 
-## Quick start on {Archer2|Anemone} ({UK National| NOC} Supercomputing Service)
+## Quick start on {Archer2|Anemone}
 ```shell
 git clone git@github.com:NOC-MSM/NOC_Near_Present_Day.git {-b NEMO_v4.0}
 cd NOC_Near_Present_Day
