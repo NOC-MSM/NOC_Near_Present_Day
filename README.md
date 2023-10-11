@@ -81,6 +81,13 @@ Finally:
 sbatch run_nemo11168_48X.slurm
 ```
 
+## Using Cylc workflow [Under development]
+
+NPD can be run using Cylc, which provides the ability to graph the workflow, automating the resubmission of job increments, post-processing, data transfer, etc. It is currently being set up and tested on Anemone. The NEMO_cylc workflow is accessible here:
+
+https://github.com/NOC-OI/NEMO_cylc
+
+
 
 
 
