@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/NEMO_cfgs/eORCA025_v4.2/sss_1m_teos10_v4.2.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA025_v4.2/sss_1m_teos10_v4.2.nc

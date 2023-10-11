@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/NEMO_cfgs/eORCA025_v4.2/EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA025_v4.2/EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc

@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/NEMO_cfgs/eORCA025_v4.2/merged_ESACCI_BIOMER4V1R1_CHL_REG05.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA025_v4.2/merged_ESACCI_BIOMER4V1R1_CHL_REG05.nc

@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/NEMO_cfgs/eORCA025_v4.2/weights_REG05_to_ORCA025_bilin.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA025_v4.2/weights_REG05_to_ORCA025_bilin.nc

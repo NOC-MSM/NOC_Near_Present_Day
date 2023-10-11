@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/NEMO_cfgs/eORCA025_RK3/BASE/domcfg.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA025_v4.2/domcfg.nc

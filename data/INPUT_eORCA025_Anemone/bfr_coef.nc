@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/NEMO_cfgs/eORCA025_v4.2/eORCA025_v4.2_bfr2d_v0.2.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA025_v4.2/bfr_coef.nc

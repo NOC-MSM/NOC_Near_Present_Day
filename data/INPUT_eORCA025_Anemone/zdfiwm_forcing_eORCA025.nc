@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/NEMO_cfgs/Casimir/zdfiwm_forcing_eORCA025.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA025_v4.2/zdfiwm_forcing_eORCA025.nc
