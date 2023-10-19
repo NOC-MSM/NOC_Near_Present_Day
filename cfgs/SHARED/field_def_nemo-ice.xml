@@ -15,7 +15,7 @@
       ============================================================================================================
   -->
 
-  <field_group id="SBC" > <!-- time step automaticaly defined based on nn_fsbc -->
+  <field_group id="SBC" compression_level="1" chunking_blocksize_target="3.0" > <!-- time step automatically defined based on nn_fsbc -->
 
     <!-- 2D variables -->
     <field_group id="SBC_2D" grid_ref="grid_T_2D" >

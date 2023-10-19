@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
-#SBATCH --nodes=24
+#SBATCH --nodes=25
 ##SBATCH --exclude=compute[001-025]
 
 # ========================================================
@@ -119,13 +119,13 @@ ln -fs ../BLD/bin/nemo.exe nemo
 
 module load NEMO/prg-env
 
-export XIO_HOME=/home/acc/xios-trunk
+export XIO_HOME=/home/acc/xios3-trunk-head
 #
 export OMP_NUM_THREADS=1
 export I_MPI_SHM=off
 unset I_MPI_PMI_LIBRARY 
 
-mpiexec.hydra -print-rank-map -ppn 1 -np 24 $XIO_HOME/bin/xios_server.exe : -np 1326 ./nemo
+mpiexec.hydra -print-rank-map -ppn 1 -np 52 $XIO_HOME/bin/xios_server.exe : -np 1326 ./nemo
 
 # Move log files
 mkdir -p LOGS/"$SLURM_JOB_ID"

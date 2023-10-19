@@ -9,10 +9,10 @@
 ============================================================================================================
  -->
     
- <file_definition type="multiple_file" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
+ <file_definition type="one_file" compression_level="1" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
    
    <file_group id="1m" output_freq="1mo"  split_freq="1mo" output_level="10" enabled=".TRUE.">  <!-- 1m files -->   	
-     <file id="file61" name_suffix="_icemod" description="ice variables" enabled=".true." >
+     <file id="file61" mode="write" writer="iwriter" gatherer="igatherer" using_server2="true" name_suffix="_icemod" description="ice variables" enabled=".true." >
 
        <!-- ice mask -->
        <field field_ref="icemask"          name="simsk"   />
@@ -87,7 +87,7 @@
        
      </file>
      
-     <file id="file62" name_suffix="_SBC_scalar" description="scalar variables" enabled=".true." >
+     <file id="file62" mode="write" writer="iwriter" gatherer="igatherer" using_server2="true" compression_level="0" name_suffix="_SBC_scalar" description="scalar variables" enabled=".true." >
        <!-- global contents -->
        <field field_ref="ibgvol_tot"       name="ibgvol_tot"   />
        <field field_ref="sbgvol_tot"       name="sbgvol_tot"   />

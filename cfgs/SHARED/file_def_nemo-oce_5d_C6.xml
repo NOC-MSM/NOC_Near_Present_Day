@@ -8,7 +8,7 @@
 ============================================================================================================
     -->
    
-    <file_definition type="multiple_file" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
+    <file_definition type="one_file" compression_level="1" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
     
       <file_group id="1ts" output_freq="1ts"  output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
 
@@ -28,7 +28,7 @@
 
       <file_group id="5d" output_freq="5d"  split_freq="5d"  output_level="10" enabled=".TRUE.">  <!-- 5d files -->   
 
-	<file id="file4" name_suffix="_grid_T" description="ocean T grid variables" >
+	<file id="file4" mode="write" writer="t5dwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_T" description="ocean T grid variables" >
           <field field_ref="e3t"             name="e3t"        standard_name="cell_thickness" />
 <!-- TO FIX
           <field field_ref="20d"             name="t20d"  standard_name="depth_of_isosurface_of_sea_water_potential_temperature" />
@@ -117,7 +117,7 @@
           <field field_ref="strd_atf_li"     name="strd_atf_li"                    />
 	</file>
 	
-	<file id="file5" name_suffix="_grid_U" description="ocean U grid variables" >
+	<file id="file5" mode="write" writer="u5dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_U" description="ocean U grid variables" >
           <field field_ref="e3u"             name="e3u"     standard_name="cell_thickness" />
           <field field_ref="uoce"            name="uo"      operation="average" freq_op="5d" > @uoce_e3u / @e3u </field>
 	  <field field_ref="utau"            name="tauuo"   standard_name="surface_downward_x_stress"  />
@@ -136,7 +136,7 @@
           <field field_ref="u_salttr"        name="sozosatr" />
 	</file>
 	
-	<file id="file6" name_suffix="_grid_V" description="ocean V grid variables" >
+	<file id="file6" mode="write" writer="u5dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables" >
           <field field_ref="e3v"             name="e3v"     standard_name="cell_thickness" />
           <field field_ref="voce"            name="vo"      operation="average" freq_op="5d" > @voce_e3v / @e3v </field>
 	  <field field_ref="vtau"            name="tauvo"   standard_name="surface_downward_y_stress" />
@@ -154,7 +154,7 @@
           <field field_ref="v_salttr"        name="somesatr" />
 	</file>
 	
-	<file id="file7" name_suffix="_grid_W" description="ocean W grid variables" >
+	<file id="file7" mode="write" writer="t5dwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_W" description="ocean W grid variables" >
           <field field_ref="e3w"             name="e3w"      standard_name="cell_thickness" />
 	  <field field_ref="avt"             name="difvho"   standard_name="ocean_vertical_heat_diffusivity"  />
 	  <field field_ref="avs"             name="difvso"   standard_name="ocean_vertical_salt_diffusivity"   />                 
@@ -172,7 +172,7 @@
 -->
 	</file>
 	
-        <file id="file8" name_suffix="_scalar" description="scalar variables" enabled=".true." >
+        <file id="file8" mode="write" writer="t5dwriter" gatherer="tgatherer" using_server2="true" compression_level="0" name_suffix="_scalar" description="scalar variables" enabled=".true." >
           <field field_ref="voltot"          name="scvoltot"   />
           <field field_ref="temptot"         name="thetaoga"   />
           <field field_ref="saltot"          name="soga"   />

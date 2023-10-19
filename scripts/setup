@@ -9,11 +9,12 @@ BRANCH=branch_4.2
 TAG=4.2.1
 
 NEMODIR=${WD}/nemo
+USE_EXISTING_NEMO=0
 STOP=0
 
 # Handle arguments
 usage() { echo "Usage: $0 [-b branch] [-c commit | -t tag] [-d directory] [-s system] [-x stop_after_download]" 1>&2; exit 1; }
-while getopts ":b:c:t:d:s:x" o; do
+while getopts ":b:c:t:d:s:xu" o; do
     case "${o}" in
         b)
             BRANCH=${OPTARG}
@@ -29,6 +30,9 @@ while getopts ":b:c:t:d:s:x" o; do
             ;;
         s)
             SYSTEM=${OPTARG}
+            ;;
+        u)
+            USE_EXISTING_NEMO=1
             ;;
         x)
             STOP=1
@@ -57,22 +61,34 @@ if [[ "$SYSTEM" =~ ^([aA][nN][eE][mM][oO][nN][eE])$ ]]; then
 fi
 
 
+
+if [[ "$USE_EXISTING_NEMO" == 0 ]]; then
 # Download NEMO
-echo "Downloading NEMO"
+ echo "Downloading NEMO"
 
 # Checking out from NEMO GitLab
-git clone https://forge.nemo-ocean.eu/nemo/nemo.git -b "$BRANCH" "$NEMODIR" || exit
+ git clone https://forge.nemo-ocean.eu/nemo/nemo.git -b "$BRANCH" "$NEMODIR" || exit
 
-if [ -n "${COMMIT}" ]; then
-    cd "$NEMODIR" || exit
-    git reset --hard "$COMMIT" || exit
-    cd "$WD" || exit
-fi
+ if [ -n "${COMMIT}" ]; then
+     cd "$NEMODIR" || exit
+     git reset --hard "$COMMIT" || exit
+     cd "$WD" || exit
+ fi
 
-if [ -n "${TAG}" ]; then
-    cd "$NEMODIR" || exit
-    git reset --hard "$TAG" || exit
-    cd "$WD" || exit
+ if [ -n "${TAG}" ]; then
+     cd "$NEMODIR" || exit
+     git reset --hard "$TAG" || exit
+     cd "$WD" || exit
+ fi
+
+else
+ if [ -d "${NEMODIR}" ]; then
+  cd "$NEMODIR" || exit
+  echo "Using existing clone of nemo"
+ else
+  echo "Request to use non-existent clone of nemo"
+  exit
+ fi
 fi
 
 if [[ "$STOP" == 1 ]]; then
@@ -96,11 +112,18 @@ ln -sfT INPUT_eORCA12_${SYSTEM} data/INPUT_eORCA12
 
 
 # Copy
-echo "Copying customized files into ${NEMODIR}"
-cp -r "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
+if [[ "$USE_EXISTING_NEMO" == 0 ]]; then
+  echo "Copying customized files into ${NEMODIR}"
+  CP_ARG="-r"
+else
+  echo "Updating customized files in ${NEMODIR}"
+  CP_ARG="-ru"
+fi
 
-cp -r "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA025/.
-cp -r "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA12/.
+cp "$CP_ARG" "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
+
+cp "$CP_ARG" "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA025/.
+cp "$CP_ARG" "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA12/.
 
 ###########################################
 # TOOLS
@@ -117,7 +140,7 @@ cp -r "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA12/.
 # Add and compile cfgs
 echo "Compiling NEMO"
 cd "$NEMODIR" || exit
-./scripts/compile_nemo || exit
+../scripts/compile_nemo || exit
 
 # Bye-Bye
 squeue -u "$USER"
