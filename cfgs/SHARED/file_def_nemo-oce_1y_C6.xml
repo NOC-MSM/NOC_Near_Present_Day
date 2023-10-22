@@ -8,23 +8,7 @@
 ============================================================================================================
     -->
    
-    <file_definition type="one_file" compression_level="1" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
-    
-      <file_group id="1ts" output_freq="1ts"  output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
-
-      <file_group id="1h" output_freq="1h"  output_level="10" enabled=".TRUE."/> <!-- 1h files -->
-
-      <file_group id="2h" output_freq="2h"  output_level="10" enabled=".TRUE."/> <!-- 2h files -->
-
-      <file_group id="3h" output_freq="3h"  output_level="10" enabled=".TRUE."/> <!-- 3h files -->     
-
-      <file_group id="4h" output_freq="4h"  output_level="10" enabled=".TRUE."/> <!-- 4h files -->
-
-      <file_group id="6h" output_freq="6h"  output_level="10" enabled=".TRUE."/> <!-- 6h files -->     
-    
-
-      <file_group id="1d" output_freq="1d"  output_level="10" enabled=".TRUE."/>  <!-- 1d files -->   
-
+    <file_definition type="one_file" compression_level="1" name="OUTPUT/@expname@_@freq@" sync_freq="1y" min_digits="4">
 
       <file_group id="1y" output_freq="1y"   split_freq="1y"  output_level="10" enabled=".TRUE.">  <!-- 1y files -->   
 
@@ -154,7 +138,7 @@
           <field field_ref="v_salttr"        name="somesatr" />
 	</file>
 	
-	<file id="file23" mode="write" writer="t1ywriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_W" description="ocean W grid variables" >
+	<file id="file23" mode="write" writer="w1ywriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_W" description="ocean W grid variables" >
           <field field_ref="e3w"             name="e3w"      standard_name="cell_thickness" />
 	  <field field_ref="avt"             name="difvho"   standard_name="ocean_vertical_heat_diffusivity"  />
 	  <field field_ref="avs"             name="difvso"   standard_name="ocean_vertical_salt_diffusivity"   />                 
@@ -180,18 +164,4 @@
 
       </file_group>
 
-      <file_group id="2m" output_freq="2mo" output_level="10" enabled=".TRUE."/> <!-- real 2m files -->
-      <file_group id="3m" output_freq="3mo" output_level="10" enabled=".TRUE."/> <!-- real 3m files -->
-      <file_group id="4m" output_freq="4mo" output_level="10" enabled=".TRUE."/> <!-- real 4m files -->
-      <file_group id="6m" output_freq="6mo" output_level="10" enabled=".TRUE."/> <!-- real 6m files -->
-
-
-      <file_group id="2y"  output_freq="2y" output_level="10" enabled=".TRUE."/> <!-- real 2y files -->
-      <file_group id="5y"  output_freq="5y" output_level="10" enabled=".TRUE."/> <!-- real 5y files -->
-      <file_group id="10y" output_freq="10y" output_level="10" enabled=".TRUE."/> <!-- real 10y files -->
-
    </file_definition>
-    
-
-
-

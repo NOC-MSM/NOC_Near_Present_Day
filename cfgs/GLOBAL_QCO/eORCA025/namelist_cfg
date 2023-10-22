@@ -14,6 +14,8 @@
     cn_ocerst_outdir = './RESTARTS',
     nn_stock = 70128,
     ln_mskland = .true.,
+    ln_rst_list = .false.
+    nn_stocklist = 0,0,0,0,0,0,0,0,0,0
 /
 
 &namdom
