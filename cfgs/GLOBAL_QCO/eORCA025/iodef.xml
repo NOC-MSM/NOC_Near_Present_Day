@@ -23,22 +23,22 @@
       </variable_group>
     </variable_definition>
     <pool_definition>
-     <pool name="Opool" nprocs="90">
+     <pool name="Opool" nprocs="96">
       <service name="t1dwriter" nprocs="4"  type="writer"/>
       <service name="t5dwriter" nprocs="4"  type="writer"/>
       <service name="w5dwriter" nprocs="4"  type="writer"/>
       <service name="iwriter"   nprocs="4"  type="writer"/>
       <service name="t1mwriter" nprocs="4"  type="writer"/>
       <service name="w1mwriter" nprocs="4"  type="writer"/>
-      <service name="t1ywriter" nprocs="4"  type="writer"/>
-      <service name="w1ywriter" nprocs="4"  type="writer"/>
       <service name="u1dwriter" nprocs="4"  type="writer"/>
       <service name="u5dwriter" nprocs="4"  type="writer"/>
       <service name="u1mwriter" nprocs="4"  type="writer"/>
-      <service name="u1ywriter" nprocs="4"  type="writer"/>
       <service name="tgatherer" nprocs="24" type="gatherer"/>
-      <service name="igatherer" nprocs="4"  type="gatherer"/>
-      <service name="ugatherer" nprocs="14" type="gatherer"/>
+      <service name="igatherer" nprocs="8"  type="gatherer"/>
+      <service name="ugatherer" nprocs="16" type="gatherer"/>
+      <service name="t1ywriter" nprocs="4"  type="writer"/>
+      <service name="w1ywriter" nprocs="4"  type="writer"/>
+      <service name="u1ywriter" nprocs="4"  type="writer"/>
      </pool>
     </pool_definition>
   </context>

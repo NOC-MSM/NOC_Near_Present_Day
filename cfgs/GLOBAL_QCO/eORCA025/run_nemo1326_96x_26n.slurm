@@ -11,25 +11,25 @@
 # ========================================================
 # PARAMETERS TO SET
 # time units used here for restart frequency and simulaion length
-  TIME_UNIT=0 # 0=years ; 1=days ; 2=hours
-# Restart/resubmission frequency (in TIME_UNIT's)
+  TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
+# Restart/resubmission frequency (in TIME_UNITS)
   FREQRST=1 
 # job-step initial time step (0: infer from time.step)
 # IT000 != 0 -> auto-resubmission is switched OFF
   IT000=1
 #
-# Simulation original starting time step (unchanged for LENGTHxTIME_UNIT's)
+# Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
-# Simulation length (in TIME_UNIT's) 
+# Simulation length (in TIME_UNITS) 
   LENGTH=1   
 # Name of this script (to resubmit)
-  SCRIPTNAME=run_nemo1326_90x_26n.slurm
+  SCRIPTNAME=run_nemo1326_96x_26n.slurm
 #
-# Use of nn_stocklisk to trigger end-of-year restarts regardless of leap- or non-leap-
+# Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
 # yearly time units are used:
 #
-if [ "$TIME_UNIT" -eq 0 ] ; then 
+if [ "$TIME_UNITS" -eq 0 ] ; then 
     if [ "$FREQRST" -gt 10 ] ; then FREQRST=10 ; fi
 fi
 # ========================================================
@@ -155,8 +155,8 @@ fi
 
 # Edit nn_itend and (possibly) ln_rst_list and nn_stocklist
 # Deal with frequency and length units (convert to hours in all cases)
-# TIME_UNIT=0 # 0=years ; 1=days ; 2=hours ; no conversion required for last case.
-if [ "$TIME_UNIT" -eq 0 ]; then
+# TIME_UNITS=0 # 0=years ; 1=days ; 2=hours ; no conversion required for last case.
+if [ "$TIME_UNITS" -eq 0 ]; then
     #
     # First calculate the final timestep of the experiment based on LENGTH, ITBEGIN and nn_date0 
     # For simplicity, assume always starting at the beginning of the year.
@@ -199,11 +199,11 @@ if [ "$TIME_UNIT" -eq 0 ]; then
     ITEND=$NEXT_STOCK
     edit_var nn_stocklist "$STOCK_LIST" ./namelist_cfg
     edit_var ln_rst_list ".true." ./namelist_cfg
-elif [ "$TIME_UNIT" -eq 1 ]; then
+elif [ "$TIME_UNITS" -eq 1 ]; then
     ITEND=$(( IT000 - 1 + FREQRST * 24 * 60 * 60 / DT ))
     EXP_LENGTH=$(( LENGTH * 24 ))
     edit_var ln_rst_list ".false." ./namelist_cfg
-elif [ "$TIME_UNIT" -eq 2 ]; then
+elif [ "$TIME_UNITS" -eq 2 ]; then
     ITEND=$(( IT000 - 1 + FREQRST * 60 * 60 / DT ))
     EXP_LENGTH=$LENGTH 
     edit_var ln_rst_list ".false." ./namelist_cfg
@@ -236,7 +236,7 @@ export OMP_NUM_THREADS=1
 export I_MPI_SHM=off
 unset I_MPI_PMI_LIBRARY 
 
-mpiexec.hydra -print-rank-map -ppn 1 -np 90 $XIO_HOME/bin/xios_server.exe : -np 1326 ./nemo
+mpiexec.hydra -print-rank-map -ppn 1 -np 96 $XIO_HOME/bin/xios_server.exe : -np 1326 ./nemo
 
 # Move log files
 mkdir -p LOGS/"$SLURM_JOB_ID"

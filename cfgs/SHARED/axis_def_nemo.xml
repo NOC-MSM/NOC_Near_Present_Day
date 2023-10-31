@@ -5,15 +5,15 @@
 -->
 
 <axis_definition>
-  <axis id="deptht" long_name="Vertical T levels" unit="m" positive="down" chunking_weight="12.0" />
+  <axis id="deptht" long_name="Vertical T levels" unit="m" positive="down" chunking_weight="56.0" />
   <!--   Vertical zoom for a 31-levels ORCA2 grid for eORCA1 300m corresponds to n=35 -->
-  <axis id="deptht300" axis_ref="deptht" chunking_weight="12.0" >
+  <axis id="deptht300" axis_ref="deptht" chunking_weight="56.0" >
     <extract_axis begin="0" n="19" />
   </axis>
-  <axis id="depthu"  long_name="Vertical U levels" unit="m" positive="down" chunking_weight="12.0" />
-  <axis id="depthv"  long_name="Vertical V levels" unit="m" positive="down" chunking_weight="12.0" />
-  <axis id="depthw"  long_name="Vertical W levels" unit="m" positive="down" chunking_weight="12.0" />
-  <axis id="depthf"  long_name="Vertical F levels" unit="m" positive="down" chunking_weight="12.0" />
+  <axis id="depthu"  long_name="Vertical U levels" unit="m" positive="down" chunking_weight="56.0" />
+  <axis id="depthv"  long_name="Vertical V levels" unit="m" positive="down" chunking_weight="56.0" />
+  <axis id="depthw"  long_name="Vertical W levels" unit="m" positive="down" chunking_weight="56.0" />
+  <axis id="depthf"  long_name="Vertical F levels" unit="m" positive="down" chunking_weight="56.0" />
   <axis id="nfloat"  long_name="Float number"      unit="-"                 />
   <axis id="icbcla"  long_name="Iceberg class"      unit="1"               />
   <axis id="ncatice" long_name="Ice category"       unit="1"   chunking_weight="1.0"/>

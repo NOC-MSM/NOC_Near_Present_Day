@@ -2,8 +2,8 @@
 <domain_definition>
 
   <!--   T grid   -->
-  <domain id="grid_T" long_name="grid T" chunking_weight_i="1.0" chunking_weight_j="1.0" />
-  <domain id="grid_T_inner" long_name="grid T inner"  chunking_weight_i="1.0" chunking_weight_j="1.0"/>
+  <domain id="grid_T" long_name="grid T" chunking_weight_i="6.0" chunking_weight_j="58.0" />
+  <domain id="grid_T_inner" long_name="grid T inner"  chunking_weight_i="6.0" chunking_weight_j="58.0"/>
 
   <!--   My zoom: example of hand defined zoom   -->
   <domain id="myzoomT" domain_ref="grid_T" >
@@ -166,27 +166,27 @@
 
 
   <!--   U grid   -->
-  <domain id="grid_U" long_name="grid U" chunking_weight_i="1.0" chunking_weight_j="1.0"/>
-  <domain id="grid_U_inner" long_name="grid U inner" chunking_weight_i="1.0" chunking_weight_j="1.0"/>
+  <domain id="grid_U" long_name="grid U" chunking_weight_i="6.0" chunking_weight_j="58.0"/>
+  <domain id="grid_U_inner" long_name="grid U inner" chunking_weight_i="6.0" chunking_weight_j="58.0"/>
   <!--   Eq section   -->
   <domain id="EqU" domain_ref="grid_U" > <extract_domain id="EqU"/> </domain>
 
 
   <!--   V grid   -->
-  <domain id="grid_V" long_name="grid V" chunking_weight_i="1.0" chunking_weight_j="1.0"/>
-  <domain id="grid_V_inner" long_name="grid V inner" chunking_weight_i="1.0" chunking_weight_j="1.0"/>
+  <domain id="grid_V" long_name="grid V" chunking_weight_i="6.0" chunking_weight_j="58.0"/>
+  <domain id="grid_V_inner" long_name="grid V inner" chunking_weight_i="6.0" chunking_weight_j="58.0"/>
   <!--   Eq section : no V point on the Equator...   -->
 
 
   <!--   W grid   -->
-  <domain id="grid_W" long_name="grid W" chunking_weight_i="1.0" chunking_weight_j="1.0"/>
-  <domain id="grid_W_inner" long_name="grid W inner" chunking_weight_i="1.0" chunking_weight_j="1.0"/>
+  <domain id="grid_W" long_name="grid W" chunking_weight_i="6.0" chunking_weight_j="58.0"/>
+  <domain id="grid_W_inner" long_name="grid W inner" chunking_weight_i="6.0" chunking_weight_j="58.0"/>
   <!--   Eq section   -->
   <domain id="EqW" domain_ref="grid_W" > <extract_domain id="EqW"/> </domain>
 
   <!--   F grid   -->
-  <domain id="grid_F" long_name="grid F" chunking_weight_i="1.0" chunking_weight_j="1.0"/>
-  <domain id="grid_F_inner" long_name="grid F inner" chunking_weight_i="1.0" chunking_weight_j="1.0"/>
+  <domain id="grid_F" long_name="grid F" chunking_weight_i="6.0" chunking_weight_j="58.0"/>
+  <domain id="grid_F_inner" long_name="grid F inner" chunking_weight_i="6.0" chunking_weight_j="58.0"/>
 
   <!--   zonal mean grid   -->
   <domain id="gznl" long_name="gznl"/>
