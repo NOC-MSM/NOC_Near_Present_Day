@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/INPUTS/INPUT_eORCA025/merged_ESACCI_BIOMER4V1R1_CHL_REG05.nc

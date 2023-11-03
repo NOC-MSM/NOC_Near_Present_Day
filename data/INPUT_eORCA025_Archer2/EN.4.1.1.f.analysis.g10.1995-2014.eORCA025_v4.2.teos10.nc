@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/INPUTS/INPUT_eORCA025/EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc

@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/INPUTS/INPUT_eORCA025/shlat2d_eORCA025_southps_v4.2.nc

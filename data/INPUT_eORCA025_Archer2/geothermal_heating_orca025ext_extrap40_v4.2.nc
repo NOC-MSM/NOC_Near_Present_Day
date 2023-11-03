@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/INPUTS/INPUT_eORCA025/geothermal_heating_orca025ext_extrap40_v4.2.nc
