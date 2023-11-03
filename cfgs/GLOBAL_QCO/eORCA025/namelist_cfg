@@ -73,7 +73,7 @@
     sn_chl = 'merged_ESACCI_BIOMER4V1R1_CHL_REG05', -1, 'CHLA', .true.,
              .true., 'yearly', 'weights_REG05_to_ORCA025_bilin.nc', '',
              '',
-    cn_dir = '/dssgfs01/scratch/acc/eORCA1/',
+    cn_dir = './INPUT/',
     ln_qsr_rgb = .true.,
     nn_chldta = 1,
 /
