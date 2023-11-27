@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/INPUTS/INPUT_eORCA025/zdfiwm_forcing_eORCA025.nc

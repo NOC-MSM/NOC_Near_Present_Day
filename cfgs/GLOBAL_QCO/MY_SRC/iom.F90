@@ -2117,9 +2117,15 @@ CONTAINS
       CHARACTER(len=1)     :: cl1          ! last character of this name
       !!----------------------------------------------------------------------
       !
+#if ! defined key_xios3
       IF( xios_is_valid_zoom_domain(cdid) ) THEN
          ! define the zoom_domain attributs
          CALL xios_set_zoom_domain_attr( cdid, ibegin=ibegin, jbegin=jbegin, ni=ni, nj=nj )
+#else
+      IF( xios_is_valid_extract_domain(cdid) ) THEN
+         ! define the zoom_domain attributs
+         CALL xios_set_extract_domain_attr( cdid, ibegin=ibegin, jbegin=jbegin, ni=ni, nj=nj )
+#endif
          ! define a new 2D grid with this new domain
          CALL xios_get_handle("grid_definition", gridgroup_hdl )
          CALL xios_add_child(gridgroup_hdl, grid_hdl, TRIM(cdid)//'_2D' )   ! add a new 2D grid to grid_definition

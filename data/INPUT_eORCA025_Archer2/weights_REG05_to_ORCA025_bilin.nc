@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/INPUTS/INPUT_eORCA025/weights_REG05_to_ORCA025_bilin.nc

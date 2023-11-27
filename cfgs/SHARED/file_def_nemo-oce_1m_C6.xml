@@ -8,27 +8,11 @@
 ============================================================================================================
     -->
    
-    <file_definition type="multiple_file" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
+    <file_definition type="one_file" compression_level="1" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
     
-      <file_group id="1ts" output_freq="1ts"  output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
-
-      <file_group id="1h" output_freq="1h"  output_level="10" enabled=".TRUE."/> <!-- 1h files -->
-
-      <file_group id="2h" output_freq="2h"  output_level="10" enabled=".TRUE."/> <!-- 2h files -->
-
-      <file_group id="3h" output_freq="3h"  output_level="10" enabled=".TRUE."/> <!-- 3h files -->     
-
-      <file_group id="4h" output_freq="4h"  output_level="10" enabled=".TRUE."/> <!-- 4h files -->
-
-      <file_group id="6h" output_freq="6h"  output_level="10" enabled=".TRUE."/> <!-- 6h files -->     
-    
-
-      <file_group id="1d" output_freq="1d"  output_level="10" enabled=".TRUE."/>  <!-- 1d files -->   
-
-
       <file_group id="1m" output_freq="1mo"  split_freq="1mo" output_level="10" enabled=".TRUE.">  <!-- 1mo files -->   
 
-	<file id="file10" name_suffix="_grid_T" description="ocean T grid variables" >
+	<file id="file10" mode="write" writer="t1mwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_T" description="ocean T grid variables" >
           <field field_ref="e3t"             name="e3t"        standard_name="cell_thickness" />
 <!-- TO FIX
           <field field_ref="20d"             name="t20d"  standard_name="depth_of_isosurface_of_sea_water_potential_temperature" />
@@ -117,7 +101,7 @@
           <field field_ref="strd_atf_li"     name="strd_atf_li"                    />
 	</file>
 	
-	<file id="file11" name_suffix="_grid_U" description="ocean U grid variables" >
+	<file id="file11" mode="write" writer="u1mwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_U" description="ocean U grid variables" >
           <field field_ref="e3u"             name="e3u"     standard_name="cell_thickness" />
           <field field_ref="uoce"            name="uo"      operation="average" freq_op="1mo" > @uoce_e3u / @e3u </field>
 	  <field field_ref="utau"            name="tauuo"   standard_name="surface_downward_x_stress"  />
@@ -136,7 +120,7 @@
           <field field_ref="u_salttr"        name="sozosatr" />
 	</file>
 	
-	<file id="file12" name_suffix="_grid_V" description="ocean V grid variables" >
+	<file id="file12" mode="write" writer="u1mwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables" >
           <field field_ref="e3v"             name="e3v"     standard_name="cell_thickness" />
           <field field_ref="voce"            name="vo"      operation="average" freq_op="1mo" > @voce_e3v / @e3v </field>
 	  <field field_ref="vtau"            name="tauvo"   standard_name="surface_downward_y_stress" />
@@ -154,7 +138,7 @@
           <field field_ref="v_salttr"        name="somesatr" />
 	</file>
 	
-	<file id="file13" name_suffix="_grid_W" description="ocean W grid variables" >
+	<file id="file13" mode="write" writer="w1mwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_W" description="ocean W grid variables" >
           <field field_ref="e3w"             name="e3w"      standard_name="cell_thickness" />
 	  <field field_ref="avt"             name="difvho"   standard_name="ocean_vertical_heat_diffusivity"  />
 	  <field field_ref="avs"             name="difvso"   standard_name="ocean_vertical_salt_diffusivity"   />                 
@@ -172,7 +156,7 @@
 -->
 	</file>
 	
-        <file id="file14" name_suffix="_scalar" description="scalar variables" enabled=".true." >
+        <file id="file14" mode="write" writer="t1mwriter" gatherer="tgatherer" using_server2="true" compression_level="0" name_suffix="_scalar" description="scalar variables" enabled=".true." >
           <field field_ref="voltot"          name="scvoltot"   />
           <field field_ref="temptot"         name="thetaoga"   />
           <field field_ref="saltot"          name="soga"   />
@@ -180,18 +164,4 @@
 
       </file_group>
 
-      <file_group id="2m" output_freq="2mo" output_level="10" enabled=".TRUE."/> <!-- real 2m files -->
-      <file_group id="3m" output_freq="3mo" output_level="10" enabled=".TRUE."/> <!-- real 3m files -->
-      <file_group id="4m" output_freq="4mo" output_level="10" enabled=".TRUE."/> <!-- real 4m files -->
-      <file_group id="6m" output_freq="6mo" output_level="10" enabled=".TRUE."/> <!-- real 6m files -->
-
-
-      <file_group id="2y"  output_freq="2y" output_level="10" enabled=".TRUE."/> <!-- real 2y files -->
-      <file_group id="5y"  output_freq="5y" output_level="10" enabled=".TRUE."/> <!-- real 5y files -->
-      <file_group id="10y" output_freq="10y" output_level="10" enabled=".TRUE."/> <!-- real 10y files -->
-
    </file_definition>
-    
-
-
-
