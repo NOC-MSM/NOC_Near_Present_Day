@@ -80,7 +80,7 @@
 
 &namsbc_ssr
     nn_sssr = 2,
-    rn_deds = -166.67,
+    rn_deds = -33.3333333,
     cn_dir = './INPUT/',
     sn_sss = 'sss_1m_teos10_v4.2.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
