@@ -38,25 +38,28 @@ fi
 for ((YY=$YS;YY<=$YE;YY++))
 do
 
- [ ! -d ${YY} ] && mkdir ${YY} 
- [ ! -d rpts ] && mkdir rpts 
- [ ! -d ARCHIVE ] && mkdir ARCHIVE
- 
- if [ -f $DIR/OUTPUT/*_scalar_*-${YY}.nc ]
- then
-   mv $DIR/OUTPUT/*_scalar_*-${YY}.nc $DIR/TIDY/${YY}
- fi
+  [ ! -d ${YY} ] && mkdir ${YY} 
+  [ ! -d rpts ] && mkdir rpts 
+  [ ! -d ARCHIVE ] && mkdir ARCHIVE
 
- for ff in `ls *${YY}*rpt`
- do
-   grep -q "NEMO rebuild completed successfully" $ff
-   if [ $? -eq 0 ] 
-   then 
-     mv $DIR/OUTPUT/${ff%.*}.nc $DIR/TIDY/${YY} &
-     mv $DIR/OUTPUT/${ff%.*}_????.nc $DIR/TIDY/ARCHIVE &
-     mv ${ff} rpts
-   fi
- done
+  F1=($DIR/OUTPUT/*_scalar_*-${YY}??.nc $DIR/OUTPUT/*_scalar_*-${YY}.nc)
+  FF=$(shopt -s nullglob; ${F1[*]})
+  if [ ! -z "$FF" ]
+  then
+    echo "Moving ${YY} scalar files..."
+    mv ${FF[*]} $DIR/TIDY/${YY}
+  fi
+ 
+  for ff in `ls *_${YY}*rpt`
+  do
+    grep -q "NEMO rebuild completed successfully" $ff
+    if [ $? -eq 0 ] 
+    then 
+      mv $DIR/OUTPUT/${ff%.*}.nc $DIR/TIDY/${YY} &
+      mv $DIR/OUTPUT/${ff%.*}_????.nc $DIR/TIDY/ARCHIVE &
+      mv ${ff} rpts
+    fi
+  done
 
 done
 
