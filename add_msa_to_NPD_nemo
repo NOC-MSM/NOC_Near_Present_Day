@@ -1,0 +1,81 @@
+#!/bin/bash
+#
+# Simple script to add the medusa_resources to the main nemo tree
+# This is done by creating symbolic links to files so that the 
+# files remain under git control. Anything added to the nemo tree is
+# listed in ./nemo/.gitignore so that it cannot be accidently pushed back to
+# the nemo main branch.
+#
+# Use this to enable MEDUSA configurations to be built and used within the 
+# nemo submodule directory.
+#
+# Note, any new files added to either MEDUSA or the MY_SRC directories of
+# active configurations will need to be created under medusa_resources and
+# symbolically linked if they are to be added to the MEDUSA GitLab holdings.
+#
+# First adapt Fmake_WORK.sh so that it will follow the symbolic link to the
+# contents of the TOP/MEDUSA directory
+#
+
+echo -- Installing MEDUSA --
+
+lookfor=`grep MEDUSA ./nemo/mk/Fmake_WORK.sh`
+if [ -z "$lookfor" ] ; then
+ HAVE_ED=`which ed 2> /dev/null`
+ HAVE_EX=`which ex 2> /dev/null`
+ if [ ! -z $HAVE_ED ] ; then
+  USE_ED=$HAVE_ED
+ elif [ ! -z $HAVE_EX ] ; then
+  USE_ED=$HAVE_EX
+ else
+  echo 'Neither ed nor ex are available to adapt Fmake_WORK.sh'
+  echo 'Contents of the MEDUSA directory may not be linked correctly'
+ fi
+ if [ ! -z $USE_ED ] ; then
+  (echo '/ *find/'; \
+  echo 'a'; \
+  echo '    if [ ${comp:$(( ${#comp} - 3 )):3} == "TOP" ] ; then'; \
+  echo '     find -L $comp/MEDUSA -name \*.[Ffh]90 -exec ln -sf {} ${ZCONF}/WORK \;'; \
+  echo '    fi'; \
+  echo '.'; \
+  echo 'wq' ) | $USE_ED -s ./nemo/mk/Fmake_WORK.sh
+#
+# Also tweak makenemo so that reference directories can be links
+#
+  (echo '/ *REF_DIR/'; \
+  echo 's/find/find -L/'; \
+  echo 'wq' ) | $USE_ED -s ./nemo/makenemo
+ fi
+fi
+#
+#
+######### 2 --
+# Now insert the links where necessary
+##########################################################
+###
+## Put MEDUSA src files in TOP
+msasrc=MEDUSA_git/medusa_resources/src/TOP/MEDUSA
+nemosrc=./nemo/src/TOP/MEDUSA 
+cp -rd $msasrc $nemosrc 
+#
+# MEDUSA shared files (xml, namelists, MY_SRC)
+msasrc=MEDUSA_git/medusa_resources/cfgs/SHARED_MEDUSA
+nemosrc=./cfgs/SHARED_MEDUSA
+cp -dr $msasrc $nemosrc
+#
+## the config needs MEDUSA's MY_SRC files to be copied and not linked 
+##(Or... i can also put SHARED_MEDUSA in nemo/cfg) 
+## let's copy the files there. do it here on every setup, to keep the files up-to-date 
+## in case MEDUSA would need to be down-graded to 4.2.1.
+msasrc=./cfgs/SHARED_MEDUSA/MY_SRC
+nemosrc=./cfgs/GLOBAL_QCO_MEDUSA/MY_SRC
+echo "updating MEDUSA - MY_SRC files"
+#for bibi in cpl_oasis3.F90 oce.F90 par_trc.F90 sbccpl.F90 sbcrnf.F90 stpctl.F90 trcice.F90 trcini.F90 trcnam.F90 trcrst.F90 trcsbc.F90 trcsms.F90 trcwri.F90 
+for bibi in oce.F90 par_trc.F90 sbccpl.F90 sbcrnf.F90 stpctl.F90 trcice.F90 trcini.F90 trcnam.F90 trcrst.F90 trcsbc.F90 trcsms.F90 trcwri.F90 
+do 
+   echo copying ${msasrc}/${bibi} into ${nemosrc}/${bibi}
+   cp -d ${msasrc}/${bibi} ${nemosrc}/${bibi}
+done
+
+echo -- MEDUSA installation -- DONE --
+ 

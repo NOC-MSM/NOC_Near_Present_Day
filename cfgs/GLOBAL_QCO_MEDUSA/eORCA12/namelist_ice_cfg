@@ -1,0 +1,19 @@
+! Created by: print_concise_namelist_cfg -c ./namelist_ice_cfg -r ./namelist_ice_ref -overwrite True
+
+&nampar
+    nlay_i = 4,
+    nlay_s = 1,
+    cn_icerst_in = 'CHANGEME',
+    cn_icerst_indir = './RESTARTS',
+    cn_icerst_outdir = './RESTARTS',
+/
+
+&namsbc
+    rn_cio = 0.01,
+/
+
+&namdyn_rhg
+    ln_aevp = .false.,
+    nn_nevp = 120,
+/
+

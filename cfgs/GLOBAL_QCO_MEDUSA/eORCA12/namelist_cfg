@@ -1,0 +1,180 @@
+! Created by: print_concise_namelist_cfg -c ./namelist_cfg -r ./namelist_ref -overwrite True
+
+&namrun
+    cn_exp = 'eORCA12',
+    nn_it000 = 'CHANGEME',
+    nn_itend = 'CHANGEME',
+    nn_date0 = 20060101,
+    ln_rstart = 'CHANGEME',
+        ln_reset_ts=.false.,
+    nn_rstctl = 2,
+    cn_ocerst_in = 'CHANGEME',
+    cn_ocerst_indir = './RESTARTS',
+    cn_ocerst_outdir = './RESTARTS',
+    ln_mskland = .false.,
+    ln_cfmeta = .true.,
+/
+
+&namdom
+    rn_dt = 300.0,
+    rn_atfp = 0.03,
+    ln_meshmask = .false.,
+/
+
+&namcfg
+    ln_read_cfg = .true.,
+    cn_domcfg = './INPUT/domain_cfg.nc',
+/
+
+&namtsd
+    ln_tsd_init = 'CHANGEME',
+    cn_dir = './INPUT/',
+    sn_tem = 'g8p7ho_tsd_init_filled', 24.0, 'tn', .false., .false., 'daily',
+             '', '', '',
+    sn_sal = 'g8p7ho_tsd_init_filled', 24.0, 'sn', .false., .false., 'daily',
+             '', '', '',
+/
+
+&namsbc
+    nn_fsbc = 1,
+    ln_blk = .true.,
+    nn_ice = 2,
+    ln_traqsr = .true.,
+    ln_ssr = .true.,
+    ln_rnf = .true.,
+    nn_lsm = -3,
+/
+
+&namsbc_blk
+    cn_dir = './INPUT/JRA/',
+    sn_wndi = 'uas', 3, 'uas', .true., .false., 'yearly', 'weights_jra_eORCA12_bicubic.nc',
+              'Ume',
+    sn_wndj = 'vas', 3, 'vas', .true., .false., 'yearly', 'weights_jra_eORCA12_bicubic.nc',
+              'Vme',
+    sn_qsr = 'rsds', 3, 'rsds', .false., .false., 'yearly', 'weights_jra_eORCA12_bilin.nc',
+             '',
+    sn_qlw = 'rlds', 3, 'rlds', .false., .false., 'yearly', 'weights_jra_eORCA12_bilin.nc',
+             '',
+    sn_tair = 'tas', 3, 'tas', .true., .false., 'yearly', 'weights_jra_eORCA12_bilin.nc',
+              '',
+    sn_humi = 'huss', 3, 'huss', .true., .false., 'yearly', 'weights_jra_eORCA12_bilin.nc',
+              '',
+    sn_prec = 'ptot', 3, 'ptot', .true., .false., 'yearly', 'weights_jra_eORCA12_bilin.nc',
+              '',
+    sn_snow = 'prsn', 3, 'prsn', .true., .false., 'yearly', 'weights_jra_eORCA12_bilin.nc',
+              '',
+    sn_slp = 'psl', 3, 'psl', .true., .false., 'yearly', 'weights_jra_eORCA12_bilin.nc',
+             '',
+/
+
+&namtra_qsr
+    ln_qsr_rgb = .true.,
+/
+
+&namsbc_ssr
+    nn_sssr = 2,
+    rn_deds = -33.3333333,
+    cn_dir = './INPUT/',
+    sn_sss = 'sss_1m.nc', -1, 'salinity', .true., .true., 'yearly', '',
+             '', '',
+/
+
+&namsbc_rnf
+    ln_rnf_mouth = .true.,
+    rn_hrnf = 10.0,
+    rn_avt_rnf = 0.002,
+    ln_rnf_tem = .true.,
+    cn_dir = './INPUT/',
+    sn_rnf = 'runoff_1m_nomask.nc', -1, 'sornficb', .true., .true., 'yearly',
+             '', '', '',
+    sn_cnf = 'runoff_1m_nomask.nc', 0, 'socoefr', .false., .true., 'yearly',
+             '', '', '',
+    sn_t_rnf = 'runoff_1m_nomask.nc', -12, 'icbtemper', .false., .true.,
+               'yearly', '', '', '',
+/
+
+&namisf
+    ln_isf = .true.,
+    ln_isfpar_mlt = .true.,
+    sn_isfpar_zmax = 'INPUT/runoff_1m_nomask.nc', 0, 'sozisfmax', .false.,
+                     .true., 'yearly', '', '', '',
+    sn_isfpar_zmin = 'INPUT/runoff_1m_nomask.nc', 0, 'sozisfmin', .false.,
+                     .true., 'yearly', '', '', '',
+    sn_isfpar_fwf = 'INPUT/runoff_1m_nomask.nc', -1, 'sofwfisf', .false.,
+                    .true., 'yearly', '', '', '',
+/
+
+&namlbc
+    rn_shlat = 0,
+/
+
+&namdrg
+    ln_non_lin = .true.,
+/
+
+&namdrg_bot
+    ln_boost = .true.,
+/
+
+&nambbc
+    ln_trabbc = .true.,
+    cn_dir = './INPUT/',
+    sn_qgh = 'geothermal_heating.nc', -12, 'gh_flux', .false., .true., 'yearly',
+             'geothermal_heating_weight.nc', '', '',
+/
+
+&nameos
+    ln_teos10 = .true.,
+/
+
+&namtra_adv
+    ln_traadv_fct = .true.,
+    nn_fct_h = 4,
+    nn_fct_v = 4,
+/
+
+&namtra_ldf
+    ln_traldf_lap = .true.,
+    ln_traldf_iso = .true.,
+    nn_aht_ijk_t = 20,
+    rn_ud = 0.027,
+/
+
+&namdyn_adv
+    ln_dynadv_vec = .true.,
+    nn_dynkeg = 1,
+/
+
+&namdyn_vor
+    ln_dynvor_een = .true.,
+/
+
+&namdyn_hpg
+    ln_hpg_sco = .true.,
+/
+
+&namdyn_spg
+    ln_dynspg_ts = .true.,
+/
+
+&namdyn_ldf
+    ln_dynldf_blp = .true.,
+    ln_dynldf_lev = .true.,
+    nn_ahm_ijk_t = 20,
+    rn_uv = 0.1895,
+/
+
+&namzdf
+    ln_zad_aimp = .true.,
+    ln_zdftke = .true.,
+    ln_zdfevd = .true.,
+    nn_evdm = 1,
+    rn_evd = 10.0,
+    ln_zdfddm = .true.,
+    nn_havtb = 1,
+/
+
+&namctl
+    ln_timing = .true.,
+/
+

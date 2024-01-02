@@ -1,0 +1,57 @@
+&nampar
+   nlay_i           =   4             !  number of ice  layers
+   nlay_s           =   1             !  number of snow layers
+	cn_icerst_in = 'dummy',
+   cn_icerst_out    = "restart_ice"   !  suffix of ice restart name (output)
+   cn_icerst_indir='./RESTARTS'
+   cn_icerst_outdir = "./RESTARTS"    !  directory to write output ice restarts
+/
+
+&namalb
+   !                                  !                          !  obs range (cloud-sky)
+   rn_alb_sdry      =   0.87          !  dry snow albedo         :  0.85 -- 0.87
+   rn_alb_idry      =   0.70          !  dry ice albedo          :  0.54 -- 0.65
+   rn_alb_dpnd      =   0.36          !  ponded ice albedo       :  0.10 -- 0.30 
+/
+
+&namsbc         !   Ice surface boundary conditions
+  rn_cio            =   1.0e-02       !  ice-ocean drag coefficient (-)
+/
+
+&namthd         !   Ice thermodynamics
+   ln_leadhfx       = .false.,        !  heat in the leads is used to melt sea-ice before warming the ocean
+/
+
+&namthd_da      !   Ice lateral melting
+   rn_beta          =   1.2           !  coef. beta for lateral melting param. Recommended range=[0.8-1.2]
+   rn_dmin          =   10.0          !  minimum floe diameter for lateral melting param. Recommended range=[6-10]
+/                          
+
+&namthd_zdf     !   Ice heat diffusion
+   rn_cnd_s         =   0.5           !  thermal conductivity of the snow (0.31 W/m/K, Maykut and Untersteiner, 1971)
+
+
+&namdyn_rhg     !   Ice rheology
+      ln_aEVP       = .false.,        !  adaptive rheology (Kimmritz et al. 2016 & 2017)
+      nn_nevp       = 120             !  number of EVP subcycles                             
+/
+
+&namitd
+   rn_himax         =  99.0           !  maximum ice thickness (m) allowed
+/
+
+&namthd_sal
+   nn_icesal        =   2             !  ice salinity option
+/
+
+&namthd_pnd
+   ln_pnd_TOPO    = .true.,           !  topographic melt ponds
+   ln_pnd_LEV     = .false.,          !  level ice melt ponds
+   rn_apnd_max    =   0.5             !  maximum ice fraction that contributes to melt pond. range: 0.7 -- 0.85 ??
+/
+
+&namini         !   Ice initialization
+   ln_iceini   = .true.               !  netcdf file provided for initialization (T) or not (F)
+   nn_iceini_file   = 0               !  netcdf file provided for initialization (T) or not (F)
+   cn_dir='./'
+/

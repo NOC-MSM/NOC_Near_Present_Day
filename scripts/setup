@@ -8,6 +8,8 @@ BRANCH=branch_4.2
 #COMMIT=b1b3d9e142670c8358f240a8eeb13979600d8039
 TAG=4.2.1
 
+MEDUSA_Br=16-medusa-nemo4-2-1-3
+MEDDIR=${WD}/MEDUSA_git
 NEMODIR=${WD}/nemo
 USE_EXISTING_NEMO=0
 STOP=0
@@ -95,10 +97,27 @@ if [[ "$STOP" == 1 ]]; then
     exit
 fi
 
+# Download MEDUSA
+echo "Downloading MEDUSA"
+
+# Checking out from MEDUSA gitlab
+git clone https://git.noc.ac.uk/acc/medusa_4.2.x.git -b ${MEDUSA_Br} ${MEDDIR} || exit 
+
+##########################################
+# put MEDUSA files at the right place :
+##########################################
+cd ${WD}
+./add_msa_to_NPD_nemo
+
+
+
 ###########################################
 # SYSTEM
 ###########################################
 # System specific options
+
+cd ${WD}
+
 echo "Setting up configuration and scripts for ${SYSTEM}"
 
 echo $PWD
