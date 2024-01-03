@@ -20,7 +20,6 @@ MODULE sbcrnf
    USE sbc_oce        ! surface boundary condition variables
    USE eosbn2         ! Equation Of State
    USE closea, ONLY: l_clo_rnf, clo_rnf ! closed seas
-   USE isf_oce
    !
    USE in_out_manager ! I/O manager
    USE fldread        ! read input field at current time step
@@ -41,10 +40,8 @@ MODULE sbcrnf
    LOGICAL                    ::      ln_rnf_depth_ini  !: depth       river runoffs  computed at the initialisation
    REAL(wp)                   ::      rn_rnf_max        !: maximum value of the runoff climatologie (ln_rnf_depth_ini =T)
    REAL(wp)                   ::      rn_dep_max        !: depth over which runoffs is spread       (ln_rnf_depth_ini =T)
-   REAL(wp)                   ::      tot_flux           !: total iceberg flux (temporary variable)
    INTEGER                    ::      nn_rnf_depth_file !: create (=1) a runoff depth file or not (=0)
    LOGICAL           , PUBLIC ::   ln_rnf_icb        !: iceberg flux is specified in a file
-   LOGICAL                    ::   ln_icb_mass       !: Scale iceberg flux to match FW flux from coupled model
    LOGICAL                    ::   ln_rnf_tem        !: temperature river runoffs attribute specified in a file
    LOGICAL           , PUBLIC ::   ln_rnf_sal        !: salinity    river runoffs attribute specified in a file
    TYPE(FLD_N)       , PUBLIC ::   sn_rnf            !: information about the runoff file to be read
@@ -68,7 +65,6 @@ MODULE sbcrnf
    REAL(wp), PUBLIC, ALLOCATABLE, SAVE, DIMENSION(:,:,:) ::   rnf_tsc_b, rnf_tsc  !: before and now T & S runoff contents   [K.m/s & PSU.m/s]
 
    TYPE(FLD), PUBLIC, ALLOCATABLE, SAVE, DIMENSION(:) ::   sf_rnf       ! structure: river runoff (file information, fields read)
-  !TYPE(FLD),        ALLOCATABLE, DIMENSION(:) ::   sf_rnf       ! structure: river runoff (file information, fields read)
    TYPE(FLD),        ALLOCATABLE, DIMENSION(:) ::   sf_i_rnf     ! structure: iceberg flux (file information, fields read)
    TYPE(FLD),        ALLOCATABLE, DIMENSION(:) ::   sf_s_rnf     ! structure: river runoff salinity (file information, fields read)
    TYPE(FLD),        ALLOCATABLE, DIMENSION(:) ::   sf_t_rnf     ! structure: river runoff temperature (file information, fields read)
@@ -123,8 +119,8 @@ CONTAINS
       !
       IF( .NOT. l_rnfcpl )  THEN
                             CALL fld_read ( kt, nn_fsbc, sf_rnf   )    ! Read Runoffs data and provide it at kt ( runoffs + iceberg )
+         IF( ln_rnf_icb )   CALL fld_read ( kt, nn_fsbc, sf_i_rnf )    ! idem for iceberg flux if required
       ENDIF
-      IF(   ln_rnf_icb   )   CALL fld_read ( kt, nn_fsbc, sf_i_rnf )    ! idem for iceberg flux        if required
       IF(   ln_rnf_tem   )   CALL fld_read ( kt, nn_fsbc, sf_t_rnf )    ! idem for runoffs temperature if required
       IF(   ln_rnf_sal   )   CALL fld_read ( kt, nn_fsbc, sf_s_rnf )    ! idem for runoffs salinity    if required
       !
@@ -142,57 +138,14 @@ CONTAINS
                 CALL iom_put( 'hflx_icb_cea' , -fwficb(:,:) * rLfus )   ! output Heat Flux into Sea Water due to Iceberg Thermodynamics -->
              ENDIF
          ENDIF
-
-         IF( ln_rnf_icb ) THEN
-            fwficb(:,:) = rn_rfact * ( sf_i_rnf(1)%fnow(:,:,1) ) * tmask(:,:,1)  ! updated runoff value at time step kt
-            IF( ln_icb_mass ) THEN
-                ! Modify the Iceberg FW flux to be consistent with the change in
-                ! mass of the Antarctic/Greenland ice sheet for FW conservation in
-                ! coupled model. This isn't perfect as FW flux will go into ocean at
-                ! wrong time of year but more important to maintain FW balance
-                tot_flux = SUM(fwficb(:,:)*e1e2t(:,:)*tmask_i(:,:)*greenland_icesheet_mask(:,:)) !Need to multiply by area to convert to kg/s
-                IF( lk_mpp ) CALL mpp_sum( 'icbclv', tot_flux )
-                IF( tot_flux > rsmall ) THEN
-                    WHERE( greenland_icesheet_mask(:,:) == 1.0 )                                                                                 &
-                    &    fwficb(:,:) = fwficb(:,:) * greenland_icesheet_mass_rate_of_change * rn_greenland_calving_fraction &
-                    &                                     / tot_flux
-	                ELSE IF( rn_greenland_calving_fraction < rsmall ) THEN
-                    WHERE( greenland_icesheet_mask(:,:) == 1.0 ) fwficb(:,:) = 0.0
-                ELSE
-                    CALL CTL_STOP('STOP', 'No iceberg runoff data read in for Greenland. Check input file or set rn_greenland_calving_fraction=0.0')
-                ENDIF
-
-                tot_flux = SUM(fwficb(:,:)*e1e2t(:,:)*tmask_i(:,:)*antarctica_icesheet_mask(:,:))
-                IF( lk_mpp ) CALL mpp_sum( 'icbclv', tot_flux )
-                IF( tot_flux > rsmall ) THEN
-                    WHERE( antarctica_icesheet_mask(:,:) == 1.0 )                                                                                &
-                    &    fwficb(:,:) = fwficb(:,:) * antarctica_icesheet_mass_rate_of_change * rn_antarctica_calving_fraction &
-                    &                                     / (tot_flux  + 1.0e-10_wp )
-                ELSE IF( rn_antarctica_calving_fraction < rsmall ) THEN
-                    WHERE( antarctica_icesheet_mask(:,:) == 1.0 ) fwficb(:,:) = 0.0
-                ELSE
-                    CALL CTL_STOP('STOP', 'No iceberg runoff data read in for Antarctica. Check input file or set rn_antarctica_calving_fraction=0.0')
-                ENDIF
-            ENDIF
-            CALL lbc_lnk('sbcrnf',rnf,'T',1._wp,fwficb,'T',1._wp)
-            CALL iom_put( 'berg_melt'  , fwficb(:,:)  )          ! output iceberg flux
-            CALL iom_put( 'hflx_icb_cea' , fwficb(:,:) * rLfus )   ! output Heat Flux into Sea Water due to Iceberg Thermodynamics -->
-            rnf(:,:) = rnf(:,:) + fwficb(:,:)                      ! fwficb isn't used anywhere else so add it to runoff here
-            qns_tot(:,:) = qns_tot(:,:) - fwficb(:,:) * rLfus      ! TG: I think this is correct
-         ENDIF         !
-
+         !
          !                                                           ! set temperature & salinity content of runoffs
          IF( ln_rnf_tem ) THEN                                       ! use runoffs temperature data
             rnf_tsc(:,:,jp_tem) = ( sf_t_rnf(1)%fnow(:,:,1) ) * rnf(:,:) * r1_rho0
             CALL eos_fzp( sss_m(:,:), ztfrz(:,:) )
             WHERE( sf_t_rnf(1)%fnow(:,:,1) == -999._wp )             ! if missing data value use SST as runoffs temperature
-               rnf_tsc(:,:,jp_tem) = MAX( sst_m(:,:), 0.0_wp ) * rnf(:,:) * r1_rho0
+               rnf_tsc(:,:,jp_tem) = sst_m(:,:) * rnf(:,:) * r1_rho0
             END WHERE
-            WHERE( sf_t_rnf(1)%fnow(:,:,1) == -222._wp )
-            ! where fwf comes from melting of ice shelves or iceberg
-                rnf_tsc(:,:,jp_tem) = ztfrz(:,:) * rnf(:,:) * r1_rho0 - rnf(:,:) * rLfusisf * r1_rho0_rcp
-            END WHERE
-
          ELSE                                                        ! use SST as runoffs temperature
             !CEOD River is fresh water so must at least be 0 unless we consider ice
             rnf_tsc(:,:,jp_tem) = MAX( sst_m(:,:), 0.0_wp ) * rnf(:,:) * r1_rho0
@@ -205,15 +158,11 @@ CONTAINS
          IF( iom_use('sflx_rnf_cea') )   CALL iom_put( 'sflx_rnf_cea', rnf_tsc(:,:,jp_sal) * rho0       )   ! output runoff salt flux (g/m2/s)
       ENDIF
       !
-
-      ! Make sure rnf is up to date!
-      call lbc_lnk('rnf_div', rnf, 'T', 1.0)
-
       !                                                ! ---------------------------------------- !
       IF( kt == nit000 ) THEN                          !   set the forcing field at nit000 - 1    !
          !                                             ! ---------------------------------------- !
          IF( ln_rstart .AND. .NOT.l_1st_euler ) THEN         !* Restart: read in restart file
-            IF(lwp) WRITE(numout,*) '          nit000-1 runoff forcing fields read in the restart file', lrxios
+            IF(lwp) WRITE(numout,*) '          nit000-1 runoff forcing fields red in the restart file', lrxios
             CALL iom_get( numror, jpdom_auto, 'rnf_b'   , rnf_b                 )   ! before runoff
             CALL iom_get( numror, jpdom_auto, 'rnf_hc_b', rnf_tsc_b(:,:,jp_tem) )   ! before heat content of runoff
             CALL iom_get( numror, jpdom_auto, 'rnf_sc_b', rnf_tsc_b(:,:,jp_sal) )   ! before salinity content of runoff
@@ -310,7 +259,7 @@ CONTAINS
       REAL(wp)          ::   zacoef
       REAL(wp), DIMENSION(jpi,jpj,2) :: zrnfcl
       !!
-      NAMELIST/namsbc_rnf/ cn_dir            , ln_rnf_depth, ln_rnf_tem, ln_rnf_sal, ln_rnf_icb, ln_icb_mass, &
+      NAMELIST/namsbc_rnf/ cn_dir            , ln_rnf_depth, ln_rnf_tem, ln_rnf_sal, ln_rnf_icb,   &
          &                 sn_rnf, sn_cnf    , sn_i_rnf, sn_s_rnf    , sn_t_rnf  , sn_dep_rnf,   &
          &                 ln_rnf_mouth      , rn_hrnf     , rn_avt_rnf, rn_rfact,     &
          &                 ln_rnf_depth_ini  , rn_dep_max  , rn_rnf_max, nn_rnf_depth_file
@@ -369,21 +318,20 @@ CONTAINS
          IF( sn_rnf%ln_tint ) ALLOCATE( sf_rnf(1)%fdta(jpi,jpj,1,2) )
          CALL fld_fill( sf_rnf, (/ sn_rnf /), cn_dir, 'sbc_rnf_init', 'read runoffs data', 'namsbc_rnf', no_print )
          !
-
-      ENDIF
-
-      IF( ln_rnf_icb ) THEN                      ! Create (if required) sf_i_rnf structure
-         IF(lwp) WRITE(numout,*)
-         IF(lwp) WRITE(numout,*) '          iceberg flux read in a file'
-         ALLOCATE( sf_i_rnf(1), STAT=ierror  )
-         IF( ierror > 0 ) THEN
-            CALL ctl_stop( 'sbc_rnf_init: unable to allocate sf_i_rnf structure' )   ;   RETURN
+         IF( ln_rnf_icb ) THEN                      ! Create (if required) sf_i_rnf structure
+            IF(lwp) WRITE(numout,*)
+            IF(lwp) WRITE(numout,*) '          iceberg flux read in a file'
+            ALLOCATE( sf_i_rnf(1), STAT=ierror  )
+            IF( ierror > 0 ) THEN
+               CALL ctl_stop( 'sbc_rnf_init: unable to allocate sf_i_rnf structure' )   ;   RETURN
+            ENDIF
+            ALLOCATE( sf_i_rnf(1)%fnow(jpi,jpj,1)   )
+            IF( sn_i_rnf%ln_tint ) ALLOCATE( sf_i_rnf(1)%fdta(jpi,jpj,1,2) )
+            CALL fld_fill (sf_i_rnf, (/ sn_i_rnf /), cn_dir, 'sbc_rnf_init', 'read iceberg flux data', 'namsbc_rnf' )
+         ELSE
+            fwficb(:,:) = 0._wp
          ENDIF
-         ALLOCATE( sf_i_rnf(1)%fnow(jpi,jpj,1)   )
-         IF( sn_i_rnf%ln_tint ) ALLOCATE( sf_i_rnf(1)%fdta(jpi,jpj,1,2) )
-         CALL fld_fill (sf_i_rnf, (/ sn_i_rnf /), cn_dir, 'sbc_rnf_init', 'read iceberg flux data', 'namsbc_rnf' )
-      ELSE
-         fwficb(:,:) = 0._wp
+
       ENDIF
       !
       IF( ln_rnf_tem ) THEN                      ! Create (if required) sf_t_rnf structure
