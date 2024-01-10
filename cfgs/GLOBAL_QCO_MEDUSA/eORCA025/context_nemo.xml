@@ -36,13 +36,13 @@
     <file_definition src="./file_def_nemo-medusa.xml"/>      <!--  NEMO ocean sea ice                      -->
 
 <!-- Axis definition -->
-    <axis_definition src="./axis_def_nemo.xml"/>
+    <axis_definition src="./axis_def_nemo-medusa.xml"/>
  
 <!-- Domain definition -->
     <domain_definition src="./domain_def_nemo.xml"/>
 
 <!-- Grids definition -->
-    <grid_definition   src="./grid_def_nemo.xml"/>
+    <grid_definition   src="./grid_def_nemo-medusa.xml"/>
   
 
 </context>
