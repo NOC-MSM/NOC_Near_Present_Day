@@ -107,7 +107,7 @@ git clone https://git.noc.ac.uk/acc/medusa_4.2.x.git -b ${MEDUSA_Br} ${MEDDIR} |
 # put MEDUSA files at the right place :
 ##########################################
 cd ${WD}
-./add_msa_to_NPD_nemo
+./scripts/add_msa_to_NPD_nemo
 
 
 
