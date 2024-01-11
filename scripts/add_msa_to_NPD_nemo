@@ -67,11 +67,17 @@ cp -dr $msasrc $nemosrc
 ##(Or... i can also put SHARED_MEDUSA in nemo/cfg) 
 ## let's copy the files there. do it here on every setup, to keep the files up-to-date 
 ## in case MEDUSA would need to be down-graded to 4.2.1.
+## 1 - GLOBAL_QCO/MSR -- So that even if NEMO evolve, NEMO-MEDUSA is up-to-date
+msasrc=./cfgs/GLOBAL_QCO/MY_SRC
+nemosrc=./cfgs/GLOBAL_QCO_MEDUSA/MY_SRC
+echo copying ${msasrc}/\* into ${nemosrc}/
+cp -d ${msasrc}/* ${nemosrc}/
+## 2 - SHARED_MEDUSA/MY_SRC (not all)
 msasrc=./cfgs/SHARED_MEDUSA/MY_SRC
 nemosrc=./cfgs/GLOBAL_QCO_MEDUSA/MY_SRC
 echo "updating MEDUSA - MY_SRC files"
 #for bibi in cpl_oasis3.F90 oce.F90 par_trc.F90 sbccpl.F90 sbcrnf.F90 stpctl.F90 trcice.F90 trcini.F90 trcnam.F90 trcrst.F90 trcsbc.F90 trcsms.F90 trcwri.F90 
-for bibi in oce.F90 par_trc.F90 sbccpl.F90 stpctl.F90 trcice.F90 trcini.F90 trcnam.F90 trcrst.F90 trcsbc.F90 trcsms.F90 trcwri.F90 
+for bibi in oce.F90 par_trc.F90 sbccpl.F90 stpctl.F90 trcice.F90 trcini.F90 trcnam.F90 trcrst.F90 trcsbc.F90 trcsms.F90 trcwri.F90 diawri.F90  
 do 
    echo copying ${msasrc}/${bibi} into ${nemosrc}/${bibi}
    cp -d ${msasrc}/${bibi} ${nemosrc}/${bibi}

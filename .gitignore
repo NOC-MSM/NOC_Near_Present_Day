@@ -1,6 +1,7 @@
 nemo/
 MEDUSA_git/
-cfg/SHARED_MEDUSA/
+cfgs/SHARED_MEDUSA/
+cfgs/GLOBAL_QCO_MEDUSA/MY_SRC/*.F90
 head/
 ISSUE.md
 
