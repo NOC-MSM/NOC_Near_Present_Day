@@ -297,17 +297,13 @@ CONTAINS
             !                                !     1/2  (W_lc)^2 = MAX( u* u_s + v* v_s , 0 )   only the positive part
 !!gm  ! PS: currently we don't have neither the 2 stress components at t-point !nor the angle between u* and u_s
 !!gm  ! so we will overestimate the LC velocity....   !!gm I will do the work if !LC have an effect !
-            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-!!XC                  zWlc2(ji,jj) = 0.5_wp * SQRT( taum(ji,jj) * r1_rho0 * ( ut0sd(ji,jj)**2 +vt0sd(ji,jj)**2 )  )
-                  zWlc2(ji,jj) = 0.5_wp *  ( ut0sd(ji,jj)**2 +vt0sd(ji,jj)**2 )
-            END_2D
 !
 !  Projection of Stokes drift in the wind stress direction
 !
             DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
                   ztaui   = 0.5_wp * ( utau(ji,jj) + utau(ji-1,jj) )
                   ztauj   = 0.5_wp * ( vtau(ji,jj) + vtau(ji,jj-1) )
-                  z1_norm = 1._wp / MAX( SQRT(ztaui*ztaui+ztauj*ztauj), 1.e-12 ) * tmask(ji,jj,1)
+                  z1_norm = 1._wp / MAX( ztaui*ztaui+ztauj*ztauj, 1.e-12 ) * tmask(ji,jj,1)
                   zWlc2(ji,jj) = 0.5_wp * z1_norm * ( MAX( ut0sd(ji,jj)*ztaui + vt0sd(ji,jj)*ztauj, 0._wp ) )**2
             END_2D
          ELSE                          ! Surface Stokes drift deduced from surface stress
