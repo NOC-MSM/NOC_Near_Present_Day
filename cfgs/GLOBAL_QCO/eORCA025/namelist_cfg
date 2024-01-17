@@ -136,7 +136,6 @@
 &nambbl
     ln_trabbl = .true.,
     nn_bbl_adv  =  1,
-
 /
 
 &nameos
@@ -164,7 +163,6 @@
     nn_aei_ijk_t = 21,
     ln_ldfeiv_dia = .true.,
     nn_ldfeiv_shape = 2,
-
 /
 
 &namdyn_adv
