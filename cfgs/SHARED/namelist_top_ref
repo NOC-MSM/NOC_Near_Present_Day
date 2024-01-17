@@ -13,8 +13,8 @@
 !-----------------------------------------------------------------------
 &namtrc_run      !   run information
 !-----------------------------------------------------------------------
-   ln_top_euler  = .false.,   !  use Euler time-stepping for TOP
-   ln_rsttr      = .false.,   !  start from a restart file (T) or not (F)
+   ln_top_euler  = .false.   !  use Euler time-stepping for TOP
+   ln_rsttr      = .false.   !  start from a restart file (T) or not (F)
    nn_rsttr      =   0       !  restart control = 0 initial time step is not compared to the restart file value
                              !                  = 1 do not use the value in the restart file
                              !                  = 2 calendar parameters read in the restart file
@@ -28,25 +28,25 @@
 !-----------------------------------------------------------------------
    jp_bgc        =  0           !  Number of passive tracers of the BGC model
    !
-   ln_pisces     =  .false.,     !  Run PISCES BGC model 
-   ln_my_trc     =  .false.,     !  Run MY_TRC BGC model
-   ln_age        =  .false.,     !  Run the sea water age tracer
-   ln_cfc11      =  .false.,     !  Run the CFC11 passive tracer
-   ln_cfc12      =  .false.,     !  Run the CFC12 passive tracer
-   ln_sf6        =  .false.,     !  Run the SF6 passive tracer
-   ln_c14        =  .false.,     !  Run the Radiocarbon passive tracer
+   ln_pisces     =  .false.     !  Run PISCES BGC model 
+   ln_my_trc     =  .false.     !  Run MY_TRC BGC model
+   ln_age        =  .false.     !  Run the sea water age tracer
+   ln_cfc11      =  .false.     !  Run the CFC11 passive tracer
+   ln_cfc12      =  .false.     !  Run the CFC12 passive tracer
+   ln_sf6        =  .false.     !  Run the SF6 passive tracer
+   ln_c14        =  .false.     !  Run the Radiocarbon passive tracer
    !
-   ln_trcdta     =  .false.,  !  Initialisation from data input file (T) or not (F)
-   ln_trcdmp     =  .false.,  !  add a damping termn (T) or not (F)
-   ln_trcdmp_clo =  .false.,  !  damping term (T) or not (F) on closed seas
-   ln_trcbc      =  .false.,  !  Surface, Lateral or Open Boundaries conditions
-   ln_trcais     =  .false.,  !  Antarctic Ice Sheet nutrient supply
+   ln_trcdta     =  .false.  !  Initialisation from data input file (T) or not (F)
+   ln_trcdmp     =  .false.  !  add a damping termn (T) or not (F)
+   ln_trcdmp_clo =  .false.  !  damping term (T) or not (F) on closed seas
+   ln_trcbc      =  .false.  !  Surface, Lateral or Open Boundaries conditions
+   ln_trcais     =  .false.  !  Antarctic Ice Sheet nutrient supply
    !
    jp_dia3d      = 0         ! Number of 3D diagnostic variables
    jp_dia2d      = 0         ! Number of 2D diagnostic variables
    !_____________!___________!_________________________________________!____________!________________!
    !             !    name   !           title of the field            !   units    ! init from file ! 
-!  sn_tracer(1)  = 'tracer  ', 'Tracer  Concentration                 ',   ' - '    ,   .false.,
+!  sn_tracer(1)  = 'tracer  ', 'Tracer  Concentration                 ',   ' - '    ,   .false.
 /
 !-----------------------------------------------------------------------
 &namage          !   AGE 
@@ -66,25 +66,25 @@
 !-----------------------------------------------------------------------
 &namtrc_adv      !   advection scheme for passive tracer                (default: NO selection)
 !-----------------------------------------------------------------------
-   ln_trcadv_OFF =  .false.,  !  No passive tracer advection
-   ln_trcadv_cen =  .false.,  !  2nd order centered scheme
+   ln_trcadv_OFF =  .false.  !  No passive tracer advection
+   ln_trcadv_cen =  .false.  !  2nd order centered scheme
       nn_cen_h   =  4               !  =2/4, horizontal 2nd order CEN / 4th order CEN
       nn_cen_v   =  4               !  =2/4, vertical   2nd order CEN / 4th order COMPACT
-   ln_trcadv_fct =  .false.,  !  FCT scheme
+   ln_trcadv_fct =  .false.  !  FCT scheme
       nn_fct_h   =  2               !  =2/4, horizontal 2nd / 4th order 
       nn_fct_v   =  2               !  =2/4, vertical   2nd / COMPACT 4th order 
-   ln_trcadv_mus =  .false.,  !  MUSCL scheme
-      ln_mus_ups =  .false.,         !  use upstream scheme near river mouths
-   ln_trcadv_ubs =  .false.,  !  UBS scheme
+   ln_trcadv_mus =  .false.  !  MUSCL scheme
+      ln_mus_ups =  .false.         !  use upstream scheme near river mouths
+   ln_trcadv_ubs =  .false.  !  UBS scheme
       nn_ubs_v   =  2               !  =2  , vertical 2nd order FCT
-   ln_trcadv_qck =  .false.,  !  QUICKEST scheme
+   ln_trcadv_qck =  .false.  !  QUICKEST scheme
 /
 !-----------------------------------------------------------------------
 &namtrc_ldf      !   lateral diffusion scheme for passive tracer        (default: NO selection)
 !-----------------------------------------------------------------------
 !                            !  Type of the operator:
-   ln_trcldf_OFF   =  .false.,    !  No explicit diffusion
-   ln_trcldf_tra   =  .false.,    !  use active tracer setting
+   ln_trcldf_OFF   =  .false.    !  No explicit diffusion
+   ln_trcldf_tra   =  .false.    !  use active tracer setting
    !                         !  Coefficient (defined with namtra_ldf coefficient)
    rn_ldf_multi    = 1.          !  multiplier of aht for TRC mixing coefficient
    rn_fact_lap     = 1.          !  Equatorial enhanced zonal eddy diffusivity (lap only)
@@ -92,7 +92,7 @@
 !-----------------------------------------------------------------------
 &namtrc_rad      !  treatment of negative concentrations 
 !-----------------------------------------------------------------------
-   ln_trcrad     =  .true.,   !  artificially correct negative concentrations (T) or not (F)
+   ln_trcrad     =  .true.   !  artificially correct negative concentrations (T) or not (F)
 /
 !-----------------------------------------------------------------------
 &namtrc_snk      !  Sedimentation of particles
@@ -102,7 +102,7 @@
 !-----------------------------------------------------------------------
 &namtrc_dcy      !  Diurnal cycle
 !-----------------------------------------------------------------------
-   ln_trcdc2dm   =  .false.,   !  Diurnal cycle for TOP
+   ln_trcdc2dm   =  .false.   !  Diurnal cycle for TOP
 /
 !-----------------------------------------------------------------------
 &namtrc_opt      !  light availability in the water column
@@ -111,7 +111,7 @@
 !                !                  !  (if <0  months)  !   name    !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  ! filename      !
    sn_par        = 'par.orca'       ,     24            , 'fr_par'  ,  .true.      , .true. , 'yearly'  , ''       , ''       , ''
    cn_dir        = './'        ! root directory for the location of the dynamical files
-   ln_varpar     =  .true.,     ! Read PAR from file
+   ln_varpar     =  .true.     ! Read PAR from file
    parlux        =  0.43       ! Fraction of shortwave as PAR
    light_loc     = 'center'    ! Light location in the water cell ('center', 'integral')
 /
@@ -138,21 +138,30 @@
    nn_trd_trc    =  5475     !  time step frequency and tracers trends
    nn_ctls_trc   =   0       !  control surface type in mixed-layer trends (0,1 or n<jpk)
    rn_ucf_trc    =   1       !  unit conversion factor (=1 -> /seconds ; =86400. -> /day)
-   ln_trdmld_trc_restart = .false., !  restart for ML diagnostics
-   ln_trdmld_trc_instant = .true.,  !  flag to diagnose trends of instantantaneous or mean ML T/S
-   ln_trdtrc( 1) = .true.,
-   ln_trdtrc( 2) = .true.,
-   ln_trdtrc(23) = .true.,
+   ln_trdmld_trc_restart = .false. !  restart for ML diagnostics
+   ln_trdmld_trc_instant = .true.  !  flag to diagnose trends of instantantaneous or mean ML T/S
+   ln_trdtrc( 1) = .true.
+   ln_trdtrc( 2) = .true.
+   ln_trdtrc(23) = .true.
 /
 !----------------------------------------------------------------------
 &namtrc_bc       !   data for boundary conditions
+!----------------------------------------------------------------------
+! Surface and coastal input data must be specified individually for each tracer.
+! Lateral open boundary inputs are specified for each BDY segment and related inputfiles
+!  must contain data for the variables with active open boundary (set through &namtrc).
+!  By default, variable names of BDY inputfiles are the same as in &namtrc, but using 
+!  cn_tronam it is possible to specify alternative variable names to match with inputfiles.
+!               !    file name             ! freq ! variable ! time interp. ! clim   !'yearly' ! weights  ! rotation | land/sea
+!  sn_trcobc(1) = 'bdy_dta_trc_North_y1980',  -1  , 'dummy'  ,  .false.     , .true. ,'yearly' ,  '',  '',  ''
 !-----------------------------------------------------------------------
    cn_dir_sbc    =  './'     !  root directory for the location of SURFACE data files
    cn_dir_cbc    =  './'     !  root directory for the location of COASTAL data files
    cn_dir_obc    =  './'     !  root directory for the location of OPEN data files
-   ln_rnf_ctl    = .false.,   !  Remove runoff dilution on tracers with absent river load
+   ln_rnf_ctl    = .false.   !  Remove runoff dilution on tracers with absent river load
    rn_sbc_time   =  86400.   !  Time scaling factor for SBC data (seconds in a day)
    rn_cbc_time   =  86400.   !  Time scaling factor for CBC data (seconds in a day)
+!  cn_tronam(1)  = 'var1'    !  Tracer-name to variable-name translation
 /
 !----------------------------------------------------------------------
 &namtrc_bdy      !   Setup of tracer boundary conditions
@@ -164,6 +173,8 @@
                              !  = 0 NO damping of tracers at open boudaries
                              !  = 1 Only for tracers forced with external data
                              !  = 2 Damping applied to all tracers
+   ln_zintobc    = .false.   ! T if a vertical interpolation is required. Variables gdep[t] and e3[t] must exist in the file 
+                             !  automatically defined to T if the number of vertical levels in bdy dta /= jpk
 /
 !-----------------------------------------------------------------------
 &namtrc_ais      !  Representation of Antarctic Ice Sheet tracers supply

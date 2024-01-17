@@ -11,7 +11,7 @@
 !-----------------------------------------------------------------------
 &nam_run      !  Characteristics of the simulation
 !-----------------------------------------------------------------------
-  ln_sed_2way = .false.,  ! 2 way coupling with pisces
+  ln_sed_2way = .false.  ! 2 way coupling with pisces
   nrosorder   = 3        ! Order of the rosenbrock methode (3,4)
   rosatol     = 1.E-4    ! Tolerance for the absolute error
   rosrtol     = 1.E-4    ! Tolerance for the relative error
@@ -119,17 +119,17 @@
 &nam_btb     !   parameters for bioturbation and bioirrigation
 !-----------------------------------------------------------------------
    dbiot       =  8.        ! Bioturbation coefficient (in cm2/yr)
-   ln_btbz     =  .true.,    ! Depth varying bioturbation 
+   ln_btbz     =  .true.    ! Depth varying bioturbation 
    dbtbzsc     =  5.0       ! coefficient for btb attenuation. If no variation, depth of the mixed layer
    adsnh4      =  4.16      ! Adsorption coefficient of NH4
    adsfe2      =  697.0     ! Adsorption coefficient of Fe2
-   ln_irrig    =  .true.,    ! Bioirrigation in sediment
+   ln_irrig    =  .true.    ! Bioirrigation in sediment
    xirrzsc     =  2.0       ! Vertical scale of the attentuation of bioirrigation [cm]
 / 
 !-----------------------------------------------------------------------
 &nam_rst     !   parameters for restarting the sediment module
 !-----------------------------------------------------------------------
-   ln_rst_sed   =  .false.,         !  restart flag
+   ln_rst_sed   =  .false.         !  restart flag
    cn_sedrst_in  = "restart_sed"   !  name of the input restart file name of the sediment module
    cn_sedrst_indir = "."           !  directory from which to read input sediment restarts
    cn_sedrst_out = "restart_sed"   !  suffix of pass. [sediment] restart name (output)

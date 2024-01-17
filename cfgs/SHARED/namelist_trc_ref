@@ -25,7 +25,7 @@
 !-----------------------------------------------------------------------
 &namc14_sbc     !  C14 - surface BC
 !-----------------------------------------------------------------------
-   ln_chemh = .true.,     ! Chemical enhancement in piston vel.: yes/no
+   ln_chemh = .true.     ! Chemical enhancement in piston vel.: yes/no
    xkwind   = 0.360      ! Coefficient for gas exchange velocity
    xdicsur  = 2.0        ! Reference DIC surface concentration (mol/m3)
 /
