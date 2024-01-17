@@ -135,7 +135,7 @@
 &namwad        !   Wetting and Drying (WaD)                             (default: OFF)
 !-----------------------------------------------------------------------
    ln_wd_dl    = .false.   !  T/F activation of directional limiter
-   ln_wd_dl_bc = .false.   !  T/F Directional limiteer Baroclinic option
+   ln_wd_dl_bc = .false.   !  T/F Directional limiter Baroclinic option
    ln_wd_dl_rmp = .false.  !  T/F Turn on directional limiter ramp
    rn_wdmin0   =  0.30     !  depth at which WaD starts
    rn_wdmin1   =  0.2      !  Minimum wet depth on dried cells
@@ -325,7 +325,6 @@
    nn_dyn_restore = 0         ! restoring option for dynamical ABL variables: = 0 no restoring
                               !                                               = 1 equatorial restoring
                               !                                               = 2 global restoring
-   rn_vfac       = 0.
    rn_ldyn_min   =  4.5       ! dynamics nudging magnitude inside the ABL [hour] (~3 rn_Dt)
    rn_ldyn_max   =  1.5       ! dynamics nudging magnitude above  the ABL [hour] (~1 rn_Dt)
    rn_ltra_min   =  4.5       ! tracers  nudging magnitude inside the ABL [hour] (~3 rn_Dt)
@@ -1023,7 +1022,8 @@
    ln_dynadv_vec = .false. !  vector form - 2nd centered scheme
      nn_dynkeg     = 0        ! grad(KE) scheme: =0   C2  ;  =1   Hollingsworth correction
    ln_dynadv_cen2 = .false. !  flux form - 2nd order centered scheme
-   ln_dynadv_ubs = .false. !  flux form - 3rd order UBS      scheme
+   ln_dynadv_ubs  = .false. !  flux form - 3rd order UBS  OLD scheme
+   ln_dynadv_up3  = .false. !  flux form - 3rd order UBS  NEW scheme
 /
 !-----------------------------------------------------------------------
 &namdyn_vor    !   Vorticity / Coriolis scheme                          (default: NO selection)
@@ -1496,6 +1496,7 @@
     ln_trainc  = .false.   !  Logical switch for applying tracer increments
     ln_dyninc  = .false.   !  Logical switch for applying velocity increments
     ln_sshinc  = .false.   !  Logical switch for applying SSH increments
+    ln_seaiceinc = .false. !  Logical switch for applying Sea ice concentration increments
     ln_asmdin  = .false.   !  Logical switch for Direct Initialization (DI)
     ln_asmiau  = .false.   !  Logical switch for Incremental Analysis Updating (IAU)
     nitbkg     = 0         !  Timestep of background in [0,nitend-nit000-1]
@@ -1505,6 +1506,7 @@
     niaufn     = 0         !  Type of IAU weighting function
     ln_salfix  = .false.   !  Logical switch for ensuring that the sa > salfixmin
     salfixmin  = -9999     !  Minimum salinity after applying the increments
+    ln_temnofreeze=.false. !  Don't allow the temperature to drop below freezing
     nn_divdmp  = 0         !  Number of iterations of divergence damping operator
 /
 

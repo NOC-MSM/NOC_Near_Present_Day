@@ -12,16 +12,16 @@
 !-----------------------------------------------------------------------
 &nampismod     !  Model used 
 !-----------------------------------------------------------------------
-  ln_p2z    = .false.,        !  LOBSTER model used
-  ln_p4z    = .true.,        !  PISCES model used
-  ln_p5z    = .false.,         !  PISCES QUOTA model used
-  ln_ligand = .false.,        !  Enable  organic ligands
-  ln_sediment = .false.,      !  Enable sediment module
+  ln_p2z    = .false.        !  LOBSTER model used
+  ln_p4z    = .true.        !  PISCES model used
+  ln_p5z    = .false.         !  PISCES QUOTA model used
+  ln_ligand = .false.        !  Enable  organic ligands
+  ln_sediment = .false.      !  Enable sediment module
 /
 !-----------------------------------------------------------------------
 &nampisext     !   air-sea exchange
 !-----------------------------------------------------------------------
-   ln_co2int  =  .false., ! read atm pco2 from a file (T) or constant (F)
+   ln_co2int  =  .false. ! read atm pco2 from a file (T) or constant (F)
    atcco2     =  280.    ! Constant value atmospheric pCO2 - ln_co2int = F
    clname     =  'atcco2.txt'  ! Name of atm pCO2 file - ln_co2int = T
    nn_offset  =  0       ! Offset model-data start year - ln_co2int = T
@@ -37,8 +37,8 @@
    sn_atmco2   = 'presatmco2' ,     -1.           , 'xco2'    ,  .true.      , .true. , 'yearly'  , ''       , ''       , ''
    cn_dir      = './'     !  root directory for the location of the dynamical files
 !
-   ln_presatm    = .false.,   ! constant atmopsheric pressure (F) or from a file (T)
-   ln_presatmco2 = .false.,   ! Read spatialized atm co2 files [ppm] if TRUE
+   ln_presatm    = .false.   ! constant atmopsheric pressure (F) or from a file (T)
+   ln_presatmco2 = .false.   ! Read spatialized atm co2 files [ppm] if TRUE
 /
 !-----------------------------------------------------------------------
 &nampisbio     !   biological parameters
@@ -143,16 +143,15 @@
 !              !                  !  (if <0  months)  !   name    !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  ! filename      !
    sn_par      = 'par.orca'       ,     24.           , 'fr_par'  ,  .true.      , .true. , 'yearly'  , ''       , ''       , ''
    cn_dir      = './'      !  root directory for the location of the dynamical files
-   ln_varpar   =  .true.,   ! boolean for PAR variable
+   ln_varpar   =  .true.   ! boolean for PAR variable
    parlux      =  0.43      ! Fraction of shortwave as PAR
-   ln_p4z_dcyc =  .false.,  ! Diurnal cycle in PISCES
+   ln_p4z_dcyc =  .false.  ! Diurnal cycle in PISCES
 / 
 !-----------------------------------------------------------------------
 &namp4zprod    !   parameters for phytoplankton growth for PISCES std  - ln_p4z
 !-----------------------------------------------------------------------
    pislopen   =  2.       ! P-I slope
    pisloped   =  2.       ! P-I slope  for diatoms
-   xadap      =  0.       ! Adaptation factor to low light
    excretn    =  0.05     ! excretion ratio of phytoplankton
    excretd    =  0.05     ! excretion ratio of diatoms
    bresp      =  0.033    ! Basal respiration rate
@@ -172,7 +171,6 @@
    excretn    =  0.05     ! excretion ratio of phytoplankton
    excretp    =  0.05     ! excretion ratio of picophytoplankton
    excretd    =  0.05     ! excretion ratio of diatoms
-   xadap      =  0.       ! Adaptation factor to low light
    bresp      =  0.02     ! Basal respiration rate
    thetannm   =  0.3      ! Maximum Chl/N in nanophytoplankton
    thetanpm   =  0.3      ! Maximum Chl/N in picophytoplankton
@@ -222,7 +220,7 @@
    grazflux    =  3.e3     ! flux-feeding rate
    xsigma2     =  0.5      ! Predation window size
    xsigma2del  =  1.0      ! Predation window size scaling
-   ln_dvm_meso =  .false.,  ! Activates DVM for mesozooplankton
+   ln_dvm_meso =  .false.  ! Activates DVM for mesozooplankton
    xfracmig    =  0.3      ! Fraction of mesozooplankton performing DVM
 /
 !-----------------------------------------------------------------------
@@ -230,7 +228,7 @@
 !-----------------------------------------------------------------------
    part2       =  0.75     ! part of calcite not dissolved in mesozoo guts
    grazrat2    =  0.5      ! maximal mesozoo grazing rate
-   bmetexc2    =  .true.,   ! Metabolic use of excess carbon 
+   bmetexc2    =  .true.   ! Metabolic use of excess carbon 
    resrat2     =  0.005    ! exsudation rate of mesozooplankton
    mzrat2      =  0.01     ! mesozooplankton mortality rate
    xpref2d     =  1.       ! meso preference for diatoms
@@ -255,7 +253,7 @@
    xsigma2     =  0.5      ! Predation window size
    xsigma2del  =  1.0      ! Predation window size scaling
    grazflux    =  3.e3     ! flux-feeding rate
-   ln_dvm_meso =  .false.,  ! Activates DVM for mesozooplankton
+   ln_dvm_meso =  .false.  ! Activates DVM for mesozooplankton
    xfracmig    =  0.25     ! Fraction of mesozooplankton performing DVM
 /
 !-----------------------------------------------------------------------
@@ -285,7 +283,7 @@
 !-----------------------------------------------------------------------
    part       =  0.75     ! part of calcite not dissolved in microzoo gutsa
    grazrat    =  2.0      ! maximal zoo grazing rate
-   bmetexc    =  .true.,   ! Metabolic use of excess carbon
+   bmetexc    =  .true.   ! Metabolic use of excess carbon
    resrat     =  0.02     ! exsudation rate of zooplankton
    mzrat      =  0.005    ! zooplankton mortality rate
    xprefc     =  0.15     ! Microzoo preference for POM
@@ -313,7 +311,7 @@
 !-----------------------------------------------------------------------
 &nampisfer     !   parameters for iron chemistry
 !-----------------------------------------------------------------------
-   ln_ligvar =  .false.,   ! variable ligand concentration
+   ln_ligvar =  .false.   ! variable ligand concentration
    xlam1     =  0.02      ! scavenging rate of Iron by biogenic particles
    xlamdust  =  150.0     ! Scavenging rate of Iron by dust
    ligand    =  1E-9     ! Ligands concentration 
@@ -361,9 +359,9 @@
    sn_hydrofe  = 'hydrofe.orca'    ,    -12            , 'epsdb'       ,  .false.     , .true. , 'yearly'  , ''       , ''    , ''
 !
    cn_dir      = './'      !  root directory for the location of the dynamical files
-   ln_ironsed  =  .false.,   ! boolean for Fe input from sediments
-   ln_ironice  =  .false.,   ! boolean for Fe input from sea ice
-   ln_hydrofe  =  .false.,   ! boolean for from hydrothermal vents
+   ln_ironsed  =  .false.   ! boolean for Fe input from sediments
+   ln_ironice  =  .false.   ! boolean for Fe input from sea ice
+   ln_hydrofe  =  .false.   ! boolean for from hydrothermal vents
    sedfeinput  =  2.e-9    ! Coastal release of Iron
    distcoast   =  5.e3     ! Distance off the coast for Iron from sediments
    mfrac       =  0.035    ! Fe mineral fraction of dust
@@ -436,13 +434,13 @@
 !-----------------------------------------------------------------------
 &nampisdmp     !   Damping 
 !-----------------------------------------------------------------------
-   ln_pisdmp    =  .true.,     !  Relaxation for some tracers to a mean value
+   ln_pisdmp    =  .true.     !  Relaxation for some tracers to a mean value
    nn_pisdmp    =  5475       !  Frequency of Relaxation 
 /
 !-----------------------------------------------------------------------
 &nampismass    !   Mass conservation
 !-----------------------------------------------------------------------
-   ln_check_mass =  .false.,    !  Check mass conservation
+   ln_check_mass =  .false.    !  Check mass conservation
 /
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !! PISCES reduced (key_pisces_reduced, ex LOBSTER) : namelists
