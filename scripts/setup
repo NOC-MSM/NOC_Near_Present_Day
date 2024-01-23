@@ -15,8 +15,8 @@ USE_EXISTING_NEMO=0
 STOP=0
 
 # Handle arguments
-usage() { echo "Usage: $0 [-b branch] [-c commit | -t tag] [-d directory] [-s system] [-x stop_after_download]" 1>&2; exit 1; }
-while getopts ":b:c:t:d:s:xu" o; do
+usage() { echo "Usage: $0 [-b branch] [-c commit | -t tag] [-d directory] [-s system] [-u use_existing_nemo] [-x stop_after_download]" 1>&2; exit 1; }
+while getopts ":b:c:t:d:s:u:x" o; do
     case "${o}" in
         b)
             BRANCH=${OPTARG}
