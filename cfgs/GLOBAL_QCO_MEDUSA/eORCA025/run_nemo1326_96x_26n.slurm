@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=NPD_025
 #SBATCH --partition=compute
-#SBATCH --time=02:00:00
+#SBATCH --time=04:30:00
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
@@ -16,12 +16,12 @@
   FREQRST=1 
 # job-step initial time step (0: infer from time.step)
 # IT000 != 0 -> auto-resubmission is switched OFF
-  IT000=1
+  IT000=0
 #
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=1   
+  LENGTH=5   
 # Name of this script (to resubmit)
   SCRIPTNAME=run_nemo1326_96x_26n.slurm
 #
@@ -111,7 +111,8 @@ if [ "$IT000" -gt 1 ]; then
     # Use restarts
     edit_var ln_rstart ".true." ./namelist_cfg
     edit_var ln_tsd_init ".false." ./namelist_cfg
-
+    edit_var ln_rsttr ".true." ./namelist_top_cfg
+    edit_var ln_trcdta ".false." ./namelist_top_cfg
     # Set start
     TSTEP=$((IT000 - 1))
     IT000=$((TSTEP + 1))
@@ -122,8 +123,10 @@ if [ "$IT000" -gt 1 ]; then
     RST_DIR=$(get_var cn_ocerst_indir ./namelist_cfg)
     OCERST_IN=${EXP}_$(printf "%08d" "$TSTEP")_restart
     ICERST_IN=${OCERST_IN}_ice
+    TCERST_IN=${OCERST_IN}_trc
     edit_var cn_ocerst_in "'${OCERST_IN}'" ./namelist_cfg
     edit_var cn_icerst_in "'${ICERST_IN}'" ./namelist_ice_cfg
+    edit_var cn_trcrst_in "'${ICERST_IN}'" ./namelist_top_cfg
 
     RST_FILE="none"
     if [ -f $RST_DIR/${OCERST_IN}.nc ] ; then
@@ -136,8 +139,11 @@ else
     # Start from rest
     edit_var ln_rstart ".false." ./namelist_cfg
     edit_var ln_tsd_init ".true." ./namelist_cfg
+    edit_var ln_rsttr ".false." ./namelist_top_cfg
+    edit_var ln_trcdta ".true." ./namelist_top_cfg
     edit_var cn_ocerst_in "'dummy'" ./namelist_cfg
     edit_var cn_icerst_in "'dummy'" ./namelist_ice_cfg
+    edit_var cn_trcrst_in "'dummy'" ./namelist_top_cfg
     edit_var nn_it000 "1" ./namelist_cfg
     DATE0=$(get_var nn_date0 ./namelist_cfg)
     START_YR=${DATE0:0:4} ; START_MTH=${DATE0:4:2} ; START_DAY=${DATE0:6:2}

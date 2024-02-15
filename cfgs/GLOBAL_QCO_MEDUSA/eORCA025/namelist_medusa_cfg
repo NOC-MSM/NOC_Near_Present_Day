@@ -22,4 +22,10 @@
 &nammsa_opt
 /
 &nammsa_dust
+   ln_read_dust = .true.
+   cn_dir      = './INPUT/INIT_MEDUSA/'      !  root directory for the dust data location
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_dust =       'mahowald.eORCA025_4.2.nc' ,  -1          , 'dust'    ,   .true.    , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
 /
