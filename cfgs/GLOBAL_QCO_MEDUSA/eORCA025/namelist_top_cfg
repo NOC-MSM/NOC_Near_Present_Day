@@ -5,14 +5,14 @@
 &namtrc_run     !   run information
 !-----------------------------------------------------------------------
    ln_top_euler  = .false.   !  use Euler time-stepping for TOP
-   ln_rsttr      = .false.   !  start from a restart file (T) or not (F)
-   nn_rsttr      =   0       !  restart control = 0 initial time step is not compared to the restart file value
+	ln_rsttr = .false.,
+   nn_rsttr      =   2       !  restart control = 0 initial time step is not compared to the restart file value
                              !                  = 1 do not use the value in the restart file
                              !                  = 2 calendar parameters read in the restart file
-   cn_trcrst_in  = "restart_trc"   !  suffix of pass. sn_tracer restart name (input)
-   cn_trcrst_indir = "./"          !  directory from which to read input passive tracer restarts
+	cn_trcrst_in = 'dummy',
+   cn_trcrst_indir = "./RESTARTS/"          !  directory from which to read input passive tracer restarts
    cn_trcrst_out = "restart_trc"   !  suffix of pass. sn_tracer restart name (output)
-   cn_trcrst_outdir = "./"         !  directory to which to write output passive tracer restarts
+   cn_trcrst_outdir = "./RESTARTS/"         !  directory to which to write output passive tracer restarts
 /
 !-----------------------------------------------------------------------
 &namtrc     !   tracers definition
@@ -20,7 +20,7 @@
    jp_bgc        = 15
    ln_medusa     =  .true.   !  Run MEDUSA BGC model
    ln_pisces     =  .false.  !  Run PISCES BGC model
-   ln_trcdta     =  .false.  !  Initialisation from data input file (T) or not (F)
+	ln_trcdta = .true.,
 !                !    name   !           title of the field              ! initial data ! initial data 
 !                !           !                                           !  units       ! from file    
 !                !           !                                           !              ! or not       
@@ -46,32 +46,32 @@
 !
 !                !  file name               ! frequency (hours) ! variable   ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation !
 !                !                          !  (if <0  months)  !   name     !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  !
-!   sn_trcdta(7)  = 'woa13_nit_jan_k75_nomask.nc' , -12       ,  'n_an'      ,    .true.    , .true. , 'yearly'  , 'weights_woa13_orca0083_bilin3D.nc', '' ,  ''
-!   sn_trcdta(8)  = 'woa13_sil_jan_k75_nomask.nc' , -12       ,  'i_an'      ,    .true.    , .true. , 'yearly'  , 'weights_woa13_orca0083_bilin3D.nc', '' ,  ''
-!   sn_trcdta(9)  = 'iron_jan_k75_nomask.nc'      , -12       ,  'iron'      ,    .true.    , .true. , 'yearly'  , 'weights_woa13_orca0083_bilin3D.nc', '' ,  ''
-!   sn_trcdta(13) = 'dic_jan_k75_nomask.nc'       , -12       ,  'dic'       ,    .true.    , .true. , 'yearly'  , 'weights_woa13_orca0083_bilin3D.nc', '' ,  ''
-!   sn_trcdta(14) = 'alkalinity_jan_k75_nomask.nc', -12       ,  'alkalinity',    .true.    , .true. , 'yearly'  , 'weights_woa13_orca0083_bilin3D.nc', '' ,  ''
-!   sn_trcdta(15) = 'woa13_oxy_jan_k75_nomask.nc' , -12       ,  'o_an'      ,    .true.    , .true. , 'yearly'  , 'weights_woa13_orca0083_bilin3D.nc', '' ,  ''
+   sn_trcdta(7)  = 'eORCA025_v4.2_DIN.nc' , -12       ,  'DIN'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(8)  = 'eORCA025_v4.2_SIL.nc' , -12       ,  'SIL'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(9)  = 'eORCA025_v4.2_FER.nc' , -12       ,  'FER'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(13) = 'eORCA025_v4.2_DIC.nc' , -12       ,  'DIC'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(14) = 'eORCA025_v4.2_ALK.nc' , -12       ,  'ALK'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(15) = 'eORCA025_v4.2_OXY.nc' , -12       ,  'OXY'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
 !
-!  cn_dir        =  './WOA13/' !  root directory for the location of the data files
-!  rn_trfac(7)   =   1.0      !  multiplicative factor
-!  rn_trfac(8)   =   1.0      !  -      -      -     -
-!  rn_trfac(9)   =   1.0      !  -      -      -     -
-!  rn_trfac(13)  =   1.0      !  -      -      -     -
-!  rn_trfac(14)  =   1.0      !  -      -      -     -
-!  rn_trfac(15)  =   1.0      !  -      -      -     -
-   sn_trcdta(7)   = 'data_NO3_nomask'        ,        -1         ,  'NO3'     ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
-   sn_trcdta(8)   = 'data_Si_nomask'         ,        -1         ,  'Si'      ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
-   sn_trcdta(9)   = 'data_Fer_nomask'        ,        -12        ,  'Fer'     ,    .false.   , .true. , 'yearly'  , ''       , ''   , ''
-   sn_trcdta(13)  = 'data_DIC_nomask'        ,        -12        ,  'DIC'     ,    .false.   , .true. , 'yearly'  , ''       , ''   , ''
-   sn_trcdta(14)  = 'data_Alkalini_nomask'   ,        -12        ,  'Alkalini',    .false.   , .true. , 'yearly'  , ''       , ''   , ''
-   sn_trcdta(15)  = 'data_O2_nomask'         ,        -1         ,  'O2'      ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
-   rn_trfac(7)    =   7.6e-06  !  -      -      -     -
-   rn_trfac(8)    =   1.0e-06  !  -      -      -     -
-   rn_trfac(9)    =   1.0      !  -      -      -     -
-   rn_trfac(13)   =   1.0e-06  !  multiplicative factor
-   rn_trfac(14)   =   1.0e-06  !  -      -      -     -
-   rn_trfac(15)   =  44.6e-06  !  -      -      -     -
+  cn_dir        =  './INPUT/INIT_MEDUSA/' !  root directory for the location of the data files
+  rn_trfac(7)   =   1.0      !  multiplicative factor
+  rn_trfac(8)   =   1.0      !  -      -      -     -
+  rn_trfac(9)   =   1.0      !  -      -      -     -
+  rn_trfac(13)  =   1.0      !  -      -      -     -
+  rn_trfac(14)  =   1.0      !  -      -      -     -
+  rn_trfac(15)  =   1.0      !  -      -      -     -
+!   sn_trcdta(7)   = 'data_NO3_nomask'        ,        -1         ,  'NO3'     ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(8)   = 'data_Si_nomask'         ,        -1         ,  'Si'      ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(9)   = 'data_Fer_nomask'        ,        -12        ,  'Fer'     ,    .false.   , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(13)  = 'data_DIC_nomask'        ,        -12        ,  'DIC'     ,    .false.   , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(14)  = 'data_Alkalini_nomask'   ,        -12        ,  'Alkalini',    .false.   , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(15)  = 'data_O2_nomask'         ,        -1         ,  'O2'      ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
+!   rn_trfac(7)    =   7.6e-06  !  -      -      -     -
+!   rn_trfac(8)    =   1.0e-06  !  -      -      -     -
+!   rn_trfac(9)    =   1.0      !  -      -      -     -
+!   rn_trfac(13)   =   1.0e-06  !  multiplicative factor
+!   rn_trfac(14)   =   1.0e-06  !  -      -      -     -
+!   rn_trfac(15)   =   44.6e-06  !  -      -      -     -
 /
 !-----------------------------------------------------------------------
 &namtrc_adv    !   advection scheme for passive tracer 
