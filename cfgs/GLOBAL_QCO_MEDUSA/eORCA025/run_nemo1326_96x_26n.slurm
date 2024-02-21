@@ -126,7 +126,7 @@ if [ "$IT000" -gt 1 ]; then
     TCERST_IN=${OCERST_IN}_trc
     edit_var cn_ocerst_in "'${OCERST_IN}'" ./namelist_cfg
     edit_var cn_icerst_in "'${ICERST_IN}'" ./namelist_ice_cfg
-    edit_var cn_trcrst_in "'${ICERST_IN}'" ./namelist_top_cfg
+    edit_var cn_trcrst_in "'${TCERST_IN}'" ./namelist_top_cfg
 
     RST_FILE="none"
     if [ -f $RST_DIR/${OCERST_IN}.nc ] ; then
