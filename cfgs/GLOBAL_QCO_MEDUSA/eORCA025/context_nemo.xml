@@ -33,7 +33,10 @@
     <file_definition src="./file_def_nemo-ice_5d_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
     <file_definition src="./file_def_nemo-ice_1m_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
     <file_definition src="./file_def_nemo-ice_1y_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
-    <file_definition src="./file_def_nemo-medusa.xml"/>      <!--  NEMO ocean sea ice                      -->
+
+    <file_definition src="./file_def_nemo-medusa_5d.xml"/>   <!--  MEDUSA Ocean BGC                        -->
+    <file_definition src="./file_def_nemo-medusa_1m.xml"/>   <!--  MEDUSA Ocean BGC                        -->
+    <file_definition src="./file_def_nemo-medusa_1y.xml"/>   <!--  MEDUSA Ocean BGC                        -->
 
 <!-- Axis definition -->
     <axis_definition src="./axis_def_nemo-medusa.xml"/>

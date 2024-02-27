@@ -12,28 +12,28 @@
     
       <file_group id="1m" output_freq="1mo" output_level="10" split_freq="1mo" enabled=".TRUE."> <!-- real monthly files -->
 
-        <file id="file32" mode="write" writer="t1mwriter" gatherer="tgatherer" using_server2="true" name_suffix="_ptrc_T" description="Medusa sms variables" >
+        <file id="file32" mode="write" writer="p1mwriter" gatherer="tgatherer" using_server2="true" name_suffix="_ptrc_T" description="Medusa sms variables" >
           <field field_ref="e3t"             name="e3t"        standard_name="cell_thickness" />
-          <field_group group_ref="groupMEDUSA"       enabled=".FALSE."      />   <!-- key_medusa -->
-          <field_group group_ref="groupMEDUSA_surf"  enabled=".TRUE."       />   <!-- key_medusa -->
+          <field_group group_ref="groupMEDUSA"       enabled=".TRUE."      />   <!-- key_medusa -->
+          <field_group group_ref="groupMEDUSA_surf"  enabled=".FALSE."     />   <!-- key_medusa -->
           <field field_ref="ZMP"      name="ZMP"     enabled=".FALSE."     />
           <field field_ref="ZMP_E3T"  name="ZMP_E3T" enabled=".FALSE."     />
 
         </file>
 
-        <file id="file33" mode="write" writer="t1mwriter" gatherer="tgatherer" using_server2="true" name_suffix="_diad_T" description="Medusa diagnostic variables" enabled=".FALSE.">
+        <file id="file33" mode="write" writer="d1mwriter" gatherer="tgatherer" using_server2="true" name_suffix="_diad_T" description="Medusa diagnostic variables" enabled=".TRUE.">
           <field_group group_ref="groupMEDUSA_dia"      enabled=".TRUE."  />  <!-- key_medusa -->
-          <field_group group_ref="groupMEDUSA_zmp"      enabled=".TRUE."  />  <!-- key_medusa -->          
+          <field_group group_ref="groupMEDUSA_zmp"      enabled=".FALSE."  />  <!-- key_medusa -->          
           <field_group group_ref="groupMEDUSA_cpl"      enabled=".FALSE." />  <!-- key_medusa ; coupled model -->
           <field_group group_ref="groupMEDUSA_3dd"      enabled=".TRUE."  />  <!-- key_medusa -->
           <field_group group_ref="groupMEDUSA_dms"      enabled=".FALSE."  />  <!-- key_medusa -->
           <field_group group_ref="groupMEDUSA_cmip6"    enabled=".TRUE."  />  <!-- key_medusa -->
           <field_group group_ref="groupMEDUSA_extra_3D"    enabled=".TRUE."  />  <!-- key_medusa -->
-          <field_group group_ref="groupMEDUSA_extra_3D_PAC"    enabled=".TRUE."  />  <!-- key_medusa -->
+          <field_group group_ref="groupMEDUSA_extra_3D_PAC"    enabled=".FALSE."  />  <!-- key_medusa -->
           <field_group group_ref="groupMEDUSA_omip_dic" enabled=".FALSE."  />  <!-- key_medusa -->
         </file>
 
-        <file id="file34" mode="write" writer="t1mwriter" gatherer="tgatherer" using_server2="true" name_suffix="_ptrd_T" description="Passive tracers trends" enabled=".FALSE."> <!-- key_trdtrc -->
+        <file id="file34" mode="write" writer="td1mwriter" gatherer="tgatherer" using_server2="true" name_suffix="_ptrd_T" description="Passive tracers trends" enabled=".FALSE."> <!-- key_trdtrc -->
            <field_group group_ref="trendMEDUSA_cmip6"      enabled=".FALSE."   />
            <field_group group_ref="trendMEDUSA_cmip6_inv"  enabled=".FALSE."  />  <!-- need XIOS update -->
            <field_group group_ref="trendMEDUSA_omip_dic"      enabled=".FALSE."   />
