@@ -23,7 +23,7 @@
 # Simulation length (in TIME_UNITS) 
   LENGTH=5   
 # Name of this script (to resubmit)
-  SCRIPTNAME=run_nemo1326_96x_26n.slurm
+  SCRIPTNAME=run_nemo1326_140x_26n.slurm
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -242,7 +242,7 @@ export OMP_NUM_THREADS=1
 export I_MPI_SHM=off
 unset I_MPI_PMI_LIBRARY 
 
-mpiexec.hydra -print-rank-map -ppn 1 -np 96 $XIO_HOME/bin/xios_server.exe : -np 1326 ./nemo
+mpiexec.hydra -print-rank-map -ppn 1 -np 140 $XIO_HOME/bin/xios_server.exe : -np 1326 ./nemo
 
 # Move log files
 mkdir -p LOGS/"$SLURM_JOB_ID"
