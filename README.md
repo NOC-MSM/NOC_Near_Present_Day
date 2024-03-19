@@ -17,7 +17,7 @@ The global eORCA025 configuration is ready to run. All that is required is:
 ```shell
 cd nemo/cfgs/GLOBAL_QCO/eORCA025
 
-qsub run_nemo1326_24x_v2.slurm
+sbatch run_nemo1326_24x_v2.slurm
 ```
 
 There are a few variables to set in the runscript. For example, the following variables will generate a 2-hour simulation split in 1-hour jobs.
