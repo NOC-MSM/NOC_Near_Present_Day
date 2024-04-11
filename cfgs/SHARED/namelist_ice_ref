@@ -81,14 +81,14 @@
       rn_str        =   0.0           !     ice strength value
    ln_str_smooth    = .true.          !  spatial smoothing of the ice strength
                    ! -- ice_rdgrft -- !
-   ln_distf_lin     = .true.          !  redistribution function of ridged ice: linear (Hibler 1980)
-   ln_distf_exp     = .false.         !  redistribution function of ridged ice: exponential => not coded yet
+   ln_distf_lin     = .true.          !  redistribution function of ridged ice: linear (Hibler, 1980)
+   ln_distf_exp     = .false.         !  redistribution function of ridged ice: exponential (Lipscomb et al., 2007)
       rn_murdg      =   3.0           !     e-folding scale of ridged ice (m**.5)
    rn_csrdg         =   0.5           !  fraction of shearing energy contributing to ridging
               ! -- ice_rdgrft_prep -- !
-   ln_partf_lin     = .false.         !  Linear ridging participation function (Thorndike et al, 1975)
+   ln_partf_lin     = .false.         !  Linear ridging participation function (Thorndike et al., 1975)
       rn_gstar      =   0.15          !     fractional area of thin ice being ridged 
-   ln_partf_exp     = .true.          !  Exponential ridging participation function (Lipscomb, 2007)
+   ln_partf_exp     = .true.          !  Exponential ridging participation function (Lipscomb et al., 2007)
       rn_astar      =   0.03          !     exponential measure of ridging ice fraction [set to 0.05 if hstar=100]
    ln_ridging       = .true.          !  ridging activated (T) or not (F)
       rn_hstar      =  25.0           !     determines the maximum thickness of ridged ice [m] (Hibler, 1980)
