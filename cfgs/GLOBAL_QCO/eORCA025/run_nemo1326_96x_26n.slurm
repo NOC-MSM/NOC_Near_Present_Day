@@ -232,8 +232,6 @@ mkdir -p {RESTARTS,OUTPUT}
 # Link nemo
 ln -fs ../BLD/bin/nemo.exe nemo
 
-module load NEMO/prg-env
-
 export XIO_HOME=/home/acc/xios3-trunk-head
 #
 export OMP_NUM_THREADS=1
