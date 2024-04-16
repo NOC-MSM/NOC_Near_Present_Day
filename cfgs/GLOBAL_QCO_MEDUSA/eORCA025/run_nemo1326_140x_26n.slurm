@@ -33,7 +33,11 @@ if [ "$TIME_UNITS" -eq 0 ] ; then
     if [ "$FREQRST" -gt 10 ] ; then FREQRST=10 ; fi
 fi
 # ========================================================
+## modules load
 
+module load NEMO/prg-env
+
+# ========================================================
 # Define useful functions
 get_var () {
     VARNAME=$1
@@ -233,8 +237,6 @@ mkdir -p {RESTARTS,OUTPUT}
 
 # Link nemo
 ln -fs ../BLD/bin/nemo.exe nemo
-
-module load NEMO/prg-env
 
 export XIO_HOME=/home/acc/xios3-trunk-head
 #
