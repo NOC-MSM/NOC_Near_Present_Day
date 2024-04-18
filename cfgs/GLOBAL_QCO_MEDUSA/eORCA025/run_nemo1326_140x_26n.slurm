@@ -244,6 +244,9 @@ export OMP_NUM_THREADS=1
 export I_MPI_SHM=off
 unset I_MPI_PMI_LIBRARY 
 
+# Run checker to trap hanging jobs
+./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
+
 mpiexec.hydra -print-rank-map -ppn 1 -np 140 $XIO_HOME/bin/xios_server.exe : -np 1326 ./nemo
 
 # Move log files
