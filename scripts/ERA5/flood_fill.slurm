@@ -14,8 +14,10 @@ module load NCO/5.0.3-foss-2021b
 # Location of directories:
 export cdodir=/dssgfs01/working/acc/TOOLS/bin
 export maskfile='/dssgfs01/scratch/npd/forcing/ERA5/original/land_sea_mask_binary_0.nc'
-export indir='/dssgfs01/scratch/npd/forcing/ERA5/original/'
-export outdir='/dssgfs01/scratch/npd/forcing/ERA5/preprocessed/'
+#export indir='/dssgfs01/scratch/npd/forcing/ERA5/original/'
+#export outdir='/dssgfs01/scratch/npd/forcing/ERA5/preprocessed/'
+export indir='/dssgfs01/scratch/npd/forcing/ERA5/original_latest/'
+export outdir='/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_latest/'
 
 # Input files:
 year=2023
