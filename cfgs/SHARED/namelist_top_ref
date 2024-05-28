@@ -73,6 +73,7 @@
    ln_trcadv_fct =  .false.  !  FCT scheme
       nn_fct_h   =  2               !  =2/4, horizontal 2nd / 4th order 
       nn_fct_v   =  2               !  =2/4, vertical   2nd / COMPACT 4th order 
+      nn_fct_imp =  1               !  =1/2, optimized / accurate treatment of implicit part
    ln_trcadv_mus =  .false.  !  MUSCL scheme
       ln_mus_ups =  .false.         !  use upstream scheme near river mouths
    ln_trcadv_ubs =  .false.  !  UBS scheme
@@ -97,7 +98,13 @@
 !-----------------------------------------------------------------------
 &namtrc_snk      !  Sedimentation of particles
 !-----------------------------------------------------------------------
-   nitermax      =  2   !  number of iterations for sedimentation
+   ln_sink_mus   = .true. ! MUSCL sinking scheme
+      nitermax      =  2   !  number of iterations for sedimentation
+   ln_sink_slg   = .false. ! Semi-Lagrangian sinking scheme
+      nn_sink_lbc   =  0   !  Type of boundary conditions
+   !                       !  0 - Strictly monotonic conditions ( default )
+   !                       !  1 - Dirichlet condition : linear continuation
+   !                       !  2 - Neumann condition
 /
 !-----------------------------------------------------------------------
 &namtrc_dcy      !  Diurnal cycle
@@ -133,13 +140,15 @@
 /
 !-----------------------------------------------------------------------
 &namtrc_trd      !   diagnostics on tracer trends                       ('key_trdtrc')
-!                          or mixed-layer trends                        ('key_trdmld_trc')
+!                          or mixed-layer trends                        ('key_trdmxl_trc')
 !----------------------------------------------------------------------
    nn_trd_trc    =  5475     !  time step frequency and tracers trends
    nn_ctls_trc   =   0       !  control surface type in mixed-layer trends (0,1 or n<jpk)
    rn_ucf_trc    =   1       !  unit conversion factor (=1 -> /seconds ; =86400. -> /day)
-   ln_trdmld_trc_restart = .false. !  restart for ML diagnostics
-   ln_trdmld_trc_instant = .true.  !  flag to diagnose trends of instantantaneous or mean ML T/S
+   ln_trdmxl_trc_restart = .false. !  restart for ML diagnostics
+   ln_trdmxl_trc_instant = .true.  !  flag to diagnose trends of instantantaneous or mean ML T/S
+   cn_trdrst_trc_in  = "restart_trd_trc"  !  suffix of tracer trends restart name (input)
+   cn_trdrst_trc_out = "restart_trd_trc"  !  suffix of tracer trends restart name (output)
    ln_trdtrc( 1) = .true.
    ln_trdtrc( 2) = .true.
    ln_trdtrc(23) = .true.
