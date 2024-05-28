@@ -31,8 +31,6 @@ MODULE domain
    USE domqco         ! quasi-eulerian coord.
 #elif defined key_linssh
    !                  ! fix in time coord.
-#else
-   USE domvvl         ! variable volume coord.
 #endif
 #if defined key_agrif
    USE agrif_oce_interp, ONLY : Agrif_istate_ssh ! ssh interpolated from parent
@@ -64,11 +62,12 @@ MODULE domain
    PUBLIC   domain_cfg   ! called by nemogcm.F90
 
    !! * Substitutions
-#  include "single_precision_substitute.h90"
 #  include "do_loop_substitute.h90"
+#  include "read_nml_substitute.h90"
+#  include "domzgr_substitute.h90"
    !!-------------------------------------------------------------------------
    !! NEMO/OCE 4.0 , NEMO Consortium (2018)
-   !! $Id: domain.F90 15270 2021-09-17 14:27:55Z smasson $
+   !! $Id: domain.F90 14547 2021-02-25 17:07:15Z techene $
    !! Software governed by the CeCILL license (see ./LICENSE)
    !!-------------------------------------------------------------------------
 CONTAINS
@@ -92,7 +91,6 @@ CONTAINS
       !
       INTEGER ::   ji, jj, jk, jt   ! dummy loop indices
       INTEGER ::   iconf = 0    ! local integers
-      REAL(wp)::   zrdt
       CHARACTER (len=64) ::   cform = "(A12, 3(A13, I7))"
       INTEGER , DIMENSION(jpi,jpj) ::   ik_top , ik_bot       ! top and bottom ocean level
       REAL(wp), DIMENSION(jpi,jpj) ::   z1_hu_0, z1_hv_0
@@ -197,39 +195,6 @@ CONTAINS
       IF( .NOT.l_offline )   CALL dom_qco_init( Kbb, Kmm, Kaa )
 #elif defined key_linssh
       !                                 != Fix in time : key_linssh case, set through domzgr_substitute.h90
-#else
-      !
-      IF( ln_linssh ) THEN              != Fix in time : set to the reference one for all
-         !
-         DO jt = 1, jpt                         ! depth of t- and w-grid-points
-            gdept(:,:,:,jt) = gdept_0(:,:,:)
-            gdepw(:,:,:,jt) = gdepw_0(:,:,:)
-         END DO
-            gde3w(:,:,:)    = gde3w_0(:,:,:)    ! = gdept as the sum of e3t
-         !
-         DO jt = 1, jpt                         ! vertical scale factors
-            e3t (:,:,:,jt) =  e3t_0(:,:,:)
-            e3u (:,:,:,jt) =  e3u_0(:,:,:)
-            e3v (:,:,:,jt) =  e3v_0(:,:,:)
-            e3w (:,:,:,jt) =  e3w_0(:,:,:)
-            e3uw(:,:,:,jt) = e3uw_0(:,:,:)
-            e3vw(:,:,:,jt) = e3vw_0(:,:,:)
-         END DO
-            e3f (:,:,:)    =  e3f_0(:,:,:)
-         !
-         DO jt = 1, jpt                         ! water column thickness and its inverse
-               hu(:,:,jt) =    hu_0(:,:)
-               hv(:,:,jt) =    hv_0(:,:)
-            r1_hu(:,:,jt) = r1_hu_0(:,:)
-            r1_hv(:,:,jt) = r1_hv_0(:,:)
-         END DO
-               ht   (:,:) =    ht_0(:,:)
-         !
-      ELSE                              != Time varying : initialize before/now/after variables
-         !
-         IF( .NOT.l_offline )   CALL dom_vvl_init( Kbb, Kmm, Kaa )
-         !
-      ENDIF
 #endif
 
       !
@@ -265,17 +230,16 @@ CONTAINS
       !!----------------------------------------------------------------------
       USE ioipsl
       !!
-      INTEGER ::   ios   ! Local integer
+      INTEGER ::   ios, imax   ! Local integer
       REAL(wp)::   zrdt
       !!----------------------------------------------------------------------
       !
       NAMELIST/namrun/ cn_ocerst_indir, cn_ocerst_outdir, nn_stocklist, ln_rst_list,                 &
-         &             nn_no   , cn_exp   , cn_ocerst_in, cn_ocerst_out, ln_rstart , ln_reset_ts ,   &
-         &             ln_rstdate, nn_rstctl,                                                        &
+         &             nn_no   , cn_exp   , cn_ocerst_in, cn_ocerst_out, ln_rstart , nn_rstctl ,     &
          &             nn_it000, nn_itend , nn_date0    , nn_time0     , nn_leapy  , nn_istate ,     &
          &             nn_stock, nn_write , ln_mskland  , ln_clobber   , nn_chunksz, ln_1st_euler  , &
-         &             ln_cfmeta, ln_xios_read, nn_wxios, ln_rst_eos
-      NAMELIST/namdom/ ln_linssh, rn_Dt, rn_atfp, ln_crs, ln_c1d, ln_meshmask
+         &             ln_cfmeta, ln_xios_read, nn_wxios, ln_rst_eos, ln_top
+      NAMELIST/namdom/ rn_Dt, rn_atfp, ln_crs, ln_c1d, ln_meshmask, ln_shuman
       NAMELIST/namtile/ ln_tile, nn_ltile_i, nn_ltile_j
 #if defined key_netcdf4
       NAMELIST/namnc4/ nn_nchunks_i, nn_nchunks_j, nn_nchunks_k, ln_nc4zip
@@ -292,15 +256,9 @@ CONTAINS
       !                       !==  namelist namdom  ==!
       !                       !=======================!
       !
-      READ  ( numnam_ref, namdom, IOSTAT = ios, ERR = 903)
-903   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namdom in reference namelist' )
-      READ  ( numnam_cfg, namdom, IOSTAT = ios, ERR = 904 )
-904   IF( ios >  0 )   CALL ctl_nam ( ios , 'namdom in configuration namelist' )
+      READ_NML_REF(numnam,namdom)
+      READ_NML_CFG(numnam,namdom)
       IF(lwm) WRITE( numond, namdom )
-      !
-#if defined key_linssh
-      ln_linssh = lk_linssh      ! overwrite ln_linssh with the logical associated with key_linssh
-#endif
       !
 #if defined key_agrif
       IF( .NOT. Agrif_Root() ) THEN    ! AGRIF child, subdivide the Parent timestep
@@ -311,35 +269,43 @@ CONTAINS
       IF(lwp) THEN
          WRITE(numout,*)
          WRITE(numout,*) '   Namelist : namdom   ---   space & time domain'
-         WRITE(numout,*) '      linear free surface (=T)                ln_linssh   = ', ln_linssh
          WRITE(numout,*) '      create mesh/mask file                   ln_meshmask = ', ln_meshmask
          WRITE(numout,*) '      ocean time step                         rn_Dt       = ', rn_Dt
          WRITE(numout,*) '      asselin time filter parameter           rn_atfp     = ', rn_atfp
          WRITE(numout,*) '      online coarsening of dynamical fields   ln_crs      = ', ln_crs
          WRITE(numout,*) '      single column domain (1x1pt)            ln_c1d      = ', ln_c1d
+         WRITE(numout,*) '      shuman averaging (=T)                   ln_shuman   = ', ln_shuman
       ENDIF
       !
       ! set current model timestep rDt = 2*rn_Dt if MLF or rDt = rn_Dt if RK3
+#if defined key_RK3
+      rDt   =         rn_Dt
+      r1_Dt = 1._wp / rDt
+      !
+      IF(lwp) THEN
+         WRITE(numout,*)
+         WRITE(numout,*) '           ===>>>   Runge Kutta 3rd order (RK3) :   rDt = ', rDt
+         WRITE(numout,*)
+      ENDIF
+      !
+#else
       rDt   = 2._wp * rn_Dt
       r1_Dt = 1._wp / rDt
       !
-      IF( l_SAS .AND. .NOT.ln_linssh ) THEN
-         CALL ctl_warn( 'SAS requires linear ssh : force ln_linssh = T' )
-         ln_linssh = .TRUE.
+      IF(lwp) THEN
+         WRITE(numout,*)
+         WRITE(numout,*) '           ===>>>   Modified Leap-Frog (MLF) :   rDt = ', rDt
+         WRITE(numout,*)
       ENDIF
       !
-#if defined key_qco
-      IF( ln_linssh )   CALL ctl_stop( 'STOP','domain: key_qco and ln_linssh=T or key_linssh are incompatible' )
 #endif
       !
       !                       !=======================!
       !                       !==  namelist namrun  ==!
       !                       !=======================!
       !
-      READ  ( numnam_ref, namrun, IOSTAT = ios, ERR = 901)
-901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namrun in reference namelist' )
-      READ  ( numnam_cfg, namrun, IOSTAT = ios, ERR = 902 )
-902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namrun in configuration namelist' )
+      READ_NML_REF(numnam,namrun)
+      READ_NML_CFG(numnam,namrun)
       IF(lwm) WRITE ( numond, namrun )
 
 #if defined key_agrif
@@ -391,6 +357,11 @@ CONTAINS
             WRITE(numout,*) "      AGRIF: nn_wxios will be ingored. See setting for parent"
             WRITE(numout,*) "      AGRIF: ln_xios_read will be ingored. See setting for parent"
          ENDIF
+#if ! defined key_top
+         IF( ln_top )    ln_top = .FALSE.
+#else
+         WRITE(numout,*) '      Allow (T) or bypass (F) the TOP calls ln_top    = ', ln_top
+#endif
       ENDIF
 
       cexper = cn_exp         ! conversion DOCTOR names into model names (this should disappear soon)
@@ -408,7 +379,16 @@ CONTAINS
          IF( nn_wxios > 0 )   lwxios = .TRUE.           !* set output file type for XIOS based on NEMO namelist
          nxioso = nn_wxios
       ENDIF
-      !                                        !==  Check consistency between ln_rstart and ln_1st_euler  ==!   (i.e. set l_1st_euler)
+      !
+#if defined key_RK3
+      !                                        !==  RK3: Open the restart file  ==!
+      IF( ln_rstart ) THEN
+         IF(lwp) WRITE(numout,*)
+         IF(lwp) WRITE(numout,*) '   open the restart file'
+         CALL rst_read_open 
+      ENDIF
+#else
+      !                                        !==  MLF: Check consistency between ln_rstart and ln_1st_euler  ==!   (i.e. set l_1st_euler)
       l_1st_euler = ln_1st_euler
       !
       IF( ln_rstart ) THEN                              !*  Restart case
@@ -443,6 +423,7 @@ CONTAINS
          IF(lwp) WRITE(numout,*)'           an Euler initial time step is used : l_1st_euler is forced to .true. '
          l_1st_euler = .TRUE.
       ENDIF
+#endif
       !
       !                                        !==  control of output frequency  ==!
       !
@@ -482,18 +463,50 @@ CONTAINS
       !                       !==  namelist namtile  ==!
       !                       !========================!
       !
-      READ  ( numnam_ref, namtile, IOSTAT = ios, ERR = 905 )
-905   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtile in reference namelist' )
-      READ  ( numnam_cfg, namtile, IOSTAT = ios, ERR = 906 )
-906   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtile in configuration namelist' )
+      READ_NML_REF(numnam,namtile)
+      READ_NML_CFG(numnam,namtile)
       IF(lwm) WRITE( numond, namtile )
 
       IF(lwp) THEN
          WRITE(numout,*)
          WRITE(numout,*)    '   Namelist : namtile   ---   Domain tiling decomposition'
          WRITE(numout,*)    '      Tiling (T) or not (F)                ln_tile    = ', ln_tile
-         WRITE(numout,*)    '      Length of tile in i                  nn_ltile_i = ', nn_ltile_i
-         WRITE(numout,*)    '      Length of tile in j                  nn_ltile_j = ', nn_ltile_j
+      ENDIF
+#if defined key_agrif && key_RK3
+      IF( ln_tile )   CALL ctl_stop( 'AGRIF not operationnal with key_RK3 and tiling. Set ln_tile = .false. !' )
+#endif
+      ! is_tile in domutl uses the array size to determine if the array represents a tile or the full domain.
+      ! To avoid ambiguity, either the tile must be the size of the full domain (i.e. nn_ltile_i = Ni_0), or the largest
+      ! possible tile array (internal and halo points) must be smaller than the internal area of the full domain
+      IF( ln_tile ) THEN
+         IF(lwp) WRITE(numout,*)    '      Length of tile in i                  nn_ltile_i = ', nn_ltile_i
+
+         imax = Ni_0 - (2 * nn_hls) - 1
+         IF( imax < 1 ) imax = Ni_0                      ! Avoid zero tile size for small domains
+         IF( nn_ltile_i > imax .AND. nn_ltile_i /= Ni_0 ) THEN
+            IF( nn_ltile_i < Ni_0 ) THEN
+               nn_ltile_i = MIN( nn_ltile_i, imax )      ! 2+ tiles
+            ELSE
+               nn_ltile_i = MIN( nn_ltile_i, Ni_0 )      ! 1 tile
+            ENDIF
+            IF(lwp) WRITE(numout,*)    '         ===> Reduced to size ', nn_ltile_i
+         ENDIF
+
+         IF(lwp) WRITE(numout,*)    '      Length of tile in j                  nn_ltile_j = ', nn_ltile_j
+
+         imax = Nj_0 - (2 * nn_hls) - 1
+         IF( imax < 1 ) imax = Nj_0                      ! Avoid zero tile size for small domains
+         IF( nn_ltile_j > imax .AND. nn_ltile_j /= Nj_0 ) THEN
+            IF( nn_ltile_j < Nj_0 ) THEN
+               nn_ltile_j = MIN( nn_ltile_j, imax )      ! 2+ tiles
+            ELSE
+               nn_ltile_j = MIN( nn_ltile_j, Nj_0 )      ! 1 tile
+            ENDIF
+            IF(lwp) WRITE(numout,*)    '         ===> Reduced to size ', nn_ltile_j
+         ENDIF
+      ENDIF
+
+      IF(lwp) THEN
          WRITE(numout,*)
          IF( ln_tile ) THEN
             WRITE(numout,*) '      The domain will be decomposed into tiles of size', nn_ltile_i, 'x', nn_ltile_j
@@ -507,10 +520,8 @@ CONTAINS
       !                       !==  namelist namnc4  ==!   NetCDF 4 case   ("key_netcdf4" defined)
       !                       !=======================!
       !
-      READ  ( numnam_ref, namnc4, IOSTAT = ios, ERR = 907)
-907   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namnc4 in reference namelist' )
-      READ  ( numnam_cfg, namnc4, IOSTAT = ios, ERR = 908 )
-908   IF( ios >  0 )   CALL ctl_nam ( ios , 'namnc4 in configuration namelist' )
+      READ_NML_REF(numnam,namnc4)
+      READ_NML_CFG(numnam,namnc4)
       IF(lwm) WRITE( numond, namnc4 )
 
       IF(lwp) THEN                        ! control print
@@ -550,12 +561,12 @@ CONTAINS
       !
       llmsk = tmask_i(:,:) == 1._wp
       !
-      CALL mpp_minloc( 'domain', CASTDP(glamt(:,:)), llmsk, zglmin, imil )
-      CALL mpp_minloc( 'domain', CASTDP(gphit(:,:)), llmsk, zgpmin, imip )
-      CALL mpp_minloc( 'domain',   CASTDP(e1t(:,:)), llmsk, ze1min, imi1 )
-      CALL mpp_minloc( 'domain',   CASTDP(e2t(:,:)), llmsk, ze2min, imi2 )
-      CALL mpp_maxloc( 'domain', CASTDP(glamt(:,:)), llmsk, zglmax, imal )
-      CALL mpp_maxloc( 'domain', CASTDP(gphit(:,:)), llmsk, zgpmax, imap )
+      CALL mpp_minloc( 'domain', glamt(:,:), llmsk, zglmin, imil )
+      CALL mpp_minloc( 'domain', gphit(:,:), llmsk, zgpmin, imip )
+      CALL mpp_minloc( 'domain',   e1t(:,:), llmsk, ze1min, imi1 )
+      CALL mpp_minloc( 'domain',   e2t(:,:), llmsk, ze2min, imi2 )
+      CALL mpp_maxloc( 'domain', glamt(:,:), llmsk, zglmax, imal )
+      CALL mpp_maxloc( 'domain', gphit(:,:), llmsk, zgpmax, imap )
       CALL mpp_maxloc( 'domain',   e1t(:,:), llmsk, ze1max, ima1 )
       CALL mpp_maxloc( 'domain',   e2t(:,:), llmsk, ze2max, ima2 )
       !
@@ -684,6 +695,7 @@ CONTAINS
       INTEGER           ::   inum     ! local units
       CHARACTER(len=21) ::   clnam    ! filename (mesh and mask informations)
       REAL(wp), DIMENSION(jpi,jpj) ::   z2d   ! workspace
+      REAL(wp), DIMENSION(jpi,jpj,jpk) ::   z3d   ! workspace
       !!----------------------------------------------------------------------
       !
       IF(lwp) WRITE(numout,*)
@@ -711,9 +723,9 @@ CONTAINS
       CALL iom_putatt( inum, 'NFtype',          c_NFtype     )
 
       !                                   ! type of vertical coordinate
-      IF(ln_zco)   CALL iom_putatt( inum, 'VertCoord', 'zco' )
-      IF(ln_zps)   CALL iom_putatt( inum, 'VertCoord', 'zps' )
-      IF(ln_sco)   CALL iom_putatt( inum, 'VertCoord', 'sco' )
+      IF(l_zco)   CALL iom_putatt( inum, 'VertCoord', 'zco' )
+      IF(l_zps)   CALL iom_putatt( inum, 'VertCoord', 'zps' )
+      IF(l_sco)   CALL iom_putatt( inum, 'VertCoord', 'sco' )
       
       !                                   ! ocean cavities under iceshelves
       CALL iom_putatt( inum, 'IsfCav', COUNT( (/ln_isfcav/) ) )
@@ -748,20 +760,41 @@ CONTAINS
       CALL iom_rstput( 0, 0, inum, 'e3t_1d'  , e3t_1d , ktype = jp_r8 )   ! reference 1D-coordinate
       CALL iom_rstput( 0, 0, inum, 'e3w_1d'  , e3w_1d , ktype = jp_r8 )
       !
-      CALL iom_rstput( 0, 0, inum, 'e3t_0'   , e3t_0  , ktype = jp_r8 )   ! vertical scale factors
-      CALL iom_rstput( 0, 0, inum, 'e3u_0'   , e3u_0  , ktype = jp_r8 )
-      CALL iom_rstput( 0, 0, inum, 'e3v_0'   , e3v_0  , ktype = jp_r8 )
-      CALL iom_rstput( 0, 0, inum, 'e3f_0'   , e3f_0  , ktype = jp_r8 )
-      CALL iom_rstput( 0, 0, inum, 'e3w_0'   , e3w_0  , ktype = jp_r8 )
-      CALL iom_rstput( 0, 0, inum, 'e3uw_0'  , e3uw_0 , ktype = jp_r8 )
-      CALL iom_rstput( 0, 0, inum, 'e3vw_0'  , e3vw_0 , ktype = jp_r8 )
+      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
+         z3d(ji,jj,jk) = e3t_0(ji,jj,jk)
+      END_3D
+      CALL iom_rstput( 0, 0, inum, 'e3t_0'   , z3d  , ktype = jp_r8 )   ! vertical scale factors
+      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
+         z3d(ji,jj,jk) = e3u_0(ji,jj,jk)
+      END_3D
+      CALL iom_rstput( 0, 0, inum, 'e3u_0'   , z3d  , ktype = jp_r8 )
+      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
+         z3d(ji,jj,jk) = e3v_0(ji,jj,jk)
+      END_3D
+      CALL iom_rstput( 0, 0, inum, 'e3v_0'   , z3d  , ktype = jp_r8 )
+      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
+         z3d(ji,jj,jk) = e3f_0(ji,jj,jk)
+      END_3D
+      CALL iom_rstput( 0, 0, inum, 'e3f_0'   , z3d  , ktype = jp_r8 )
+      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
+         z3d(ji,jj,jk) = e3w_0(ji,jj,jk)
+      END_3D
+      CALL iom_rstput( 0, 0, inum, 'e3w_0'   , z3d  , ktype = jp_r8 )
+      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
+         z3d(ji,jj,jk) = e3uw_0(ji,jj,jk)
+      END_3D
+      CALL iom_rstput( 0, 0, inum, 'e3uw_0'  , z3d , ktype = jp_r8 )
+      DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
+         z3d(ji,jj,jk) = e3vw_0(ji,jj,jk)
+      END_3D
+      CALL iom_rstput( 0, 0, inum, 'e3vw_0'  , z3d , ktype = jp_r8 )
       !
       !                             !==  wet top and bottom level  ==!   (caution: multiplied by ssmask)
       !
       CALL iom_rstput( 0, 0, inum, 'top_level'    , REAL( mikt, wp )*ssmask , ktype = jp_i4 )   ! nb of ocean T-points (ISF)
       CALL iom_rstput( 0, 0, inum, 'bottom_level' , REAL( mbkt, wp )*ssmask , ktype = jp_i4 )   ! nb of ocean T-points
       !
-      IF( ln_sco ) THEN             ! s-coordinate: store grid stiffness ratio  (Not required anyway)
+      IF( l_sco ) THEN             ! s-coordinate: store grid stiffness ratio  (Not required anyway)
          CALL dom_stiff( z2d )
          CALL iom_rstput( 0, 0, inum, 'stiffness', z2d )        !    ! Max. grid stiffness ratio
       ENDIF

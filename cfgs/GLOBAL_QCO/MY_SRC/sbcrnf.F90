@@ -71,10 +71,11 @@ MODULE sbcrnf
 
    !! * Substitutions
 #  include "do_loop_substitute.h90"
+#  include "read_nml_substitute.h90"
 #  include "domzgr_substitute.h90"
    !!----------------------------------------------------------------------
    !! NEMO/OCE 4.0 , NEMO Consortium (2018)
-   !! $Id: sbcrnf.F90 15190 2021-08-13 12:52:50Z gsamson $
+   !! $Id: sbcrnf.F90 14993 2021-06-14 22:35:18Z techene $
    !! Software governed by the CeCILL license (see ./LICENSE)
    !!----------------------------------------------------------------------
 CONTAINS
@@ -83,9 +84,9 @@ CONTAINS
       !!----------------------------------------------------------------------
       !!                ***  ROUTINE sbc_rnf_alloc  ***
       !!----------------------------------------------------------------------
-      ALLOCATE( rnfmsk(jpi,jpj)         , rnfmsk_z(jpk)          ,     &
-         &      h_rnf (jpi,jpj)         , nk_rnf  (jpi,jpj)      ,     &
-         &      rnf_tsc_b(jpi,jpj,jpts) , rnf_tsc (jpi,jpj,jpts) , STAT=sbc_rnf_alloc )
+      ALLOCATE( rnfmsk(jpi,jpj)        , rnfmsk_z(jpk)         ,     & ! needed over the whole domain by muscl (traadv_muscl)
+         &      h_rnf (A2D(1))         , nk_rnf  (A2D(1))      ,     &
+         &      rnf_tsc_b(A2D(0),jpts) , rnf_tsc (A2D(0),jpts) , STAT=sbc_rnf_alloc )
          !
       CALL mpp_sum ( 'sbcrnf', sbc_rnf_alloc )
       IF( sbc_rnf_alloc > 0 )   CALL ctl_warn('sbc_rnf_alloc: allocation of arrays failed')
@@ -109,8 +110,6 @@ CONTAINS
       INTEGER  ::   ji, jj    ! dummy loop indices
       INTEGER  ::   z_err = 0 ! dummy integer for error handling
       !!----------------------------------------------------------------------
-      REAL(wp), DIMENSION(jpi,jpj) ::   ztfrz   ! freezing point used for temperature correction
-      !
       !
       !                                            !-------------------!
       !                                            !   Update runoff   !
@@ -118,8 +117,8 @@ CONTAINS
       !
       !
       IF( .NOT. l_rnfcpl )  THEN
-                            CALL fld_read ( kt, nn_fsbc, sf_rnf   )    ! Read Runoffs data and provide it at kt ( runoffs + iceberg )
-         IF( ln_rnf_icb )   CALL fld_read ( kt, nn_fsbc, sf_i_rnf )    ! idem for iceberg flux if required
+                             CALL fld_read ( kt, nn_fsbc, sf_rnf   )    ! Read Runoffs data and provide it at kt ( runoffs + iceberg )
+         IF( ln_rnf_icb )    CALL fld_read ( kt, nn_fsbc, sf_i_rnf )    ! idem for iceberg flux if required
       ENDIF
       IF(   ln_rnf_tem   )   CALL fld_read ( kt, nn_fsbc, sf_t_rnf )    ! idem for runoffs temperature if required
       IF(   ln_rnf_sal   )   CALL fld_read ( kt, nn_fsbc, sf_s_rnf )    ! idem for runoffs salinity    if required
@@ -127,37 +126,37 @@ CONTAINS
       IF( MOD( kt - 1, nn_fsbc ) == 0 ) THEN
          !
          IF( .NOT. l_rnfcpl ) THEN
-             rnf(:,:) = rn_rfact * ( sf_rnf(1)%fnow(:,:,1) ) * tmask(:,:,1)  ! updated runoff value at time step kt
-             IF( ln_rnf_icb ) THEN
-                fwficb(:,:) = rn_rfact * ( sf_i_rnf(1)%fnow(:,:,1) ) * tmask(:,:,1)  ! updated runoff value at time step kt
-                rnf(:,:) = rnf(:,:) + fwficb(:,:)
-                qns(:,:) = qns(:,:) - fwficb(:,:) * rLfus
-                !!qns_tot(:,:) = qns_tot(:,:) - fwficb(:,:) * rLfus                
-                !!qns_oce(:,:) = qns_oce(:,:) - fwficb(:,:) * rLfus                
-                CALL iom_put( 'iceberg_cea'  ,  fwficb(:,:)  )          ! output iceberg flux
-                CALL iom_put( 'hflx_icb_cea' , -fwficb(:,:) * rLfus )   ! output Heat Flux into Sea Water due to Iceberg Thermodynamics -->
-             ENDIF
+            rnf(A2D(0)) = rn_rfact * ( sf_rnf(1)%fnow(:,:,1) ) * smask0(:,:)  ! updated runoff value at time step kt
+            IF( ln_rnf_icb ) THEN
+               fwficb(:,:) = rn_rfact * ( sf_i_rnf(1)%fnow(:,:,1) ) * smask0(:,:)  ! updated runoff value at time step kt
+               rnf(A2D(0)) = rnf(A2D(0)) + fwficb(:,:)
+               qns(:,:) = qns(:,:) - fwficb(:,:) * rLfus
+               !!qns_tot(:,:) = qns_tot(:,:) - fwficb(:,:) * rLfus
+               !!qns_oce(:,:) = qns_oce(:,:) - fwficb(:,:) * rLfus
+               CALL iom_put( 'iceberg_cea'  ,  fwficb(:,:)  )          ! output iceberg flux
+               CALL iom_put( 'hflx_icb_cea' , -fwficb(:,:) * rLfus )   ! output Heat Flux into Sea Water due to Iceberg Thermodynamics -->
+            ENDIF
          ENDIF
          !
          !                                                           ! set temperature & salinity content of runoffs
          IF( ln_rnf_tem ) THEN                                       ! use runoffs temperature data
-            rnf_tsc(:,:,jp_tem) = ( sf_t_rnf(1)%fnow(:,:,1) ) * rnf(:,:) * r1_rho0
-            CALL eos_fzp( sss_m(:,:), ztfrz(:,:) )
+            rnf_tsc(:,:,jp_tem) = ( sf_t_rnf(1)%fnow(:,:,1) ) * rnf(A2D(0)) * r1_rho0
             WHERE( sf_t_rnf(1)%fnow(:,:,1) == -999._wp )             ! if missing data value use SST as runoffs temperature
-               rnf_tsc(:,:,jp_tem) = sst_m(:,:) * rnf(:,:) * r1_rho0
+               rnf_tsc(:,:,jp_tem) = sst_m(A2D(0)) * rnf(A2D(0)) * r1_rho0
             END WHERE
          ELSE                                                        ! use SST as runoffs temperature
             !CEOD River is fresh water so must at least be 0 unless we consider ice
-            rnf_tsc(:,:,jp_tem) = MAX( sst_m(:,:), 0.0_wp ) * rnf(:,:) * r1_rho0
+            rnf_tsc(:,:,jp_tem) = MAX( sst_m(A2D(0)), 0.0_wp ) * rnf(A2D(0)) * r1_rho0
          ENDIF
          !                                                           ! use runoffs salinity data
-         IF( ln_rnf_sal )   rnf_tsc(:,:,jp_sal) = ( sf_s_rnf(1)%fnow(:,:,1) ) * rnf(:,:) * r1_rho0
+         IF( ln_rnf_sal )   rnf_tsc(:,:,jp_sal) = ( sf_s_rnf(1)%fnow(:,:,1) ) * rnf(A2D(0)) * r1_rho0
          !                                                           ! else use S=0 for runoffs (done one for all in the init)
                                          CALL iom_put( 'runoffs'     , rnf(:,:)                         )   ! output runoff mass flux
          IF( iom_use('hflx_rnf_cea') )   CALL iom_put( 'hflx_rnf_cea', rnf_tsc(:,:,jp_tem) * rho0 * rcp )   ! output runoff sensible heat (W/m2)
          IF( iom_use('sflx_rnf_cea') )   CALL iom_put( 'sflx_rnf_cea', rnf_tsc(:,:,jp_sal) * rho0       )   ! output runoff salt flux (g/m2/s)
       ENDIF
       !
+#if ! defined key_RK3
       !                                                ! ---------------------------------------- !
       IF( kt == nit000 ) THEN                          !   set the forcing field at nit000 - 1    !
          !                                             ! ---------------------------------------- !
@@ -168,13 +167,15 @@ CONTAINS
             CALL iom_get( numror, jpdom_auto, 'rnf_sc_b', rnf_tsc_b(:,:,jp_sal) )   ! before salinity content of runoff
          ELSE                                                !* no restart: set from nit000 values
             IF(lwp) WRITE(numout,*) '          nit000-1 runoff forcing fields set to nit000'
-            rnf_b    (:,:  ) = rnf    (:,:  )
-            rnf_tsc_b(:,:,:) = rnf_tsc(:,:,:)
+            CALL lbc_lnk( 'sbcrnf', rnf, 'T', 1.0_wp )
+            rnf_b    (:,:)    = rnf    (:,:)
+            rnf_tsc_b(:,:,:)  = rnf_tsc(:,:,:)
          ENDIF
       ENDIF
       !                                                ! ---------------------------------------- !
       IF( lrst_oce ) THEN                              !      Write in the ocean restart file     !
          !                                             ! ---------------------------------------- !
+         !
          IF(lwp) WRITE(numout,*)
          IF(lwp) WRITE(numout,*) 'sbcrnf : runoff forcing fields written in ocean restart file ',   &
             &                    'at it= ', kt,' date= ', ndastp
@@ -184,6 +185,7 @@ CONTAINS
          CALL iom_rstput( kt, nitrst, numrow, 'rnf_sc_b', rnf_tsc(:,:,jp_sal) )
       ENDIF
       !
+#endif
    END SUBROUTINE sbc_rnf
 
 
@@ -199,41 +201,51 @@ CONTAINS
       !!
       !! ** Action  :   phdivn   decreased by the runoff inflow
       !!----------------------------------------------------------------------
-      INTEGER                   , INTENT(in   ) ::   Kmm      ! ocean time level index
-      REAL(wp), DIMENSION(:,:,:), INTENT(inout) ::   phdivn   ! horizontal divergence
+      INTEGER                        , INTENT(in   ) ::   Kmm      ! ocean time level index
+      REAL(wp), DIMENSION(A2D(1),jpk), INTENT(inout) ::   phdivn   ! horizontal divergence
       !!
       INTEGER  ::   ji, jj, jk   ! dummy loop indices
       REAL(wp) ::   zfact     ! local scalar
       !!----------------------------------------------------------------------
       !
-      zfact = 0.5_wp
+      zfact = 0.5_wp * r1_rho0
       !
       IF( ln_rnf_depth .OR. ln_rnf_depth_ini ) THEN      !==   runoff distributed over several levels   ==!
-         IF( ln_linssh ) THEN    !* constant volume case : just apply the runoff input flow
-            DO_2D_OVR( nn_hls-1, nn_hls, nn_hls-1, nn_hls )
+         IF( lk_linssh ) THEN    !* constant volume case : just apply the runoff input flow
+            DO_2D( 1, 1, 1, 1 )
                DO jk = 1, nk_rnf(ji,jj)
-                  phdivn(ji,jj,jk) = phdivn(ji,jj,jk) - ( rnf(ji,jj) + rnf_b(ji,jj) ) * zfact * r1_rho0 / h_rnf(ji,jj)
+#if defined key_RK3
+                  phdivn(ji,jj,jk) = phdivn(ji,jj,jk) - rnf(ji,jj) * r1_rho0 / h_rnf(ji,jj)                    ! RK3: rnf forcing at n+1/2
+#else
+                  phdivn(ji,jj,jk) = phdivn(ji,jj,jk) - ( rnf(ji,jj) + rnf_b(ji,jj) ) * zfact / h_rnf(ji,jj)   ! MLF: rnf forcing at Kmm (n)
+#endif
                END DO
             END_2D
          ELSE                    !* variable volume case
-            DO_2D_OVR( nn_hls, nn_hls, nn_hls, nn_hls )         ! update the depth over which runoffs are distributed
+            DO_2D( 1, 1, 1, 1 )         ! compute the depth over which runoffs are distributed
                h_rnf(ji,jj) = 0._wp
-               DO jk = 1, nk_rnf(ji,jj)                             ! recalculates h_rnf to be the depth in metres
-                  h_rnf(ji,jj) = h_rnf(ji,jj) + e3t(ji,jj,jk,Kmm)   ! to the bottom of the relevant grid box
+               DO jk = 1, nk_rnf(ji,jj)
+                  h_rnf(ji,jj)     = h_rnf(ji,jj) + e3t(ji,jj,jk,Kmm) ! recalculates h_rnf to be the depth in metres to the bottom of the relevant grid box
                END DO
             END_2D
-            DO_2D_OVR( nn_hls-1, nn_hls, nn_hls-1, nn_hls )         ! apply the runoff input flow
+            DO_2D( 1, 1, 1, 1 )         ! update phdivn
                DO jk = 1, nk_rnf(ji,jj)
-                  phdivn(ji,jj,jk) = phdivn(ji,jj,jk) - ( rnf(ji,jj) + rnf_b(ji,jj) ) * zfact * r1_rho0 / h_rnf(ji,jj)
+#if defined key_RK3
+                  phdivn(ji,jj,jk) = phdivn(ji,jj,jk) - rnf(ji,jj) * r1_rho0 / h_rnf(ji,jj)                    ! RK3: rnf forcing at n+1/2
+#else
+                  phdivn(ji,jj,jk) = phdivn(ji,jj,jk) - ( rnf(ji,jj) + rnf_b(ji,jj) ) * zfact / h_rnf(ji,jj)   ! MLF: rnf forcing at Kmm (n)
+#endif
                END DO
             END_2D
          ENDIF
       ELSE                       !==   runoff put only at the surface   ==!
-         DO_2D_OVR( nn_hls, nn_hls, nn_hls, nn_hls )
+         DO_2D( 1, 1, 1, 1 )
             h_rnf (ji,jj)   = e3t(ji,jj,1,Kmm)        ! update h_rnf to be depth of top box
-         END_2D
-         DO_2D_OVR( nn_hls-1, nn_hls, nn_hls-1, nn_hls )
-            phdivn(ji,jj,1) = phdivn(ji,jj,1) - ( rnf(ji,jj) + rnf_b(ji,jj) ) * zfact * r1_rho0 / e3t(ji,jj,1,Kmm)
+#if defined key_RK3
+            phdivn(ji,jj,1) = phdivn(ji,jj,1) - rnf(ji,jj) * r1_rho0 / e3t(ji,jj,1,Kmm)                    ! RK3: rnf forcing at n+1/2
+#else
+            phdivn(ji,jj,1) = phdivn(ji,jj,1) - ( rnf(ji,jj) + rnf_b(ji,jj) ) * zfact / e3t(ji,jj,1,Kmm)   ! MLF: rnf forcing at Kmm (n)
+#endif
          END_2D
       ENDIF
       !
@@ -257,7 +269,7 @@ CONTAINS
       INTEGER           ::   ios           ! Local integer output status for namelist read
       INTEGER           ::   nbrec         ! temporary integer
       REAL(wp)          ::   zacoef
-      REAL(wp), DIMENSION(jpi,jpj,2) :: zrnfcl
+      REAL(wp), DIMENSION(A2D(1),2) :: zrnfcl
       !!
       NAMELIST/namsbc_rnf/ cn_dir            , ln_rnf_depth, ln_rnf_tem, ln_rnf_sal, ln_rnf_icb,   &
          &                 sn_rnf, sn_cnf    , sn_i_rnf, sn_s_rnf    , sn_t_rnf  , sn_dep_rnf,   &
@@ -272,11 +284,8 @@ CONTAINS
       !                                   !   Namelist
       !                                   ! ============
       !
-      READ  ( numnam_ref, namsbc_rnf, IOSTAT = ios, ERR = 901)
-901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namsbc_rnf in reference namelist' )
-
-      READ  ( numnam_cfg, namsbc_rnf, IOSTAT = ios, ERR = 902 )
-902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namsbc_rnf in configuration namelist' )
+      READ_NML_REF(numnam,namsbc_rnf)
+      READ_NML_CFG(numnam,namsbc_rnf)
       IF(lwm) WRITE ( numond, namsbc_rnf )
       !
       IF( .NOT. ln_rnf ) THEN                      ! no specific treatment in vicinity of river mouths
@@ -314,8 +323,8 @@ CONTAINS
          IF( ierror > 0 ) THEN
             CALL ctl_stop( 'sbc_rnf_init: unable to allocate sf_rnf structure' )   ;   RETURN
          ENDIF
-         ALLOCATE( sf_rnf(1)%fnow(jpi,jpj,1)   )
-         IF( sn_rnf%ln_tint ) ALLOCATE( sf_rnf(1)%fdta(jpi,jpj,1,2) )
+         ALLOCATE( sf_rnf(1)%fnow(A2D(0),1)   )
+         IF( sn_rnf%ln_tint ) ALLOCATE( sf_rnf(1)%fdta(A2D(0),1,2) )
          CALL fld_fill( sf_rnf, (/ sn_rnf /), cn_dir, 'sbc_rnf_init', 'read runoffs data', 'namsbc_rnf', no_print )
          !
          IF( ln_rnf_icb ) THEN                      ! Create (if required) sf_i_rnf structure
@@ -325,11 +334,13 @@ CONTAINS
             IF( ierror > 0 ) THEN
                CALL ctl_stop( 'sbc_rnf_init: unable to allocate sf_i_rnf structure' )   ;   RETURN
             ENDIF
-            ALLOCATE( sf_i_rnf(1)%fnow(jpi,jpj,1)   )
-            IF( sn_i_rnf%ln_tint ) ALLOCATE( sf_i_rnf(1)%fdta(jpi,jpj,1,2) )
+            ALLOCATE( sf_i_rnf(1)%fnow(A2D(0),1)   )
+            IF( sn_i_rnf%ln_tint ) ALLOCATE( sf_i_rnf(1)%fdta(A2D(0),1,2) )
             CALL fld_fill (sf_i_rnf, (/ sn_i_rnf /), cn_dir, 'sbc_rnf_init', 'read iceberg flux data', 'namsbc_rnf' )
          ELSE
-            fwficb(:,:) = 0._wp
+            DO_2D( 0, 0, 0, 0 )
+               fwficb(ji,jj) = 0._wp
+            END_2D
          ENDIF
 
       ENDIF
@@ -341,8 +352,8 @@ CONTAINS
          IF( ierror > 0 ) THEN
             CALL ctl_stop( 'sbc_rnf_init: unable to allocate sf_t_rnf structure' )   ;   RETURN
          ENDIF
-         ALLOCATE( sf_t_rnf(1)%fnow(jpi,jpj,1)   )
-         IF( sn_t_rnf%ln_tint ) ALLOCATE( sf_t_rnf(1)%fdta(jpi,jpj,1,2) )
+         ALLOCATE( sf_t_rnf(1)%fnow(A2D(0),1)   )
+         IF( sn_t_rnf%ln_tint ) ALLOCATE( sf_t_rnf(1)%fdta(A2D(0),1,2) )
          CALL fld_fill (sf_t_rnf, (/ sn_t_rnf /), cn_dir, 'sbc_rnf_init', 'read runoff temperature data', 'namsbc_rnf', no_print )
       ENDIF
       !
@@ -353,8 +364,8 @@ CONTAINS
          IF( ierror > 0 ) THEN
             CALL ctl_stop( 'sbc_rnf_init: unable to allocate sf_s_rnf structure' )   ;   RETURN
          ENDIF
-         ALLOCATE( sf_s_rnf(1)%fnow(jpi,jpj,1)   )
-         IF( sn_s_rnf%ln_tint ) ALLOCATE( sf_s_rnf(1)%fdta(jpi,jpj,1,2) )
+         ALLOCATE( sf_s_rnf(1)%fnow(A2D(0),1)   )
+         IF( sn_s_rnf%ln_tint ) ALLOCATE( sf_s_rnf(1)%fdta(A2D(0),1,2) )
          CALL fld_fill (sf_s_rnf, (/ sn_s_rnf /), cn_dir, 'sbc_rnf_init', 'read runoff salinity data', 'namsbc_rnf', no_print )
       ENDIF
       !
@@ -369,8 +380,7 @@ CONTAINS
          CALL iom_get  ( inum, jpdom_global, sn_dep_rnf%clvar, h_rnf, kfill = jpfillcopy )   ! read the river mouth. no 0 on halos!
          CALL iom_close( inum )                                                              ! close file
          !
-         nk_rnf(:,:) = 0                               ! set the number of level over which river runoffs are applied
-         DO_2D( nn_hls, nn_hls, nn_hls, nn_hls )
+         DO_2D( 1, 1, 1, 1 )      ! set the number of level over which river runoffs are applied
             IF( h_rnf(ji,jj) > 0._wp ) THEN
                jk = 2
                DO WHILE ( jk < mbkt(ji,jj) .AND. gdept_0(ji,jj,jk) < h_rnf(ji,jj) ) ;  jk = jk + 1
@@ -383,7 +393,8 @@ CONTAINS
                WRITE(999,*) 'ji, jj, h_rnf(ji,jj) :', ji, jj, h_rnf(ji,jj)
             ENDIF
          END_2D
-         DO_2D( nn_hls, nn_hls, nn_hls, nn_hls )                           ! set the associated depth
+         !
+         DO_2D( 1, 1, 1, 1 )      ! set the associated depth
             h_rnf(ji,jj) = 0._wp
             DO jk = 1, nk_rnf(ji,jj)
                h_rnf(ji,jj) = h_rnf(ji,jj) + e3t(ji,jj,jk,Kmm)
@@ -398,7 +409,7 @@ CONTAINS
          IF(lwp) WRITE(numout,*) '        depth over which runoffs is spread                        rn_dep_max = ', rn_dep_max
          IF(lwp) WRITE(numout,*) '        create (=1) a runoff depth file or not (=0)      nn_rnf_depth_file  = ', nn_rnf_depth_file
 
-         CALL iom_open( TRIM( sn_rnf%clname ), inum )    !  open runoff file
+         CALL iom_open( TRIM( sn_rnf%clname ), inum ) !  open runoff file
          nbrec = iom_getszuld( inum )
          zrnfcl(:,:,1) = 0._wp                                                            ! init the max to 0. in 1
          DO jm = 1, nbrec
@@ -407,21 +418,20 @@ CONTAINS
          END DO
          CALL iom_close( inum )
          !
-         h_rnf(:,:) = 1.
+         zacoef = rn_dep_max / rn_rnf_max             ! coef of linear relation between runoff and its depth (150m for max of runoff)
          !
-         zacoef = rn_dep_max / rn_rnf_max            ! coef of linear relation between runoff and its depth (150m for max of runoff)
+         WHERE( zrnfcl(:,:,1) > 0._wp ) ; h_rnf(:,:) = zacoef * zrnfcl(:,:,1)   ! compute depth for all runoffs
+         ELSEWHERE                      ; h_rnf(:,:) = 1._wp
+         ENDWHERE
          !
-         WHERE( zrnfcl(:,:,1) > 0._wp )  h_rnf(:,:) = zacoef * zrnfcl(:,:,1)   ! compute depth for all runoffs
-         !
-         DO_2D( nn_hls, nn_hls, nn_hls, nn_hls )                ! take in account min depth of ocean rn_hmin
+         DO_2D( 1, 1, 1, 1 )      ! take in account min depth of ocean rn_hmin
             IF( zrnfcl(ji,jj,1) > 0._wp ) THEN
                jk = mbkt(ji,jj)
                h_rnf(ji,jj) = MIN( h_rnf(ji,jj), gdept_0(ji,jj,jk ) )
             ENDIF
          END_2D
          !
-         nk_rnf(:,:) = 0                       ! number of levels on which runoffs are distributed
-         DO_2D( nn_hls, nn_hls, nn_hls, nn_hls )
+         DO_2D( 1, 1, 1, 1 )      ! number of levels on which runoffs are distributed
             IF( zrnfcl(ji,jj,1) > 0._wp ) THEN
                jk = 2
                DO WHILE ( jk < mbkt(ji,jj) .AND. gdept_0(ji,jj,jk) < h_rnf(ji,jj) ) ;  jk = jk + 1
@@ -432,27 +442,33 @@ CONTAINS
             ENDIF
          END_2D
          !
-         DO_2D( nn_hls, nn_hls, nn_hls, nn_hls )                          ! set the associated depth
+         DO_2D( 1, 1, 1, 1 )      ! set the associated depth
             h_rnf(ji,jj) = 0._wp
             DO jk = 1, nk_rnf(ji,jj)
                h_rnf(ji,jj) = h_rnf(ji,jj) + e3t(ji,jj,jk,Kmm)
             END DO
          END_2D
          !
-         IF( nn_rnf_depth_file == 1 ) THEN      !  save  output nb levels for runoff
+         IF( nn_rnf_depth_file == 1 ) THEN            !  save  output nb levels for runoff
             IF(lwp) WRITE(numout,*) '   ==>>>   create runoff depht file'
             CALL iom_open  ( TRIM( sn_dep_rnf%clname ), inum, ldwrt = .TRUE. )
             CALL iom_rstput( 0, 0, inum, 'rodepth', h_rnf )
             CALL iom_close ( inum )
          ENDIF
-      ELSE                                       ! runoffs applied at the surface
-         nk_rnf(:,:) = 1
-         h_rnf (:,:) = e3t(:,:,1,Kmm)
+      ELSE                                            ! runoffs applied at the surface
+         DO_2D( 1, 1, 1, 1 )
+            nk_rnf(ji,jj) = 1
+            h_rnf (ji,jj) = e3t(ji,jj,1,Kmm)
+         END_2D
       ENDIF
       !
-      rnf(:,:) =  0._wp                         ! runoff initialisation
-      rnf_tsc(:,:,:) = 0._wp                    ! runoffs temperature & salinty contents initilisation
-      !
+      DO_2D( 0, 0, 0, 0 )
+         rnf(ji,jj) =  0._wp                          ! runoff initialisation
+      END_2D
+      DO_3D( 0, 0, 0, 0, 1, jpts )
+         rnf_tsc(ji,jj,jk) = 0._wp                    ! runoffs temperature & salinty contents initilisation
+      END_3D
+         !
       !                                   ! ========================
       !                                   !   River mouth vicinity
       !                                   ! ========================
@@ -470,7 +486,7 @@ CONTAINS
             nkrnf = 2
             DO WHILE( nkrnf /= jpkm1 .AND. gdepw_1d(nkrnf+1) < rn_hrnf )   ;   nkrnf = nkrnf + 1
             END DO
-            IF( ln_sco )   CALL ctl_warn( 'sbc_rnf_init: number of levels over which Kz is increased is computed for zco...' )
+            IF( l_sco )   CALL ctl_warn( 'sbc_rnf_init: number of levels over which Kz is increased is computed for zco...' )
          ENDIF
          IF(lwp) WRITE(numout,*)
          IF(lwp) WRITE(numout,*) '   ==>>>   Specific treatment used in vicinity of river mouths :'
@@ -484,11 +500,13 @@ CONTAINS
       ELSE                                      ! No treatment at river mouths
          IF(lwp) WRITE(numout,*)
          IF(lwp) WRITE(numout,*) '   ==>>>   No specific treatment at river mouths'
-         rnfmsk  (:,:) = 0._wp
+         DO_2D( nn_hls, nn_hls, nn_hls, nn_hls )
+            rnfmsk(ji,jj) = 0._wp
+         END_2D
          rnfmsk_z(:)   = 0._wp
          nkrnf = 0
       ENDIF
-      !
+     !
    END SUBROUTINE sbc_rnf_init
 
 
@@ -526,9 +544,9 @@ CONTAINS
       ENDIF
       !
       ! horizontal mask (read in NetCDF file)
-      CALL iom_open ( cl_rnfile, inum )                             ! open file
-      CALL iom_get  ( inum, jpdom_global, sn_cnf%clvar, rnfmsk )    ! read the river mouth array
-      CALL iom_close( inum )                                        ! close file
+      CALL iom_open ( cl_rnfile, inum )                                     ! open file
+      CALL iom_get  ( inum, jpdom_global, sn_cnf%clvar, rnfmsk(A2D(0)) )    ! read the river mouth array
+      CALL iom_close( inum )                                                ! close file
       !
       IF( l_clo_rnf )   CALL clo_rnf( rnfmsk )   ! closed sea inflow set as river mouth
       !
@@ -538,6 +556,8 @@ CONTAINS
       rnfmsk_z(3)   = 0.5                                         ! HARD CODED on the 5 first levels
       rnfmsk_z(4)   = 0.25                                        ! **********
       rnfmsk_z(5)   = 0.125
+      !
+      CALL lbc_lnk( 'rnf_mouth', rnfmsk, 'T', 1._wp )   ! needed by muscl scheme (traadv_muscl)
       !
    END SUBROUTINE rnf_mouth
 

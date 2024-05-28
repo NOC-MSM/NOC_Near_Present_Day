@@ -42,7 +42,6 @@ MODULE zdftke
    USE oce            ! ocean: dynamics and active tracers variables
    USE phycst         ! physical constants
    USE dom_oce        ! domain: ocean
-   USE domvvl         ! domain: variable volume layer
    USE sbc_oce        ! surface boundary condition: ocean
    USE zdfdrg         ! vertical physics: top/bottom drag coef.
    USE zdfmxl         ! vertical physics: mixed layer
@@ -56,9 +55,7 @@ MODULE zdftke
    USE in_out_manager ! I/O manager
    USE iom            ! I/O manager library
    USE lib_mpp        ! MPP library
-   USE lbclnk         ! ocean lateral boundary conditions (or mpp link)
    USE prtctl         ! Print control
-   USE lib_fortran    ! Fortran utilities (allows no signed zero when 'key_nosignedzero' defined)
    USE sbcwave        ! Surface boundary waves
 
    IMPLICIT NONE
@@ -99,11 +96,9 @@ MODULE zdftke
 
    REAL(wp), ALLOCATABLE, SAVE, PUBLIC, DIMENSION(:,:)   ::   htau    ! depth of tke penetration (nn_htau)
    REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:) ::   dissl   ! now mixing lenght of dissipation
-   REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:,:,:) ::   apdlr   ! now mixing lenght of dissipation
 
    !! * Substitutions
 #  include "do_loop_substitute.h90"
-#  include "single_precision_substitute.h90"
 #  include "domzgr_substitute.h90"
    !!----------------------------------------------------------------------
    !! NEMO/OCE 4.0 , NEMO Consortium (2018)
@@ -116,7 +111,7 @@ CONTAINS
       !!----------------------------------------------------------------------
       !!                ***  FUNCTION zdf_tke_alloc  ***
       !!----------------------------------------------------------------------
-      ALLOCATE( htau(jpi,jpj) , dissl(jpi,jpj,jpk) , apdlr(jpi,jpj,jpk) ,   STAT= zdf_tke_alloc )
+      ALLOCATE( htau(A2D(0)), dissl(A2D(0),jpk), STAT= zdf_tke_alloc )
       !
       CALL mpp_sum ( 'zdftke', zdf_tke_alloc )
       IF( zdf_tke_alloc /= 0 )   CALL ctl_stop( 'STOP', 'zdf_tke_alloc: failed to allocate arrays' )
@@ -169,20 +164,27 @@ CONTAINS
       !!              Axell, JGR, 2002
       !!              Bruchard OM 2002
       !!----------------------------------------------------------------------
-      INTEGER                             , INTENT(in   ) ::   kt             ! ocean time step
-      INTEGER                             , INTENT(in   ) ::   Kbb, Kmm       ! ocean time level indices
-      REAL(wp), DIMENSION(A2D(nn_hls),jpk), INTENT(in   ) ::   p_sh2          ! shear production term
-      REAL(wp), DIMENSION(:,:,:)          , INTENT(inout) ::   p_avm, p_avt   !  momentum and tracer Kz (w-points)
+      INTEGER                         , INTENT(in   ) ::   kt             ! ocean time step
+      INTEGER                         , INTENT(in   ) ::   Kbb, Kmm       ! ocean time level indices
+      REAL(wp), DIMENSION(A2D(0) ,jpk), INTENT(in   ) ::   p_sh2          ! shear production term
+      REAL(wp), DIMENSION(jpi,jpj,jpk), INTENT(inout) ::   p_avm          ! vertical eddy viscosity (w-points)
+      REAL(wp), DIMENSION(A2D(0) ,jpk), INTENT(inout) ::   p_avt          ! vertical eddy diffusivity (w-points)
+      !
+      REAL(wp), DIMENSION(:,:,:), ALLOCATABLE :: z_pdlr                   ! inverse of Prandtl number
       !!----------------------------------------------------------------------
       !
-      CALL tke_tke( Kbb, Kmm, p_sh2, p_avm, p_avt )   ! now tke (en)
+      IF( nn_pdl == 1 ) ALLOCATE( z_pdlr(T2D(0),jpk) )        ! avt multiplied by the inverse Prandtl number
       !
-      CALL tke_avn( Kbb, Kmm,        p_avm, p_avt )   ! now avt, avm, dissl
+      CALL tke_tke( Kbb, Kmm, p_sh2, p_avm, p_avt, z_pdlr )   ! now tke (en)
+      !
+      CALL tke_avn( Kbb, Kmm,        p_avm, p_avt, z_pdlr )   ! now avt, avm, dissl
+      !
+      IF( nn_pdl == 1 ) DEALLOCATE( z_pdlr )
       !
   END SUBROUTINE zdf_tke
 
 
-   SUBROUTINE tke_tke( Kbb, Kmm, p_sh2, p_avm, p_avt )
+   SUBROUTINE tke_tke( Kbb, Kmm, p_sh2, p_avm, p_avt, p_pdlr )
       !!----------------------------------------------------------------------
       !!                   ***  ROUTINE tke_tke  ***
       !!
@@ -202,9 +204,11 @@ CONTAINS
       !! ---------------------------------------------------------------------
       USE zdf_oce , ONLY : en   ! ocean vertical physics
       !!
-      INTEGER                              , INTENT(in   ) ::   Kbb, Kmm       ! ocean time level indices
-      REAL(wp), DIMENSION(A2D(nn_hls),jpk) , INTENT(in   ) ::   p_sh2          ! shear production term
-      REAL(wp), DIMENSION(:,:,:)           , INTENT(in   ) ::   p_avm, p_avt   ! vertical eddy viscosity & diffusivity (w-points)
+      INTEGER                                   , INTENT(in   ) ::   Kbb, Kmm       ! ocean time level indices
+      REAL(wp), DIMENSION(A2D(0) ,jpk)          , INTENT(in   ) ::   p_sh2          ! shear production term
+      REAL(wp), DIMENSION(jpi,jpj,jpk)          , INTENT(in   ) ::   p_avm          ! vertical eddy viscosity (w-points)
+      REAL(wp), DIMENSION(A2D(0) ,jpk)          , INTENT(in   ) ::   p_avt          ! vertical eddy diffusivity (w-points)
+      REAL(wp), DIMENSION(T2D(0) ,jpk), OPTIONAL, INTENT(  out) ::   p_pdlr         ! inverse of Prandtl number
       !
       INTEGER ::   ji, jj, jk                  ! dummy loop arguments
       REAL(wp) ::   zetop, zebot, zmsku, zmskv ! local scalars
@@ -212,301 +216,307 @@ CONTAINS
       REAL(wp) ::   zcdrag = 1.5e-3            ! drag coefficient
       REAL(wp) ::   zbbrau, zbbirau, zri       ! local scalars
       REAL(wp) ::   zfact1, zfact2, zfact3     !   -      -
-      REAL(wp) ::   ztx2  , zty2  , zcof       !   -      -
+      REAL(wp) ::   zcof  , zcsd               !   -      -
       REAL(wp) ::   ztau  , zdif               !   -      -
       REAL(wp) ::   zus   , zwlc  , zind       !   -      -
       REAL(wp) ::   zzd_up, zzd_lw             !   -      -
       REAL(wp) ::   ztaui, ztauj, z1_norm
-      INTEGER , DIMENSION(A2D(nn_hls))     ::   imlc
-      REAL(wp), DIMENSION(A2D(nn_hls))     ::   zice_fra, zhlc, zus3, zWlc2
-      REAL(wp), DIMENSION(A2D(nn_hls),jpk) ::   zpelc, zdiag, zd_up, zd_lw
-      REAL(wp), DIMENSION(:,:,:), ALLOCATABLE, SAVE ::   ztmp ! for diags
+      INTEGER , DIMENSION(T1Di(0))     ::   imlc
+      REAL(wp), DIMENSION(T1Di(0))     ::   zice_fra, zhlc, zus3, zWlc2
+      REAL(wp), DIMENSION(T1Di(0),jpk) ::   zpelc, zdiag, zd_up, zd_lw
+      REAL(wp), DIMENSION(:,:,:), ALLOCATABLE ::   ztmp ! for diags
       REAL(wp) :: zdiv
+      LOGICAL  :: lldiag
       !!--------------------------------------------------------------------
       !
-      zbbrau  = rn_ebb / rho0       ! Local constant initialisation
+      zbbrau  = rn_ebb / rho0                              ! Local constant initialisation
       zbbirau = 3.75_wp / rho0
       zfact1  = -.5_wp * rn_Dt
       zfact2  = 1.5_wp * rn_Dt * rn_ediss
       zfact3  = 0.5_wp         * rn_ediss
+      zcsd = 0.5 * 0.016 * 0.016 / ( zrhoa * zcdrag )      ! Surface stress to 10m wind using a constant drag
+      lldiag = iom_use('ediss_k')
       !
-      zpelc(:,:,:) = 0._wp ! need to be initialised in case ln_lc is not used
+      IF( nn_eice == 0 ) zice_fra(:) = 0._wp               ! No attenuation of TKE due to sea ice
+      IF( lldiag ) ALLOCATE( ztmp(T2D(0),jpk) )            ! ediss_k diagnostic
       !
-      ! ice fraction considered for attenuation of langmuir & wave breaking
-      SELECT CASE ( nn_eice )
-      CASE( 0 )   ;   zice_fra(:,:) = 0._wp
-      CASE( 1 )   ;   zice_fra(:,:) =        TANH( fr_i(A2D(nn_hls)) * 10._wp )
-      CASE( 2 )   ;   zice_fra(:,:) =              fr_i(A2D(nn_hls))
-      CASE( 3 )   ;   zice_fra(:,:) = MIN( 4._wp * fr_i(A2D(nn_hls)) , 1._wp )
-      END SELECT
-      !
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !                     !  Surface/top/bottom boundary condition on tke
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !
-      DO_2D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-         en(ji,jj,1) = MAX( rn_emin0, zbbrau * taum(ji,jj) )
-         zdiag(ji,jj,1) = 1._wp/en(ji,jj,1)
-         zd_lw(ji,jj,1) = 1._wp
-         zd_up(ji,jj,1) = 0._wp
-      END_2D
-      !
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !                     !  Bottom boundary condition on tke
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !
-      !   en(bot)   = (ebb0/rho0)*0.5*sqrt(u_botfr^2+v_botfr^2) (min value rn_emin)
-      ! where ebb0 does not includes surface wave enhancement (i.e. ebb0=3.75)
-      ! Note that stress averaged is done using an wet-only calculation of u and v at t-point like in zdfsh2
-      !
-      IF( .NOT.ln_drg_OFF ) THEN    !== friction used as top/bottom boundary condition on TKE
+      !                                               ! ================= !
+      DO_1Dj( 0, 0 )                                  !  i-k slices loop  !
+         !                                            ! ================= !
          !
-         DO_2D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )        ! bottom friction
-            zmsku = ( 2. - umask(ji-1,jj,mbkt(ji,jj)) * umask(ji,jj,mbkt(ji,jj)) )
-            zmskv = ( 2. - vmask(ji,jj-1,mbkt(ji,jj)) * vmask(ji,jj,mbkt(ji,jj)) )
-            !                       ! where 0.001875 = (rn_ebb0/rho0) * 0.5 = 3.75*0.5/1000. (CAUTION CdU<0)
-            zebot = - 0.001875_wp * rCdU_bot(ji,jj) * SQRT(  ( zmsku*( uu(ji,jj,mbkt(ji,jj),Kbb)+uu(ji-1,jj,mbkt(ji,jj),Kbb) ) )**2  &
-               &                                           + ( zmskv*( vv(ji,jj,mbkt(ji,jj),Kbb)+vv(ji,jj-1,mbkt(ji,jj),Kbb) ) )**2  )
-            en(ji,jj,mbkt(ji,jj)+1) = MAX( zebot, rn_emin ) * ssmask(ji,jj)
-         END_2D
-         IF( ln_isfcav ) THEN
-            DO_2D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )     ! top friction
-               zmsku = ( 2. - umask(ji-1,jj,mikt(ji,jj)) * umask(ji,jj,mikt(ji,jj)) )
-               zmskv = ( 2. - vmask(ji,jj-1,mikt(ji,jj)) * vmask(ji,jj,mikt(ji,jj)) )
-               !                             ! where 0.001875 = (rn_ebb0/rho0) * 0.5 = 3.75*0.5/1000.  (CAUTION CdU<0)
-               zetop = - 0.001875_wp * rCdU_top(ji,jj) * SQRT(  ( zmsku*( uu(ji,jj,mikt(ji,jj),Kbb)+uu(ji-1,jj,mikt(ji,jj),Kbb) ) )**2  &
-                  &                                           + ( zmskv*( vv(ji,jj,mikt(ji,jj),Kbb)+vv(ji,jj-1,mikt(ji,jj),Kbb) ) )**2  )
-               ! (1._wp - tmask(ji,jj,1)) * ssmask(ji,jj) = 1 where ice shelves are present
-               en(ji,jj,mikt(ji,jj)) = en(ji,jj,1)           * tmask(ji,jj,1) &
-                  &                  + MAX( zetop, rn_emin ) * (1._wp - tmask(ji,jj,1)) * ssmask(ji,jj)
-            END_2D
+         ! ice fraction considered for attenuation of langmuir & wave breaking
+         SELECT CASE ( nn_eice )
+            CASE( 1 )   ;   zice_fra(:) =        TANH( fr_i(T1Di(0),jj) * 10._wp )
+            CASE( 2 )   ;   zice_fra(:) =              fr_i(T1Di(0),jj)
+            CASE( 3 )   ;   zice_fra(:) = MIN( 4._wp * fr_i(T1Di(0),jj) , 1._wp )
+         END SELECT
+         !
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !                     !  Surface boundary condition on tke
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !
+         DO_1Di( 0, 0 )
+            en(ji,jj,1) = MAX( rn_emin0, zbbrau * taum(ji,jj) )
+            zdiag(ji,1) = 1._wp/en(ji,jj,1)
+            zd_lw(ji,1) = 1._wp
+            zd_up(ji,1) = 0._wp
+         END_1D
+         !
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !                     !  Bottom boundary condition on tke
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !
+         !   en(bot)   = (ebb0/rho0)*0.5*sqrt(u_botfr^2+v_botfr^2) (min value rn_emin)
+         ! where ebb0 does not includes surface wave enhancement (i.e. ebb0=3.75)
+         ! Note that stress averaged is done using an wet-only calculation of u and v at t-point like in zdfsh2
+         !
+         IF( .NOT.ln_drg_OFF ) THEN    !== friction used as top/bottom boundary condition on TKE
+            !
+            DO_1Di( 0, 0 )             ! bottom friction
+               zmsku = ( 2. - umask(ji-1,jj,mbkt(ji,jj)) * umask(ji,jj,mbkt(ji,jj)) )
+               zmskv = ( 2. - vmask(ji,jj-1,mbkt(ji,jj)) * vmask(ji,jj,mbkt(ji,jj)) )
+               !                       ! where 0.001875 = (rn_ebb0/rho0) * 0.5 = 3.75*0.5/1000. (CAUTION CdU<0)
+               zebot = - 0.001875_wp * rCdU_bot(ji,jj) * SQRT(  ( zmsku*( uu(ji,jj,mbkt(ji,jj),Kbb)+uu(ji-1,jj,mbkt(ji,jj),Kbb) ) )**2  &
+                  &                                           + ( zmskv*( vv(ji,jj,mbkt(ji,jj),Kbb)+vv(ji,jj-1,mbkt(ji,jj),Kbb) ) )**2  )
+               en(ji,jj,mbkt(ji,jj)+1) = MAX( zebot, rn_emin ) * ssmask(ji,jj)
+            END_1D
+            IF( ln_isfcav ) THEN
+               DO_1Di( 0, 0 )          ! top friction
+                  zmsku = ( 2. - umask(ji-1,jj,mikt(ji,jj)) * umask(ji,jj,mikt(ji,jj)) )
+                  zmskv = ( 2. - vmask(ji,jj-1,mikt(ji,jj)) * vmask(ji,jj,mikt(ji,jj)) )
+                  !                             ! where 0.001875 = (rn_ebb0/rho0) * 0.5 = 3.75*0.5/1000.  (CAUTION CdU<0)
+                  zetop = - 0.001875_wp * rCdU_top(ji,jj) * SQRT(  ( zmsku*( uu(ji,jj,mikt(ji,jj),Kbb)+uu(ji-1,jj,mikt(ji,jj),Kbb) ) )**2  &
+                     &                                           + ( zmskv*( vv(ji,jj,mikt(ji,jj),Kbb)+vv(ji,jj-1,mikt(ji,jj),Kbb) ) )**2  )
+                  ! (1._wp - tmask(ji,jj,1)) * ssmask(ji,jj) = 1 where ice shelves are present
+                  en(ji,jj,mikt(ji,jj)) = en(ji,jj,1)           * tmask(ji,jj,1) &
+                     &                  + MAX( zetop, rn_emin ) * (1._wp - tmask(ji,jj,1)) * ssmask(ji,jj)
+               END_1D
+            ENDIF
+            !
          ENDIF
          !
-      ENDIF
-      !
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      IF( ln_lc ) THEN      !  Langmuir circulation source term added to tke (Axell JGR 2002)
-         !                  !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-         !
-         !                       !* Langmuir velocity scale
-         !
-         IF ( cpl_sdrftx )  THEN       ! Surface Stokes Drift available
-            !                                ! Craik-Leibovich velocity scale Wlc = ( u* u_s )^1/2    with u* = (taum/rho0)^1/2
-            !                                ! associated kinetic energy : 1/2 (Wlc)^2 = u* u_s
-            !                                ! more precisely, it is the dot product that must be used :
-            !                                !     1/2  (W_lc)^2 = MAX( u* u_s + v* v_s , 0 )   only the positive part
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         IF( ln_lc ) THEN      !  Langmuir circulation source term added to tke (Axell JGR 2002)
+            !                  !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+            !
+            !                       !* Langmuir velocity scale
+            !
+            IF ( cpl_sdrftx )  THEN       ! Surface Stokes Drift available
+               !                                ! Craik-Leibovich velocity scale Wlc = ( u* u_s )^1/2    with u* = (taum/rho0)^1/2
+               !                                ! associated kinetic energy : 1/2 (Wlc)^2 = u* u_s
+               !                                ! more precisely, it is the dot product that must be used :
+               !                                !     1/2  (W_lc)^2 = MAX( u* u_s + v* v_s , 0 )   only the positive part
 !!gm  ! PS: currently we don't have neither the 2 stress components at t-point !nor the angle between u* and u_s
 !!gm  ! so we will overestimate the LC velocity....   !!gm I will do the work if !LC have an effect !
-!
-!  Projection of Stokes drift in the wind stress direction
-!
-            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                  ztaui   = 0.5_wp * ( utau(ji,jj) + utau(ji-1,jj) )
-                  ztauj   = 0.5_wp * ( vtau(ji,jj) + vtau(ji,jj-1) )
+               !
+               !  Projection of Stokes drift in the wind stress direction
+               !
+               DO_1Di( 0, 0 )
+                  ztaui   = utau(ji,jj)
+                  ztauj   = vtau(ji,jj)
                   z1_norm = 1._wp / MAX( ztaui*ztaui+ztauj*ztauj, 1.e-12 ) * tmask(ji,jj,1)
-                  zWlc2(ji,jj) = 0.5_wp * z1_norm * ( MAX( ut0sd(ji,jj)*ztaui + vt0sd(ji,jj)*ztauj, 0._wp ) )**2
+                  zWlc2(ji) = 0.5_wp * z1_norm * ( MAX( ut0sd(ji,jj)*ztaui + vt0sd(ji,jj)*ztauj, 0._wp ) )**2
+               END_1D
+            ELSE                          ! Surface Stokes drift deduced from surface stress
+               !                                ! Wlc = u_s   with u_s = 0.016*U_10m, the surface stokes drift  (Axell 2002, Eq.44)
+               !                                ! using |tau| = rho_air Cd |U_10m|^2 , it comes:
+               !                                ! Wlc = 0.016 * [|tau|/(rho_air Cdrag) ]^1/2   and thus:
+               !                                ! 1/2 Wlc^2 = 0.5 * 0.016 * 0.016 |tau| /( rho_air Cdrag )
+               DO_1Di( 0, 0 )
+                  zWlc2(ji) = zcsd * taum(ji,jj)
+               END_1D
+               !
+            ENDIF
+            !
+            !                       !* Depth of the LC circulation  (Axell 2002, Eq.47)
+            !                             !- LHS of Eq.47
+            DO_1Di( 0, 0 )
+               zpelc(ji,1) =  MAX( rn2b(ji,jj,1), 0._wp ) * gdepw(ji,jj,1,Kmm) * e3w(ji,jj,1,Kmm)
+            END_1D
+            DO_2Dik( 0, 0, 2, jpk, 1 )
+               zpelc(ji,jk)  = zpelc(ji,jk-1) +   &
+                  &       MAX( rn2b(ji,jj,jk), 0._wp ) * gdepw(ji,jj,jk,Kmm) * e3w(ji,jj,jk,Kmm)
             END_2D
-         ELSE                          ! Surface Stokes drift deduced from surface stress
-            !                                ! Wlc = u_s   with u_s = 0.016*U_10m, the surface stokes drift  (Axell 2002, Eq.44)
-            !                                ! using |tau| = rho_air Cd |U_10m|^2 , it comes:
-            !                                ! Wlc = 0.016 * [|tau|/(rho_air Cdrag) ]^1/2   and thus:
-            !                                ! 1/2 Wlc^2 = 0.5 * 0.016 * 0.016 |tau| /( rho_air Cdrag )
-            zcof = 0.5 * 0.016 * 0.016 / ( zrhoa * zcdrag )      ! to convert stress in 10m wind using a constant drag
-            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-               zWlc2(ji,jj) = zcof * taum(ji,jj)
+            !
+            !                             !- compare LHS to RHS of Eq.47
+            imlc(:) = mbkt(T1Di(0),jj) + 1     ! Initialization to the number of w ocean point (=2 over land)
+            DO_2Dik( 0, 0, jpkm1, 2, -1 )
+               IF( zpelc(ji,jk) > zWlc2(ji) )   imlc(ji) = jk
+            END_2D
+            !                                  ! finite LC depth
+            DO_1Di( 0, 0 )
+               zhlc(ji) = gdepw(ji,jj,imlc(ji),Kmm)
+            END_1D
+            !
+            DO_1Di( 0, 0 )
+               zus = SQRT( 2. * zWlc2(ji) )    ! Stokes drift
+               zus3(ji) = MAX( 0._wp, 1._wp - zice_fra(ji) ) * zus * zus * zus * tmask(ji,jj,1) ! zus > 0. ok
+            END_1D
+            DO_2Dik( 0, 0, 2, jpkm1, 1 )                   !* TKE Langmuir circulation source term added to en
+               IF ( zus3(ji) /= 0._wp ) THEN
+                  IF ( gdepw(ji,jj,jk,Kmm) - zhlc(ji) < 0 .AND. wmask(ji,jj,jk) /= 0. ) THEN
+                     !                                           ! vertical velocity due to LC
+                     zwlc = rn_lc * SIN( rpi * gdepw(ji,jj,jk,Kmm) / zhlc(ji) )
+                     !                                           ! TKE Langmuir circulation source term
+                     en(ji,jj,jk) = en(ji,jj,jk) + rn_Dt * zus3(ji) * ( zwlc * zwlc * zwlc ) / zhlc(ji)
+                  ENDIF
+               ENDIF
             END_2D
             !
          ENDIF
          !
-         !                       !* Depth of the LC circulation  (Axell 2002, Eq.47)
-         !                             !- LHS of Eq.47
-         DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-            zpelc(ji,jj,1) =  MAX( rn2b(ji,jj,1), 0._wp ) * gdepw(ji,jj,1,Kmm) * e3w(ji,jj,1,Kmm)
-         END_2D
-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpk )
-            zpelc(ji,jj,jk)  = zpelc(ji,jj,jk-1) +   &
-               &          MAX( rn2b(ji,jj,jk), 0._wp ) * gdepw(ji,jj,jk,Kmm) * e3w(ji,jj,jk,Kmm)
-         END_3D
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !                     !  Now Turbulent kinetic energy (output in en)
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !                     ! Resolution of a tridiagonal linear system by a "methode de chasse"
+         !                     ! computation from level 2 to jpkm1  (e(1) already computed and e(jpk)=0 ).
+         !                     ! zdiag : diagonal zd_up : upper diagonal zd_lw : lower diagonal
          !
-         !                             !- compare LHS to RHS of Eq.47
-         imlc(:,:) = mbkt(A2D(nn_hls)) + 1       ! Initialization to the number of w ocean point (=2 over land)
-         DO_3DS( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, jpkm1, 2, -1 )
-            IF( zpelc(ji,jj,jk) > zWlc2(ji,jj) )   imlc(ji,jj) = jk
-         END_3D
-         !                               ! finite LC depth
-         DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-            zhlc(ji,jj) = gdepw(ji,jj,imlc(ji,jj),Kmm)
-         END_2D
-         !
-         zcof = 0.016 / SQRT( zrhoa * zcdrag )
-         DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-            zus = SQRT( 2. * zWlc2(ji,jj) )             ! Stokes drift
-            zus3(ji,jj) = MAX( 0._wp, 1._wp - zice_fra(ji,jj) ) * zus * zus * zus * tmask(ji,jj,1) ! zus > 0. ok
-         END_2D
-         DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )                  !* TKE Langmuir circulation source term added to en
-            IF ( zus3(ji,jj) /= 0._wp ) THEN
-               IF ( gdepw(ji,jj,jk,Kmm) - zhlc(ji,jj) < 0 .AND. wmask(ji,jj,jk) /= 0. ) THEN
-                  !                                           ! vertical velocity due to LC
-                  zwlc = rn_lc * SIN( rpi * gdepw(ji,jj,jk,Kmm) / zhlc(ji,jj) )
-                  !                                           ! TKE Langmuir circulation source term
-                  en(ji,jj,jk) = en(ji,jj,jk) + rn_Dt * zus3(ji,jj) * ( zwlc * zwlc * zwlc ) / zhlc(ji,jj)
+         IF( nn_pdl == 1 ) THEN          !* Prandtl number = F( Ri )
+            DO_2Dik( 0, 0, 2, jpkm1, 1 )
+               !                                ! local Richardson number
+               IF (rn2b(ji,jj,jk) <= 0.0_wp) then
+                   zri = 0.0_wp
+               ELSE
+                   ! This logic is to avoid divide-by-zero errors which can occur for single-precision
+                   ! The actual value you choose for the denominator instead of zero doesn't really
+                   ! matter, as long as it is very small and so triggers the same logic below with the
+                   ! inverse Prandtl number
+                   zdiv = p_sh2(ji,jj,jk) + rn_bshear
+                   IF (zdiv == 0.0_wp) THEN
+                      zri = rn2b(ji,jj,jk) * p_avm(ji,jj,jk) / rn_bshear
+                   ELSE
+                      zri = rn2b(ji,jj,jk) * p_avm(ji,jj,jk) / zdiv
+                   ENDIF
                ENDIF
-            ENDIF
-         END_3D
-         !
-      ENDIF
-      !
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !                     !  Now Turbulent kinetic energy (output in en)
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !                     ! Resolution of a tridiagonal linear system by a "methode de chasse"
-      !                     ! computation from level 2 to jpkm1  (e(1) already computed and e(jpk)=0 ).
-      !                     ! zdiag : diagonal zd_up : upper diagonal zd_lw : lower diagonal
-      !
-      IF( nn_pdl == 1 ) THEN          !* Prandtl number = F( Ri )
-         DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-            !                             ! local Richardson number
-            IF (rn2b(ji,jj,jk) <= 0.0_wp) then
-                zri = 0.0_wp
-            ELSE
-                ! This logic is to avoid divide-by-zero errors which can occur for single-precision
-                ! The actual value you choose for the denominator instead of zero doesn't really
-                ! matter, as long as it is very small and so triggers the same logic below with the
-                ! inverse Prandtl number
-                zdiv = p_sh2(ji,jj,jk) + rn_bshear
-                IF (zdiv == 0.0_wp) THEN
-                   zri = rn2b(ji,jj,jk) * p_avm(ji,jj,jk) / rn_bshear
-                ELSE
-                   zri = rn2b(ji,jj,jk) * p_avm(ji,jj,jk) / zdiv
-                ENDIF
-            ENDIF
-            !                             ! inverse of Prandtl number
-            apdlr(ji,jj,jk) = MAX(  0.1_wp,  ri_cri / MAX( ri_cri , zri )  )
-         END_3D
-      ENDIF
-      !
-      DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )   !* Matrix and right hand side in en
-         zcof   = zfact1 * tmask(ji,jj,jk)
-         !                                   ! A minimum of 2.e-5 m2/s is imposed on TKE vertical
-         !                                   ! eddy coefficient (ensure numerical stability)
-         zzd_up = zcof * MAX(  p_avm(ji,jj,jk+1) + p_avm(ji,jj,jk  ) , 2.e-5_wp  )   &  ! upper diagonal
-            &          /    (  e3t(ji,jj,jk  ,Kmm) * e3w(ji,jj,jk  ,Kmm)  )
-         zzd_lw = zcof * MAX(  p_avm(ji,jj,jk  ) + p_avm(ji,jj,jk-1) , 2.e-5_wp  )   &  ! lower diagonal
-            &          /    (  e3t(ji,jj,jk-1,Kmm) * e3w(ji,jj,jk  ,Kmm)  )
-         !
-         zd_up(ji,jj,jk) = zzd_up            ! Matrix (zdiag, zd_up, zd_lw)
-         zd_lw(ji,jj,jk) = zzd_lw
-         zdiag(ji,jj,jk) = 1._wp - zzd_lw - zzd_up + zfact2 * dissl(ji,jj,jk) * wmask(ji,jj,jk)
-         !
-         !                                   ! right hand side in en
-         en(ji,jj,jk) = en(ji,jj,jk) + rn_Dt * (  p_sh2(ji,jj,jk)                        &   ! shear
-            &                                 - p_avt(ji,jj,jk) * rn2(ji,jj,jk)          &   ! stratification
-            &                                 + zfact3 * dissl(ji,jj,jk) * en(ji,jj,jk)  &   ! dissipation
-            &                                ) * wmask(ji,jj,jk)
-      END_3D
-      !
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !                     !  Surface boundary condition on tke if
-      !                     !  coupling with waves
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !
-      IF ( cpl_phioc .and. ln_phioc )  THEN
-         SELECT CASE (nn_bc_surf) ! Boundary Condition using surface TKE flux from waves
-
-         CASE ( 0 ) ! Dirichlet BC
-            DO_2D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )    ! en(1)   = rn_ebb taum / rho0  (min value rn_emin0)
-               IF ( phioc(ji,jj) < 0 )  phioc(ji,jj) = 0._wp
-               en(ji,jj,1) = MAX( rn_emin0, .5 * ( 15.8 * phioc(ji,jj) / rho0 )**(2./3.) )  * tmask(ji,jj,1)
-               zdiag(ji,jj,1) = 1._wp/en(ji,jj,1)  ! choose to keep coherence with former estimation of
+               !                                ! inverse of Prandtl number
+               p_pdlr(ji,jj,jk) = MAX(  0.1_wp,  ri_cri / MAX( ri_cri , zri )  )
             END_2D
+         ENDIF
+         !
+         DO_2Dik( 0, 0, 2, jpkm1, 1 )    !* Matrix and right hand side in en
+            zcof   = zfact1 * tmask(ji,jj,jk)
+            !                                   ! A minimum of 2.e-5 m2/s is imposed on TKE vertical
+            !                                   ! eddy coefficient (ensure numerical stability)
+            zzd_up = zcof * MAX(  p_avm(ji,jj,jk+1) + p_avm(ji,jj,jk  ) , 2.e-5_wp  )         &  ! upper diagonal
+               &          /    (  e3t(ji,jj,jk  ,Kmm) * e3w(ji,jj,jk  ,Kmm)  )
+            zzd_lw = zcof * MAX(  p_avm(ji,jj,jk  ) + p_avm(ji,jj,jk-1) , 2.e-5_wp  )         &  ! lower diagonal
+               &          /    (  e3t(ji,jj,jk-1,Kmm) * e3w(ji,jj,jk  ,Kmm)  )
+            !
+            zd_up(ji,jk) = zzd_up               ! Matrix (zdiag, zd_up, zd_lw)
+            zd_lw(ji,jk) = zzd_lw
+            zdiag(ji,jk) = 1._wp - zzd_lw - zzd_up + zfact2 * dissl(ji,jj,jk) * wmask(ji,jj,jk)
+            !
+            !                                   ! right hand side in en
+            en(ji,jj,jk) = en(ji,jj,jk) + rn_Dt * (  p_sh2(ji,jj,jk)                          &   ! shear
+               &                                   - p_avt(ji,jj,jk) * rn2(ji,jj,jk)          &   ! stratification
+               &                                   + zfact3 * dissl(ji,jj,jk) * en(ji,jj,jk)  &   ! dissipation
+               &                                  ) * wmask(ji,jj,jk)
+         END_2D
+         !
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !                     !  Surface boundary condition on tke if
+         !                     !  coupling with waves
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !
+         IF ( cpl_phioc .and. ln_phioc )  THEN
+            SELECT CASE (nn_bc_surf) ! Boundary Condition using surface TKE flux from waves
 
-         CASE ( 1 ) ! Neumann BC
-            DO_2D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-               IF ( phioc(ji,jj) < 0 )  phioc(ji,jj) = 0._wp
-               en(ji,jj,2)    = en(ji,jj,2) + ( rn_Dt * phioc(ji,jj) / rho0 ) /e3w(ji,jj,2,Kmm)
-               en(ji,jj,1)    = en(ji,jj,2) + (2 * e3t(ji,jj,1,Kmm) * phioc(ji,jj)/rho0) / ( p_avm(ji,jj,1) + p_avm(ji,jj,2) )
-               zdiag(ji,jj,2) = zdiag(ji,jj,2) + zd_lw(ji,jj,2)
-               zdiag(ji,jj,1) = 1._wp
-               zd_lw(ji,jj,2) = 0._wp
-            END_2D
+            CASE ( 0 ) ! Dirichlet BC
+               DO_1Di( 0, 0 )       ! en(1)   = rn_ebb taum / rho0  (min value rn_emin0)
+                  IF ( phioc(ji,jj) < 0 )  phioc(ji,jj) = 0._wp
+                  en(ji,jj,1) = MAX( rn_emin0, .5 * ( 15.8 * phioc(ji,jj) / rho0 )**(2./3.) )  * tmask(ji,jj,1)
+                  zdiag(ji,1) = 1._wp/en(ji,jj,1)  ! choose to keep coherence with former estimation of
+               END_1D
 
-         END SELECT
+            CASE ( 1 ) ! Neumann BC
+               DO_1Di( 0, 0 )
+                  IF ( phioc(ji,jj) < 0 )  phioc(ji,jj) = 0._wp
+                  en(ji,jj,2) = en(ji,jj,2) + ( rn_Dt * phioc(ji,jj) / rho0 ) /e3w(ji,jj,2,Kmm)
+                  en(ji,jj,1) = en(ji,jj,2) + (2 * e3t(ji,jj,1,Kmm) * phioc(ji,jj)/rho0) / ( p_avm(ji,jj,1) + p_avm(ji,jj,2) )
+                  zdiag(ji,1) = 1._wp
+                  zdiag(ji,2) = zdiag(ji,2) + zd_lw(ji,2)
+                  zd_lw(ji,2) = 0._wp
+               END_1D
 
-      ENDIF
-      !
-      !                          !* Matrix inversion from level 2 (tke prescribed at level 1)
-      DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )                ! First recurrence : Dk = Dk - Lk * Uk-1 / Dk-1
-         zdiag(ji,jj,jk) = zdiag(ji,jj,jk) - zd_lw(ji,jj,jk) * zd_up(ji,jj,jk-1) / zdiag(ji,jj,jk-1)
-      END_3D
+            END SELECT
+         ENDIF
+         !
+         !                          !* Matrix inversion from level 2 (tke prescribed at level 1)
+         DO_2Dik( 0, 0, 2, jpkm1, 1 )                 ! First recurrence : Dk = Dk - Lk * Uk-1 / Dk-1
+            zdiag(ji,jk) = zdiag(ji,jk) - zd_lw(ji,jk) * zd_up(ji,jk-1) / zdiag(ji,jk-1)
+         END_2D
 !XC : commented to allow for neumann boundary condition
-!      DO_2D( 0, 0, 0, 0 )
-!         zd_lw(ji,jj,2) = en(ji,jj,2) - zd_lw(ji,jj,2) * en(ji,jj,1)    ! Surface boudary conditions on tke
+!      DO_2Dik( 0, 0, 2, jpkm1, 1 )
+!         zd_lw(ji,2) = en(ji,jj,2) - zd_lw(ji,2) * en(ji,jj,1)    ! Surface boudary conditions on tke
 !      END_2D
-      DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-         zd_lw(ji,jj,jk) = en(ji,jj,jk) - zd_lw(ji,jj,jk) / zdiag(ji,jj,jk-1) *zd_lw(ji,jj,jk-1)
-      END_3D
-      DO_2D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )                          ! thrid recurrence : Ek = ( Lk - Uk * Ek+1 ) / Dk
-         en(ji,jj,jpkm1) = zd_lw(ji,jj,jpkm1) / zdiag(ji,jj,jpkm1)
-      END_2D
-      DO_3DS_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, jpk-2, 2, -1 )
-         en(ji,jj,jk) = ( zd_lw(ji,jj,jk) - zd_up(ji,jj,jk) * en(ji,jj,jk+1) ) / zdiag(ji,jj,jk)
-      END_3D
-      DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )                ! set the minimum value of tke
-         en(ji,jj,jk) = MAX( en(ji,jj,jk), rn_emin ) * wmask(ji,jj,jk)
-      END_3D
-      !
-      ! Kolmogorov energy of dissipation (W/kg)
-      !    ediss = Ce*sqrt(en)/L*en
-      !    dissl = sqrt(en)/L
-      IF( iom_use('ediss_k') ) THEN
-         IF( .NOT. l_istiled .OR. ntile == 1 ) THEN
-            ALLOCATE( ztmp(jpi,jpj,jpk) )
-            ztmp(:,:,:) = 0._wp
+         DO_2Dik( 0, 0, 2, jpkm1, 1 )
+            zd_lw(ji,jk) = en(ji,jj,jk) - zd_lw(ji,jk) / zdiag(ji,jk-1) * zd_lw(ji,jk-1)
+         END_2D
+         DO_1Di( 0, 0 )                               ! Third recurrence : Ek = ( Lk - Uk * Ek+1 ) / Dk
+            en(ji,jj,jpkm1) = zd_lw(ji,jpkm1) / zdiag(ji,jpkm1)
+         END_1D
+         DO_2Dik( 0, 0, jpk-2, 2, -1 )
+            en(ji,jj,jk) = ( zd_lw(ji,jk) - zd_up(ji,jk) * en(ji,jj,jk+1) ) / zdiag(ji,jk)
+         END_2D
+         DO_2Dik( 0, 0, 2, jpkm1, 1 )                 ! Set the minimum value of tke
+            en(ji,jj,jk) = MAX( en(ji,jj,jk), rn_emin ) * wmask(ji,jj,jk)
+         END_2D
+         !
+         ! Kolmogorov energy of dissipation (W/kg)
+         !    ediss = Ce*sqrt(en)/L*en
+         !    dissl = sqrt(en)/L
+         IF( lldiag ) THEN
+            DO_2Dik( 0, 0, 1, jpkm1, 1 )
+               ztmp(ji,jj,jk) = zfact3 * dissl(ji,jj,jk) * en(ji,jj,jk) * wmask(ji,jj,jk)
+            END_2D
+            DO_1Di( 0, 0 )
+               ztmp(ji,jj,jpk) = 0._wp
+            END_1D
          ENDIF
-         DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )
-            ztmp(ji,jj,jk) = zfact3 * dissl(ji,jj,jk) * en(ji,jj,jk) * wmask(ji,jj,jk)
-         END_3D
-         IF( .NOT. l_istiled .OR. ntile == nijtile ) THEN
-            CALL iom_put( 'ediss_k', ztmp )
-            DEALLOCATE( ztmp )
-         ENDIF
-      ENDIF
-      !
-      !                            !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !                            !  TKE due to surface and internal wave breaking
-      !                            !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !
+         !                            !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !                            !  TKE due to surface and internal wave breaking
+         !                            !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 !!gm BUG : in the exp  remove the depth of ssh !!!
 !!gm       i.e. use gde3w in argument (gdepw(:,:,:,Kmm))
+         !
+         ! penetration is partly switched off below sea-ice if nn_eice/=0
+         !
+         IF( nn_etau == 1 ) THEN           !* penetration below the mixed layer (rn_efr fraction)
+            DO_2Dik( 0, 0, 2, jpkm1, 1 )
+               en(ji,jj,jk) = en(ji,jj,jk) + rn_efr * en(ji,jj,1) * EXP( -gdepw(ji,jj,jk,Kmm) / htau(ji,jj) )   &
+                  &                                 * MAX( 0._wp, 1._wp - zice_fra(ji) ) * wmask(ji,jj,jk) * tmask(ji,jj,1)
+            END_2D
+         ELSEIF( nn_etau == 2 ) THEN       !* act only at the base of the mixed layer (jk=nmln)  (rn_efr fraction)
+            DO_1Di( 0, 0 )
+               jk = nmln(ji,jj)
+               en(ji,jj,jk) = en(ji,jj,jk) + rn_efr * en(ji,jj,1) * EXP( -gdepw(ji,jj,jk,Kmm) / htau(ji,jj) )   &
+                  &                                 * MAX( 0._wp, 1._wp - zice_fra(ji) ) * wmask(ji,jj,jk) * tmask(ji,jj,1)
+            END_1D
+         ELSEIF( nn_etau == 3 ) THEN       !* penetration below the mixed layer (HF variability)
+            DO_2Dik( 0, 0, 2, jpkm1, 1 )
+               ztau = SQRT( utau(ji,jj)*utau(ji,jj) + vtau(ji,jj)*vtau(ji,jj) ) * tmask(ji,jj,1)    ! module of the mean stress
+               zdif = taum(ji,jj) - ztau                            ! mean of modulus - modulus of the mean
+               zdif = rhftau_scl * MAX( 0._wp, zdif + rhftau_add )  ! apply some modifications...
+               en(ji,jj,jk) = en(ji,jj,jk) + zbbrau * zdif * EXP( -gdepw(ji,jj,jk,Kmm) / htau(ji,jj) )   &
+                  &                        * MAX( 0._wp, 1._wp - zice_fra(ji) ) * wmask(ji,jj,jk) * tmask(ji,jj,1)
+            END_2D
+         ENDIF
+         !
+         !                                            ! ================= !
+      END_1D                                          !  i-k slices loop  !
+      !                                               ! ================= !
       !
-      ! penetration is partly switched off below sea-ice if nn_eice/=0
-      !
-      IF( nn_etau == 1 ) THEN           !* penetration below the mixed layer (rn_efr fraction)
-         DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-            en(ji,jj,jk) = en(ji,jj,jk) + rn_efr * en(ji,jj,1) * EXP( -gdepw(ji,jj,jk,Kmm) / htau(ji,jj) )   &
-               &                                 * MAX( 0._wp, 1._wp - zice_fra(ji,jj) ) * wmask(ji,jj,jk) * tmask(ji,jj,1)
-         END_3D
-      ELSEIF( nn_etau == 2 ) THEN       !* act only at the base of the mixed layer (jk=nmln)  (rn_efr fraction)
-         DO_2D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-            jk = nmln(ji,jj)
-            en(ji,jj,jk) = en(ji,jj,jk) + rn_efr * en(ji,jj,1) * EXP( -gdepw(ji,jj,jk,Kmm) / htau(ji,jj) )   &
-               &                                 * MAX( 0._wp, 1._wp - zice_fra(ji,jj) ) * wmask(ji,jj,jk) * tmask(ji,jj,1)
-         END_2D
-      ELSEIF( nn_etau == 3 ) THEN       !* penetration belox the mixed layer (HF variability)
-         DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-            ztx2 = utau(ji-1,jj  ) + utau(ji,jj)
-            zty2 = vtau(ji  ,jj-1) + vtau(ji,jj)
-            ztau = 0.5_wp * SQRT( ztx2 * ztx2 + zty2 * zty2 ) * tmask(ji,jj,1)    ! module of the mean stress
-            zdif = taum(ji,jj) - ztau                            ! mean of modulus - modulus of the mean
-            zdif = rhftau_scl * MAX( 0._wp, zdif + rhftau_add )  ! apply some modifications...
-            en(ji,jj,jk) = en(ji,jj,jk) + zbbrau * zdif * EXP( -gdepw(ji,jj,jk,Kmm) / htau(ji,jj) )   &
-               &                        * MAX( 0._wp, 1._wp - zice_fra(ji,jj) ) * wmask(ji,jj,jk) * tmask(ji,jj,1)
-         END_3D
+      IF( lldiag ) THEN                               ! ediss_k diagnostic
+         CALL iom_put( 'ediss_k', ztmp )
+         DEALLOCATE( ztmp )
       ENDIF
       !
    END SUBROUTINE tke_tke
 
 
-   SUBROUTINE tke_avn( Kbb, Kmm, p_avm, p_avt )
+   SUBROUTINE tke_avn( Kbb, Kmm, p_avm, p_avt, p_pdlr )
       !!----------------------------------------------------------------------
       !!                   ***  ROUTINE tke_avn  ***
       !!
@@ -542,175 +552,184 @@ CONTAINS
       !!----------------------------------------------------------------------
       USE zdf_oce , ONLY : en, avtb, avmb, avtb_2d   ! ocean vertical physics
       !!
-      INTEGER                   , INTENT(in   ) ::   Kbb, Kmm       ! ocean time level indices
-      REAL(wp), DIMENSION(:,:,:), INTENT(  out) ::   p_avm, p_avt   ! vertical eddy viscosity & diffusivity (w-points)
+      INTEGER                         ,           INTENT(in   ) ::   Kbb, Kmm       ! ocean time level indices
+      REAL(wp), DIMENSION(jpi,jpj,jpk),           INTENT(  out) ::   p_avm          ! vertical eddy viscosity (w-points)
+      REAL(wp), DIMENSION(A2D(0) ,jpk),           INTENT(  out) ::   p_avt          ! vertical eddy diffusivity (w-points)
+      REAL(wp), DIMENSION(T2D(0) ,jpk), OPTIONAL, INTENT(in   ) ::   p_pdlr         ! inverse of Prandtl number
       !
-      INTEGER  ::   ji, jj, jk   ! dummy loop indices
-      REAL(wp) ::   zrn2, zraug, zcoef, zav   ! local scalars
-      REAL(wp) ::   zdku,   zdkv, zsqen       !   -      -
-      REAL(wp) ::   zemxl, zemlm, zemlp, zmaxice       !   -      -
-      REAL(wp), DIMENSION(A2D(nn_hls),jpk) ::   zmxlm, zmxld   ! 3D workspace
+      INTEGER  ::   ji, jj, jk                             ! dummy loop indices
+      REAL(wp) ::   zrn2, zraug, zcoef, zav                ! local scalars
+      REAL(wp) ::   zdku,   zdkv, zsqen                    !   -      -
+      REAL(wp) ::   zemxl, zemlm, zemlp, zmaxice           !   -      -
+      REAL(wp), DIMENSION(T1Di(0),jpk) ::   zmxlm, zmxld   ! 3D workspace
       !!--------------------------------------------------------------------
-      !
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !                     !  Mixing length
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !
-      !                     !* Buoyancy length scale: l=sqrt(2*e/n**2)
-      !
-      ! initialisation of interior minimum value (avoid a 2d loop with mikt)
-      zmxlm(:,:,:)  = rmxl_min
-      zmxld(:,:,:)  = rmxl_min
-      !
-      IF(ln_sdw .AND. ln_mxhsw) THEN
-         ! From Terray et al 1999 and Mellor and Blumberg 2004 it should be 0.85 and not 1.6
-         zcoef       = vkarmn * ( (rn_ediff*rn_ediss)**0.25 ) / rn_ediff
-         DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-!            zmxlm(ji,jj,1)= vkarmn * MAX ( 1.6 * hsw(ji,jj) , 0.02 )        ! surface mixing length = F(wave height)
-            zmxlm(ji,jj,1)= zcoef * MAX ( 1.6 * hsw(ji,jj) , 0.02 )        ! surface mixing length = F(wave height)
-         END_2D
-      ELSE
-      !
-         IF( ln_mxl0 ) THEN            ! surface mixing length = F(stress) : l=vkarmn*2.e5*taum/(rho0*g)
+
+      ! From Terray et al 1999 and Mellor and Blumberg 2004 it should be 0.85 and not 1.6
+      IF( ln_sdw .AND. ln_mxhsw ) zcoef = vkarmn * ( (rn_ediff*rn_ediss)**0.25 ) / rn_ediff
+      IF( ln_mxl0 ) zraug = vkarmn * 2.e5_wp / ( rho0 * grav )
+
+      !                                               ! ================= !
+      DO_1Dj( 0, 0 )                                  !  i-k slices loop  !
+         !                                            ! ================= !
          !
-            zraug = vkarmn * 2.e5_wp / ( rho0 * grav )
-#if ! defined key_si3 && ! defined key_cice
-            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )                  ! No sea-ice
-               zmxlm(ji,jj,1) =  zraug * taum(ji,jj) * tmask(ji,jj,1)
-            END_2D
-#else
-            SELECT CASE( nn_mxlice )             ! Type of scaling under sea-ice
-            !
-            CASE( 0 )                      ! No scaling under sea-ice
-               DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                  zmxlm(ji,jj,1) = zraug * taum(ji,jj) * tmask(ji,jj,1)
-               END_2D
-               !
-            CASE( 1 )                      ! scaling with constant sea-ice thickness
-               DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                  zmxlm(ji,jj,1) =  ( ( 1._wp - fr_i(ji,jj) ) * zraug * taum(ji,jj) + &
-                     &                          fr_i(ji,jj)   * rn_mxlice           ) * tmask(ji,jj,1)
-               END_2D
-               !
-            CASE( 2 )                      ! scaling with mean sea-ice thickness
-               DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-#if defined key_si3
-                  zmxlm(ji,jj,1) = ( ( 1._wp - fr_i(ji,jj) ) * zraug * taum(ji,jj) + &
-                     &                         fr_i(ji,jj)   * hm_i(ji,jj) * 2._wp ) * tmask(ji,jj,1)
-#elif defined key_cice
-                  zmaxice = MAXVAL( h_i(ji,jj,:) )
-                  zmxlm(ji,jj,1) = ( ( 1._wp - fr_i(ji,jj) ) * zraug * taum(ji,jj) + &
-                     &                         fr_i(ji,jj)   * zmaxice             ) * tmask(ji,jj,1)
-#endif
-               END_2D
-               !
-            CASE( 3 )                      ! scaling with max sea-ice thickness
-               DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-                  zmaxice = MAXVAL( h_i(ji,jj,:) )
-                  zmxlm(ji,jj,1) = ( ( 1._wp - fr_i(ji,jj) ) * zraug * taum(ji,jj) + &
-                     &                         fr_i(ji,jj)   * zmaxice             ) * tmask(ji,jj,1)
-               END_2D
-               !
-            END SELECT
-#endif
-            !
-            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
-               zmxlm(ji,jj,1) = MAX( rn_mxl0, zmxlm(ji,jj,1) )
-            END_2D
-            !
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !                     !  Mixing length
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !
+         !                     !* Buoyancy length scale: l=sqrt(2*e/n**2)
+         !
+         ! initialisation of interior minimum value (avoid a 2d loop with mikt)
+         zmxlm(:,:)  = rmxl_min
+         zmxld(:,:)  = rmxl_min
+         !
+         IF(ln_sdw .AND. ln_mxhsw) THEN
+            DO_1Di( 0, 0 )
+!               zmxlm(ji,1)= vkarmn * MAX ( 1.6 * hsw(ji,jj) , 0.02 )        ! surface mixing length = F(wave height)
+               zmxlm(ji,1)= zcoef * MAX ( 1.6 * hsw(ji,jj) , 0.02 )        ! surface mixing length = F(wave height)
+            END_1D
          ELSE
-            zmxlm(:,:,1) = rn_mxl0
+            !
+            IF( ln_mxl0 ) THEN            ! surface mixing length = F(stress) : l=vkarmn*2.e5*taum/(rho0*g)
+               !
+#if ! defined key_si3 && ! defined key_cice
+               DO_1Di( 0, 0 )                  ! No sea-ice
+                  zmxlm(ji,1) =  zraug * taum(ji,jj) * tmask(ji,jj,1)
+               END_1D
+#else
+               SELECT CASE( nn_mxlice )             ! Type of scaling under sea-ice
+                  !
+                  CASE( 0 )                      ! No scaling under sea-ice
+                     DO_1Di( 0, 0 )
+                        zmxlm(ji,1) = zraug * taum(ji,jj) * tmask(ji,jj,1)
+                     END_1D
+                     !
+                  CASE( 1 )                      ! scaling with constant sea-ice thickness
+                     DO_1Di( 0, 0 )
+                        zmxlm(ji,1) =  ( ( 1._wp - fr_i(ji,jj) ) * zraug * taum(ji,jj) + &
+                           &                       fr_i(ji,jj)   * rn_mxlice           ) * tmask(ji,jj,1)
+                     END_1D
+                     !
+                  CASE( 2 )                      ! scaling with mean sea-ice thickness
+                     DO_1Di( 0, 0 )
+#if defined key_si3
+                        zmxlm(ji,1) = ( ( 1._wp - fr_i(ji,jj) ) * zraug * taum(ji,jj) + &
+                           &                      fr_i(ji,jj)   * hm_i(ji,jj) * 2._wp ) * tmask(ji,jj,1)
+#elif defined key_cice
+                        zmaxice = MAXVAL( h_i(ji,jj,:) )
+                        zmxlm(ji,1) = ( ( 1._wp - fr_i(ji,jj) ) * zraug * taum(ji,jj) + &
+                           &                      fr_i(ji,jj)   * zmaxice             ) * tmask(ji,jj,1)
+#endif
+                     END_1D
+                     !
+                  CASE( 3 )                      ! scaling with max sea-ice thickness
+                     DO_1Di( 0, 0 )
+                        zmaxice = MAXVAL( h_i(ji,jj,:) )
+                        zmxlm(ji,1) = ( ( 1._wp - fr_i(ji,jj) ) * zraug * taum(ji,jj) + &
+                           &                      fr_i(ji,jj)   * zmaxice             ) * tmask(ji,jj,1)
+                     END_1D
+                  !
+               END SELECT
+#endif
+               !
+               DO_1Di( 0, 0 )
+                  zmxlm(ji,1) = MAX( rn_mxl0, zmxlm(ji,1) )
+               END_1D
+               !
+            ELSE
+               zmxlm(:,1) = rn_mxl0
+            ENDIF
          ENDIF
-      ENDIF
-      !
-      DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-         zrn2 = MAX( rn2(ji,jj,jk), rsmall )
-         zmxlm(ji,jj,jk) = MAX(  rmxl_min,  SQRT( 2._wp * en(ji,jj,jk) / zrn2 )  )
-      END_3D
-      !
-      !                     !* Physical limits for the mixing length
-      !
-      zmxld(:,:, 1 ) = zmxlm(:,:,1)   ! surface set to the minimum value
-      zmxld(:,:,jpk) = rmxl_min       ! last level  set to the minimum value
-      !
-      SELECT CASE ( nn_mxl )
-      !
+         !
+         DO_2Dik( 0, 0, 2, jpkm1, 1 )
+            zrn2 = MAX( rn2(ji,jj,jk), rsmall )
+            zmxlm(ji,jk) = MAX(  rmxl_min,  SQRT( 2._wp * en(ji,jj,jk) / zrn2 )  )
+         END_2D
+         !
+         !                     !* Physical limits for the mixing length
+         !
+         zmxld(:,1) = zmxlm(:,1)   ! surface set to the minimum value
+         !
+         SELECT CASE ( nn_mxl )
+            !
  !!gm Not sure of that coding for ISF....
-      ! where wmask = 0 set zmxlm == e3w(:,:,:,Kmm)
-      CASE ( 0 )           ! bounded by the distance to surface and bottom
-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-            zemxl = MIN( gdepw(ji,jj,jk,Kmm) - gdepw(ji,jj,mikt(ji,jj),Kmm), zmxlm(ji,jj,jk),   &
-            &            gdepw(ji,jj,mbkt(ji,jj)+1,Kmm) - gdepw(ji,jj,jk,Kmm) )
-            ! wmask prevent zmxlm = 0 if jk = mikt(ji,jj)
-            zmxlm(ji,jj,jk) = zemxl * wmask(ji,jj,jk)   &
-               &            + MIN( zmxlm(ji,jj,jk) , e3w(ji,jj,jk,Kmm) ) * (1 - wmask(ji,jj,jk))
-            zmxld(ji,jj,jk) = zemxl * wmask(ji,jj,jk)   &
-               &            + MIN( zmxlm(ji,jj,jk) , e3w(ji,jj,jk,Kmm) ) * (1 - wmask(ji,jj,jk))
-         END_3D
+            ! where wmask = 0 set zmxlm == e3w(:,:,:,Kmm)
+            CASE ( 0 )           ! bounded by the distance to surface and bottom
+               DO_2Dik( 0, 0, 2, jpkm1, 1 )
+                  zemxl = MIN( gdepw(ji,jj,jk,Kmm) - gdepw(ji,jj,mikt(ji,jj),Kmm), zmxlm(ji,jk),   &
+                  &            gdepw(ji,jj,mbkt(ji,jj)+1,Kmm) - gdepw(ji,jj,jk,Kmm) )
+                  ! wmask prevent zmxlm = 0 if jk = mikt(ji,jj)
+                  zmxlm(ji,jk) = zemxl * wmask(ji,jj,jk)   &
+                     &         + MIN( zmxlm(ji,jk) , e3w(ji,jj,jk,Kmm) ) * (1 - wmask(ji,jj,jk))
+                  zmxld(ji,jk) = zemxl * wmask(ji,jj,jk)   &
+                     &         + MIN( zmxlm(ji,jk) , e3w(ji,jj,jk,Kmm) ) * (1 - wmask(ji,jj,jk))
+               END_2D
+               !
+            CASE ( 1 )           ! bounded by the vertical scale factor
+               DO_2Dik( 0, 0, 2, jpkm1, 1 )
+                  zemxl = MIN( e3w(ji,jj,jk,Kmm), zmxlm(ji,jk) )
+                  zmxlm(ji,jk) = zemxl
+                  zmxld(ji,jk) = zemxl
+               END_2D
+               !
+            CASE ( 2 )           ! |dk[xml]| bounded by e3t :
+               DO_2Dik( 0, 0, 2, jpkm1, 1 )    ! from the surface to the bottom :
+                  zmxlm(ji,jk) =   &
+                     &    MIN( zmxlm(ji,jk-1) + e3t(ji,jj,jk-1,Kmm), zmxlm(ji,jk) )
+               END_2D
+               DO_2Dik( 0, 0, jpkm1, 2, -1 )   ! from the bottom to the surface :
+                  zemxl = MIN( zmxlm(ji,jk+1) + e3t(ji,jj,jk+1,Kmm), zmxlm(ji,jk) )
+                  zmxlm(ji,jk) = zemxl
+                  zmxld(ji,jk) = zemxl
+               END_2D
+               !
+            CASE ( 3 )           ! lup and ldown, |dk[xml]| bounded by e3t :
+               DO_2Dik( 0, 0, 2, jpkm1, 1 )    ! from the surface to the bottom : lup
+                  zmxld(ji,jk) =    &
+                     &    MIN( zmxld(ji,jk-1) + e3t(ji,jj,jk-1,Kmm), zmxlm(ji,jk) )
+               END_2D
+               DO_2Dik( 0, 0, jpkm1, 2, -1 )   ! from the bottom to the surface : ldown
+                  zmxlm(ji,jk) =   &
+                     &    MIN( zmxlm(ji,jk+1) + e3t(ji,jj,jk+1,Kmm), zmxlm(ji,jk) )
+               END_2D
+               DO_2Dik( 0, 0, 2, jpkm1, 1 )
+                  zemlm = MIN ( zmxld(ji,jk),  zmxlm(ji,jk) )
+                  zemlp = SQRT( zmxld(ji,jk) * zmxlm(ji,jk) )
+                  zmxlm(ji,jk) = zemlm
+                  zmxld(ji,jk) = zemlp
+               END_2D
+            !
+         END SELECT
          !
-      CASE ( 1 )           ! bounded by the vertical scale factor
-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-            zemxl = MIN( e3w(ji,jj,jk,Kmm), zmxlm(ji,jj,jk) )
-            zmxlm(ji,jj,jk) = zemxl
-            zmxld(ji,jj,jk) = zemxl
-         END_3D
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         !                     !  Vertical eddy viscosity and diffusivity  (avm and avt)
+         !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+         DO_2Dik( 0, 0, 1, jpkm1, 1 )   !* vertical eddy viscosity & diffivity at w-points
+            zsqen = SQRT( en(ji,jj,jk) )
+            zav   = rn_ediff * zmxlm(ji,jk) * zsqen
+            p_avm(ji,jj,jk) = MAX( zav,                  avmb(jk) ) * wmask(ji,jj,jk)
+            p_avt(ji,jj,jk) = MAX( zav, avtb_2d(ji,jj) * avtb(jk) ) * wmask(ji,jj,jk)
+            dissl(ji,jj,jk) = zsqen / zmxld(ji,jk)
+         END_2D
          !
-      CASE ( 2 )           ! |dk[xml]| bounded by e3t :
-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )       ! from the surface to the bottom :
-            zmxlm(ji,jj,jk) =   &
-               &    MIN( zmxlm(ji,jj,jk-1) + e3t(ji,jj,jk-1,Kmm), zmxlm(ji,jj,jk) )
-         END_3D
-         DO_3DS( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, jpkm1, 2, -1 )   ! from the bottom to the surface :
-            zemxl = MIN( zmxlm(ji,jj,jk+1) + e3t(ji,jj,jk+1,Kmm), zmxlm(ji,jj,jk) )
-            zmxlm(ji,jj,jk) = zemxl
-            zmxld(ji,jj,jk) = zemxl
-         END_3D
          !
-      CASE ( 3 )           ! lup and ldown, |dk[xml]| bounded by e3t :
-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )        ! from the surface to the bottom : lup
-            zmxld(ji,jj,jk) =    &
-               &    MIN( zmxld(ji,jj,jk-1) + e3t(ji,jj,jk-1,Kmm), zmxlm(ji,jj,jk) )
-         END_3D
-         DO_3DS( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, jpkm1, 2, -1 )   ! from the bottom to the surface : ldown
-            zmxlm(ji,jj,jk) =   &
-               &    MIN( zmxlm(ji,jj,jk+1) + e3t(ji,jj,jk+1,Kmm), zmxlm(ji,jj,jk) )
-         END_3D
-         DO_3D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-            zemlm = MIN ( zmxld(ji,jj,jk),  zmxlm(ji,jj,jk) )
-            zemlp = SQRT( zmxld(ji,jj,jk) * zmxlm(ji,jj,jk) )
-            zmxlm(ji,jj,jk) = zemlm
-            zmxld(ji,jj,jk) = zemlp
-         END_3D
-         !
-      END SELECT
-      !
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      !                     !  Vertical eddy viscosity and diffusivity  (avm and avt)
-      !                     !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 1, jpkm1 )   !* vertical eddy viscosity & diffivity at w-points
-         zsqen = SQRT( en(ji,jj,jk) )
-         zav   = rn_ediff * zmxlm(ji,jj,jk) * zsqen
-         p_avm(ji,jj,jk) = MAX( zav,                  avmb(jk) ) * wmask(ji,jj,jk)
-         p_avt(ji,jj,jk) = MAX( zav, avtb_2d(ji,jj) * avtb(jk) ) * wmask(ji,jj,jk)
-         dissl(ji,jj,jk) = zsqen / zmxld(ji,jj,jk)
-      END_3D
-      !
-      !
-      IF( nn_pdl == 1 ) THEN          !* Prandtl number case: update avt
-         DO_3D_OVR( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1, 2, jpkm1 )
-            p_avt(ji,jj,jk)   = MAX( apdlr(ji,jj,jk) * p_avt(ji,jj,jk), avtb_2d(ji,jj) * avtb(jk) ) * wmask(ji,jj,jk)
-         END_3D
-      ENDIF
+         IF( nn_pdl == 1 ) THEN          !* Prandtl number case: update avt
+            DO_2Dik( 0, 0, 2, jpkm1, 1 )
+               p_avt(ji,jj,jk)   = MAX( p_pdlr(ji,jj,jk) * p_avt(ji,jj,jk), avtb_2d(ji,jj) * avtb(jk) ) * wmask(ji,jj,jk)
+            END_2D
+         ENDIF
+         !                                            ! ================= !
+      END_1D                                          !  i-k slices loop  !
+      !                                               ! ================= !
       !
       IF(sn_cfctl%l_prtctl) THEN
-         CALL prt_ctl( tab3d_1=CASTDP(en) , clinfo1=' tke  - e: ', tab3d_2=CASTDP(p_avt), clinfo2=' t: ' )
-         CALL prt_ctl( tab3d_1=CASTDP(p_avm), clinfo1=' tke  - m: ' )
+         CALL prt_ctl( tab3d_1=en   , clinfo1=' tke  - e: ', tab3d_2=p_avt, clinfo2=' t: ' )
+         CALL prt_ctl( tab3d_1=p_avm, clinfo1=' tke  - m: ' )
       ENDIF
       !
    END SUBROUTINE tke_avn
 
 
-   SUBROUTINE zdf_tke_init( Kmm )
+   SUBROUTINE zdf_tke_init
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE zdf_tke_init  ***
       !!
@@ -726,7 +745,6 @@ CONTAINS
       !!----------------------------------------------------------------------
       USE zdf_oce , ONLY : ln_zdfiwm   ! Internal Wave Mixing flag
       !!
-      INTEGER, INTENT(in) ::   Kmm          ! time level index
       INTEGER             ::   ji, jj, jk   ! dummy loop indices
       INTEGER             ::   ios
       !!
@@ -763,6 +781,16 @@ CONTAINS
          WRITE(numout,*) '      mixing length type                          nn_mxl    = ', nn_mxl
          WRITE(numout,*) '         surface mixing length = F(stress) or not    ln_mxl0   = ', ln_mxl0
          WRITE(numout,*) '         surface  mixing length minimum value        rn_mxl0   = ', rn_mxl0
+      ENDIF
+      IF( ln_mxl0 ) THEN
+         IF     ( nn_mxlice > 0 .AND. nn_ice == 0 ) THEN
+            CALL ctl_warn( 'zdf_tke_init: with no ice at all, nn_mxlice is set to 0 ')
+            nn_mxlice = 0   ! must be set for all processes, so out of the "IF(lwp)"
+         ELSEIF ( nn_mxlice > 1 .AND. nn_ice == 1 ) THEN
+            CALL ctl_stop( 'zdf_tke_init: with no ice model, nn_mxlice must be 0 or 1')
+         ENDIF
+      ENDIF
+      IF(lwp) THEN                    !* Control print   
          IF( ln_mxl0 ) THEN
             WRITE(numout,*) '      type of scaling under sea-ice               nn_mxlice = ', nn_mxlice
             IF( nn_mxlice == 1 ) &
@@ -775,11 +803,6 @@ CONTAINS
             CASE DEFAULT
                CALL ctl_stop( 'zdf_tke_init: wrong value for nn_mxlice, should be 0,1,2,3 or 4')
             END SELECT
-            IF     ( (nn_mxlice>0).AND.(nn_ice==0) ) THEN
-               CALL ctl_stop( 'zdf_tke_init: with no ice at all, nn_mxlice must be 0 ') 
-            ELSEIF ( (nn_mxlice>1).AND.(nn_ice==1) ) THEN
-               CALL ctl_stop( 'zdf_tke_init: with no ice model, nn_mxlice must be 0 or 1')
-            ENDIF
          ENDIF
          WRITE(numout,*) '      Langmuir cells parametrization              ln_lc     = ', ln_lc
          WRITE(numout,*) '         coef to compute vertical velocity of LC     rn_lc  = ', rn_lc
@@ -836,9 +859,9 @@ CONTAINS
          CASE( 0 )                                 ! constant depth penetration (here 10 meters)
             htau(:,:) = rn_htau_scaling*10._wp 
          CASE( 1 )                                 ! F(latitude) : 0.5m to 30m poleward of 40 degrees
-            htau(:,:) = MAX(  0.5_wp, MIN( 30._wp, 45._wp* ABS( SIN( rpi/180._wp * gphit(:,:) ) ) )   )
+            htau(:,:) = MAX(  0.5_wp, MIN( 30._wp, 45._wp* ABS( SIN( rpi/180._wp * gphit(A2D(0)) ) ) )   )
          CASE( 4 )                                 ! F(latitude) : 0.5m to 10m/30m poleward of 13/40 degrees north/south
-            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+            DO_2Dik( 0, 0, 1, jpkm1, 1 )
                   IF( gphit(ji,jj) <= 0._wp ) THEN
                      htau(ji,jj) = MAX(  0.5_wp, MIN( 30._wp, 45._wp* rn_htau_scaling*ABS( SIN( rpi/180._wp * gphit(ji,jj) ) ) )   )
                   ELSE
@@ -846,7 +869,7 @@ CONTAINS
                   ENDIF
             END_2D
          CASE( 5 )                                 ! Variation on case 4 with a steeper ramp further south in Southern Hemisphere
-            DO_2D( nn_hls-1, nn_hls-1, nn_hls-1, nn_hls-1 )
+            DO_2Dik( 0, 0, 1, jpkm1, 1 )
                   htau(ji,jj) = MAX(  0.5_wp, MIN( 10._wp, 45._wp* rn_htau_scaling*ABS( SIN( rpi/180._wp * gphit(ji,jj) ) ) )   )
                   IF( gphit(ji,jj) <= -40._wp ) THEN
                       htau(ji,jj) = htau(ji,jj) + MIN( 20._wp, 135._wp * ABS( SIN( rpi/180._wp * (gphit(ji,jj) + 40.0) ) ) )
@@ -895,14 +918,14 @@ CONTAINS
             ELSE                                          ! start TKE from rest
                IF(lwp) WRITE(numout,*)
                IF(lwp) WRITE(numout,*) '   ==>>>   previous run without TKE scheme, set en to background values'
-               en   (:,:,:) = rn_emin * wmask(:,:,:)
+               en   (:,:,:) = rn_emin * wmask(A2D(0),:)
                dissl(:,:,:) = 1.e-12_wp
                ! avt_k, avm_k already set to the background value in zdf_phy_init
             ENDIF
          ELSE                                   !* Start from rest
             IF(lwp) WRITE(numout,*)
             IF(lwp) WRITE(numout,*) '   ==>>>   start from rest: set en to the background value'
-            en   (:,:,:) = rn_emin * wmask(:,:,:)
+            en   (:,:,:) = rn_emin * wmask(A2D(0),:)
             dissl(:,:,:) = 1.e-12_wp
             ! avt_k, avm_k already set to the background value in zdf_phy_init
          ENDIF

@@ -37,6 +37,8 @@ MODULE dtatsd
 
    !! * Substitutions
 #  include "do_loop_substitute.h90"
+#  include "read_nml_substitute.h90"
+#  include "domzgr_substitute.h90"
    !!----------------------------------------------------------------------
    !! NEMO/OCE 4.0 , NEMO Consortium (2018)
    !! $Id: dtatsd.F90 14834 2021-05-11 09:24:44Z hadcv $
@@ -67,10 +69,8 @@ CONTAINS
       !  Initialisation
       ierr0 = 0  ;  ierr1 = 0  ;  ierr2 = 0  ;  ierr3 = 0
       !
-      READ  ( numnam_ref, namtsd, IOSTAT = ios, ERR = 901)
-901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtsd in reference namelist' )
-      READ  ( numnam_cfg, namtsd, IOSTAT = ios, ERR = 902 )
-902   IF( ios >  0 )   CALL ctl_nam ( ios , 'namtsd in configuration namelist' )
+      READ_NML_REF(numnam,namtsd)
+      READ_NML_CFG(numnam,namtsd)
       IF(lwm) WRITE ( numond, namtsd )
 
       IF( PRESENT( ld_tradmp ) )   ln_tsd_dmp = .TRUE.     ! forces the initialization when tradmp is used
@@ -135,18 +135,18 @@ CONTAINS
       !! ** Action  :   ptsd   T-S data on medl mesh and interpolated at time-step kt
       !!----------------------------------------------------------------------
       INTEGER                          , INTENT(in   ) ::   kt     ! ocean time-step
-      REAL(dp), DIMENSION(A2D(nn_hls),jpk,jpts), INTENT(  out) ::   ptsd   ! T & S data
+      REAL(wp), DIMENSION(T2D(nn_hls),jpk,jpts), INTENT(  out) ::   ptsd   ! T & S data
       !
       INTEGER ::   ji, jj, jk, jl, jkk   ! dummy loop indicies
       INTEGER ::   ik, il0, il1, ii0, ii1, ij0, ij1   ! local integers
       INTEGER, DIMENSION(jpts), SAVE :: irec_b, irec_n
-      REAL(dp)::   zl, zi                             ! local scalars
-      REAL(dp), DIMENSION(jpk) ::  ztp, zsp   ! 1D workspace
+      REAL(wp)::   zl, zi                             ! local scalars
+      REAL(wp), DIMENSION(jpk) ::  ztp, zsp   ! 1D workspace
       !!----------------------------------------------------------------------
       !
       IF( .NOT. l_istiled .OR. ntile == 1 )  THEN                                         ! Do only for the full domain
          IF( ln_tile ) CALL dom_tile_stop( ldhold=.TRUE. )             ! Use full domain
-            CALL fld_read( kt, 1, sf_tsd )   !==   read T & S data at kt time step   ==!
+         CALL fld_read( kt, 1, sf_tsd )   !==   read T & S data at kt time step   ==!
       !
       !
 !!gm  This should be removed from the code   ===>>>>  T & S files has to be changed
@@ -161,8 +161,8 @@ CONTAINS
                ij0 = 101 + nn_hls       ;   ij1 = 109 + nn_hls                       ! Reduced T & S in the Alboran Sea
                ii0 = 141 + nn_hls - 1   ;   ii1 = 155 + nn_hls - 1
                IF( sf_tsd(jp_tem)%ln_tint .OR. irec_n(jp_tem) /= irec_b(jp_tem) ) THEN
-                  DO jj = mj0(ij0), mj1(ij1)
-                     DO ji = mi0(ii0), mi1(ii1)
+                  DO jj = mj0(ij0,nn_hls), mj1(ij1,nn_hls)
+                     DO ji = mi0(ii0,nn_hls), mi1(ii1,nn_hls)
                         sf_tsd(jp_tem)%fnow(ji,jj,13:13) = sf_tsd(jp_tem)%fnow(ji,jj,13:13) - 0.20_wp
                         sf_tsd(jp_tem)%fnow(ji,jj,14:15) = sf_tsd(jp_tem)%fnow(ji,jj,14:15) - 0.35_wp
                         sf_tsd(jp_tem)%fnow(ji,jj,16:25) = sf_tsd(jp_tem)%fnow(ji,jj,16:25) - 0.40_wp
@@ -172,8 +172,8 @@ CONTAINS
                ENDIF
                !
                IF( sf_tsd(jp_sal)%ln_tint .OR. irec_n(jp_sal) /= irec_b(jp_sal) ) THEN
-                  DO jj = mj0(ij0), mj1(ij1)
-                     DO ji = mi0(ii0), mi1(ii1)
+                  DO jj = mj0(ij0,nn_hls), mj1(ij1,nn_hls)
+                     DO ji = mi0(ii0,nn_hls), mi1(ii1,nn_hls)
                         sf_tsd(jp_sal)%fnow(ji,jj,13:13) = sf_tsd(jp_sal)%fnow(ji,jj,13:13) - 0.15_wp
                         sf_tsd(jp_sal)%fnow(ji,jj,14:15) = sf_tsd(jp_sal)%fnow(ji,jj,14:15) - 0.25_wp
                         sf_tsd(jp_sal)%fnow(ji,jj,16:17) = sf_tsd(jp_sal)%fnow(ji,jj,16:17) - 0.30_wp
@@ -185,9 +185,9 @@ CONTAINS
                !
                ij0 =  87 + nn_hls       ;   ij1 =  96 + nn_hls                       ! Reduced temperature in Red Sea
                ii0 = 148 + nn_hls - 1   ;   ii1 = 160 + nn_hls - 1
-               sf_tsd(jp_tem)%fnow( mi0(ii0):mi1(ii1) , mj0(ij0):mj1(ij1) ,  4:10 ) = 7.0_wp
-               sf_tsd(jp_tem)%fnow( mi0(ii0):mi1(ii1) , mj0(ij0):mj1(ij1) , 11:13 ) = 6.5_wp
-               sf_tsd(jp_tem)%fnow( mi0(ii0):mi1(ii1) , mj0(ij0):mj1(ij1) , 14:20 ) = 6.0_wp
+               sf_tsd(jp_tem)%fnow( mi0(ii0,nn_hls):mi1(ii1,nn_hls) , mj0(ij0,nn_hls):mj1(ij1,nn_hls) ,  4:10 ) = 7.0_wp
+               sf_tsd(jp_tem)%fnow( mi0(ii0,nn_hls):mi1(ii1,nn_hls) , mj0(ij0,nn_hls):mj1(ij1,nn_hls) , 11:13 ) = 6.5_wp
+               sf_tsd(jp_tem)%fnow( mi0(ii0,nn_hls):mi1(ii1,nn_hls) , mj0(ij0,nn_hls):mj1(ij1,nn_hls) , 14:20 ) = 6.0_wp
             ENDIF
          ENDIF
 !!gm end
@@ -199,7 +199,7 @@ CONTAINS
          ptsd(ji,jj,jk,jp_sal) = sf_tsd(jp_sal)%fnow(ji,jj,jk)
       END_3D
       !
-      IF( ln_sco ) THEN                   !==   s- or mixed s-zps-coordinate   ==!
+      IF( l_sco ) THEN                   !==   s- or mixed s-zps-coordinate   ==!
          !
          IF( .NOT. l_istiled .OR. ntile == 1 )  THEN                       ! Do only on the first tile
             IF( ( kt == nit000 .OR. ln_reset_ts ) .AND. lwp )THEN
@@ -210,7 +210,7 @@ CONTAINS
          !
          DO_2D( nn_hls, nn_hls, nn_hls, nn_hls )                  ! vertical interpolation of T & S
             DO jk = 1, jpk                        ! determines the intepolated T-S profiles at each (i,j) points
-               zl = gdept_0(ji,jj,jk)
+               zl = gdept_3d(ji,jj,jk)
                IF(     zl < gdept_1d(1  ) ) THEN          ! above the first level of data
                   ztp(jk) =  ptsd(ji,jj,1    ,jp_tem)
                   zsp(jk) =  ptsd(ji,jj,1    ,jp_sal)
@@ -218,7 +218,7 @@ CONTAINS
                   ztp(jk) =  ptsd(ji,jj,jpkm1,jp_tem)
                   zsp(jk) =  ptsd(ji,jj,jpkm1,jp_sal)
                ELSE                                      ! inbetween : vertical interpolation between jkk & jkk+1
-                  DO jkk = 1, jpkm1                                  ! when  gdept(jkk) < zl < gdept(jkk+1)
+                  DO jkk = 1, jpkm1                                  ! when  gdept_jkk < zl < gdept_jkk+1
                      IF( (zl-gdept_1d(jkk)) * (zl-gdept_1d(jkk+1)) <= 0._wp ) THEN
                         zi = ( zl - gdept_1d(jkk) ) / (gdept_1d(jkk+1)-gdept_1d(jkk))
                         ztp(jk) = ptsd(ji,jj,jkk,jp_tem) + ( ptsd(ji,jj,jkk+1,jp_tem) - ptsd(ji,jj,jkk,jp_tem) ) * zi
@@ -245,23 +245,6 @@ CONTAINS
             ptsd(ji,jj,jk,jp_tem) = ptsd(ji,jj,jk,jp_tem) * tmask(ji,jj,jk)    ! Mask
             ptsd(ji,jj,jk,jp_sal) = ptsd(ji,jj,jk,jp_sal) * tmask(ji,jj,jk)
          END_3D
-         !
-         IF( ln_zps ) THEN                      ! zps-coordinate (partial steps) interpolation at the last ocean level
-            DO_2D( nn_hls, nn_hls, nn_hls, nn_hls )
-               ik = mbkt(ji,jj)
-               IF( ik > 1 ) THEN
-                  zl = ( gdept_1d(ik) - gdept_0(ji,jj,ik) ) / ( gdept_1d(ik) - gdept_1d(ik-1) )
-                  ptsd(ji,jj,ik,jp_tem) = (1.-zl) * ptsd(ji,jj,ik,jp_tem) + zl * ptsd(ji,jj,ik-1,jp_tem)
-                  ptsd(ji,jj,ik,jp_sal) = (1.-zl) * ptsd(ji,jj,ik,jp_sal) + zl * ptsd(ji,jj,ik-1,jp_sal)
-               ENDIF
-               ik = mikt(ji,jj)
-               IF( ik > 1 ) THEN
-                  zl = ( gdept_0(ji,jj,ik) - gdept_1d(ik) ) / ( gdept_1d(ik+1) - gdept_1d(ik) )
-                  ptsd(ji,jj,ik,jp_tem) = (1.-zl) * ptsd(ji,jj,ik,jp_tem) + zl * ptsd(ji,jj,ik+1,jp_tem)
-                  ptsd(ji,jj,ik,jp_sal) = (1.-zl) * ptsd(ji,jj,ik,jp_sal) + zl * ptsd(ji,jj,ik+1,jp_sal)
-               END IF
-            END_2D
-         ENDIF
          !
       ENDIF
       !
