@@ -1,4 +1,4 @@
-restart.F90 MODULE restart
+MODULE restart
    !!======================================================================
    !!                     ***  MODULE  restart  ***
    !! Ocean restart :  write the ocean restart file

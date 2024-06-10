@@ -24,7 +24,7 @@ MODULE istate
    USE dom_oce        ! ocean space and time domain 
    USE daymod         ! calendar
    USE dtatsd         ! data temperature and salinity   (dta_tsd routine)
-   USE dtauvd         ! data: U & V current             (dta_uvd routine)
+   USE c1d             ! data: U & V current             (dta_uvd routine)
    USE wet_dry         ! wetting and drying (needed for wad_istate)
    USE usrdef_istate   ! User defined initial state
    !
@@ -48,8 +48,7 @@ MODULE istate
 #  include "do_loop_substitute.h90"
 #  include "domzgr_substitute.h90"
    !!----------------------------------------------------------------------
-   !! NEMO/OCE 4.0 , NEMO Consortium (2018)
-   !! $Id: istate.F90 14991 2021-06-14 19:52:31Z techene $
+   !! NEMO/OCE 5.0, NEMO Consortium (2024)
    !! Software governed by the CeCILL license (see ./LICENSE)
    !!----------------------------------------------------------------------
 CONTAINS
@@ -76,7 +75,7 @@ CONTAINS
       IF(lwp) WRITE(numout,*) '~~~~~~~~~~~'
 
       CALL dta_tsd_init                 ! Initialisation of T & S input data
-      IF( ln_c1d) CALL dta_uvd_init     ! Initialisation of U & V input data (c1d only)
+      IF( ln_c1d )   CALL dta_uvd_init    ! Initialisation of U & V input data (c1d only)
       !
       ts(:,:,:,:,Kaa) = 0._wp   ;   rn2(:,:,:)     = 0._wp            ! set one for all to 0 at levels 1 and jpk
       uu(:,:,:  ,Kaa) = 0._wp   ;   vv(:,:,:,Kaa)  = 0._wp            ! set one for all to 0 

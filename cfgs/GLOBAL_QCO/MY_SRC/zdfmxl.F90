@@ -65,7 +65,7 @@ CONTAINS
       zdf_mxl_alloc = 0      ! set to zero if no array to be allocated
       IF( .NOT. ALLOCATED( nmln ) ) THEN
          ALLOCATE( hmld(A2D(0)), nmln(A2D(2)), hmlp(A2D(2)), hmlpt(A2D(2)), hmld_zint(A2D(2)),     &
-   &          htc_mld(A2D(2)), ll_found(A2D(2)), ll_belowml(A3D(3)), STAT= zdf_mxl_alloc )
+   &          htc_mld(A2D(2)), ll_found(A2D(2)), ll_belowml(A2D(2),jpk), STAT= zdf_mxl_alloc )
          !
          CALL mpp_sum ( 'zdfmxl', zdf_mxl_alloc )
          IF( zdf_mxl_alloc /= 0 )   CALL ctl_stop( 'STOP', 'zdf_mxl_alloc: failed to allocate arrays.' )
@@ -359,9 +359,10 @@ CONTAINS
       END DO
 
       ! Surface boundary condition
-      IF( ln_linssh ) THEN  ;   zthick(:,:) = ssh(:,:,Kmm)   ;   htc_mld(:,:) = ts(:,:,1,jp_tem,Kmm) * ssh(:,:,Kmm) * tmask(:,:,1)   
-      ELSE                  ;   zthick(:,:) = 0._wp       ;   htc_mld(:,:) = 0._wp                                   
-      ENDIF
+      !IF( ln_linssh ) THEN  ;   zthick(:,:) = ssh(:,:,Kmm)   ;   htc_mld(:,:) = ts(:,:,1,jp_tem,Kmm) * ssh(:,:,Kmm) * tmask(:,:,1)   
+      !ELSE                  ;   zthick(:,:) = 0._wp       ;   htc_mld(:,:) = 0._wp                                   
+      !ENDIF
+      zthick(:,:) = 0._wp       ;   htc_mld(:,:) = 0._wp                                   
 
       ! Deepest whole T level above the MLD
       ikmax = MIN( MAXVAL( ilevel(:,:) ), jpkm1 )

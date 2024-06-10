@@ -4,9 +4,9 @@ WD=$PWD
 
 SYSTEM=Anemone
 
-BRANCH=branch_4.2
+BRANCH=main
 #COMMIT=b1b3d9e142670c8358f240a8eeb13979600d8039
-TAG=4.2.2
+#TAG=4.2.2
 
 MEDUSA_Br=16-medusa-nemo4-2-1-3
 MEDDIR=${WD}/MEDUSA_git
@@ -98,6 +98,7 @@ if [[ "$STOP" == 1 ]]; then
 fi
 
 # Download MEDUSA
+if [[ "$USE_EXISTING_NEMO" == 0 ]]; then
 echo "Downloading MEDUSA"
 
 # Checking out from MEDUSA gitlab
@@ -108,7 +109,7 @@ git clone https://git.noc.ac.uk/acc/medusa_4.2.x.git -b ${MEDUSA_Br} ${MEDDIR} |
 ##########################################
 cd ${WD}
 ./scripts/add_msa_to_NPD_nemo
-
+fi
 
 
 ###########################################

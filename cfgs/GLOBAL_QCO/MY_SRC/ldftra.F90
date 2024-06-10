@@ -72,7 +72,7 @@ MODULE ldftra
    !                                   !!* Namelist namtra_eiv : eddy induced velocity param. *
    !                                    != Use/diagnose eiv =!
    LOGICAL , PUBLIC ::   ln_ldfeiv           !: eddy induced velocity flag
-   LOGICAL , PUBLIC ::   ln_ldfeiv_dia       !: diagnose & output eiv streamfunction and velocity (IOM)
+   LOGICAL , PUBLIC ::   l_ldfeiv_dia0       !: diagnose & output eiv streamfunction and velocity (IOM)
    LOGICAL , PUBLIC ::   l_ldfeiv_dia        !: RK3: modified w.r.t. kstg diagnose & output eiv streamfunction and velocity flag
 
    !                                    != Coefficients =!
@@ -499,7 +499,7 @@ CONTAINS
       INTEGER  ::   ierr, inum, ios, inn   ! local integer
       REAL(wp) ::   zah_max, zUfac         !   -   scalar
       !!
-      NAMELIST/namtra_eiv/ ln_ldfeiv   , ln_ldfeiv_dia,   &   ! eddy induced velocity (eiv)
+      NAMELIST/namtra_eiv/ ln_ldfeiv   ,                  &   ! eddy induced velocity (eiv)
          &                 nn_aei_ijk_t, rn_Ue, rn_Le ,   &   ! eiv  coefficient
          &                 ln_eke_equ,                    &   ! GEOMETRIC eddy energy equation
          &                 nn_ldfeiv_shape
@@ -518,7 +518,6 @@ CONTAINS
       IF(lwp) THEN                      ! control print
          WRITE(numout,*) '   Namelist namtra_eiv : '
          WRITE(numout,*) '      Eddy Induced Velocity (eiv) param.         ln_ldfeiv     = ', ln_ldfeiv
-         WRITE(numout,*) '      eiv streamfunction & velocity diag.        ln_ldfeiv_dia = ', ln_ldfeiv_dia
          WRITE(numout,*) '      coefficients :'
          WRITE(numout,*) '         type of time-space variation            nn_aei_ijk_t  = ', nn_aei_ijk_t
          WRITE(numout,*) '         lateral diffusive velocity (if cst)     rn_Ue         = ', rn_Ue, ' m/s'
@@ -532,7 +531,6 @@ CONTAINS
       IF( .NOT.ln_ldfeiv ) THEN     !== Parametrization not used  ==!
          !
          IF(lwp) WRITE(numout,*) '   ==>>>   eddy induced velocity param is NOT used'
-         ln_ldfeiv_dia = .FALSE.
          !
       ELSE                          !== use the parametrization  ==!
          !
@@ -797,7 +795,7 @@ CONTAINS
       !!                   psi_uw = mk(aeiu) e2u mi(wslpi)   [in m3/s]
       !!                   Utr_eiv = - dk[psi_uw]
       !!                   Vtr_eiv = + di[psi_uw]
-      !!                ln_ldfeiv_dia = T : output the associated streamfunction,
+      !!                l_ldfeiv_dia0 = T : output the associated streamfunction,
       !!                                    velocity and heat transport (call ldf_eiv_dia)
       !!
       !! ** Action  : pu, pv increased by the eiv transport
@@ -817,7 +815,7 @@ CONTAINS
       REAL(wp), DIMENSION(:,:,:), ALLOCATABLE ::   ztrpu, ztrpv
       !!----------------------------------------------------------------------
       !
-      IF( ln_ldfeiv_dia .AND. cdtype == 'TRA' ) THEN
+      IF( l_ldfeiv_dia0 .AND. cdtype == 'TRA' ) THEN
          ALLOCATE( ztrpu(T2D(nn_hls),jpk), ztrpv(T2D(nn_hls),jpk) )
          ztrpu(:,:,jpk) = 0._wp ; ztrpv(:,:,jpk) = 0._wp
       ENDIF
@@ -854,7 +852,7 @@ CONTAINS
                &                             + ( zpsi_vw(ji,jj,1) - zpsi_vw(ji  ,jj-1,1) ) )
          END_2D
          !
-         IF( ln_ldfeiv_dia .AND. cdtype == 'TRA' ) THEN
+         IF( l_ldfeiv_dia0 .AND. cdtype == 'TRA' ) THEN
             DO_2D( nn_hls, nn_hls-1, nn_hls, nn_hls-1 )
                ztrpu(ji,jj,jk) = zpsi_uw(ji,jj,1)
                ztrpv(ji,jj,jk) = zpsi_vw(ji,jj,1)
@@ -862,7 +860,7 @@ CONTAINS
          ENDIF
       ENDDO
       !                              ! diagnose the eddy induced velocity and associated heat transport
-      IF( ln_ldfeiv_dia .AND. cdtype == 'TRA' ) THEN
+      IF( l_ldfeiv_dia0 .AND. cdtype == 'TRA' ) THEN
          CALL ldf_eiv_dia( ztrpu, ztrpv, Kmm )
          DEALLOCATE( ztrpu, ztrpv )
       ENDIF
@@ -871,6 +869,19 @@ CONTAINS
 
     
     SUBROUTINE ldf_eiv_trp_RK3( kt, kit000, pFu, pFv, pFw, Kmm, Krhs )
+      !!
+      INTEGER                             , INTENT(in   ) :: kt        ! ocean time-step index
+      INTEGER                             , INTENT(in   ) :: kit000    ! first time step index
+      INTEGER                             , INTENT(in   ) :: Kmm, Krhs ! ocean time level indices
+      REAL(wp), DIMENSION(:,:,:)          , INTENT(inout) ::   pFu     ! in : 3 ocean transport components
+      REAL(wp), DIMENSION(:,:,:)          , INTENT(inout) ::   pFv     ! out: same 3  transport components
+      REAL(wp), DIMENSION(A2D(nn_hls),jpk), INTENT(inout) ::   pFw     !   increased by the eiv induced transport
+      !!
+      CALL ldf_eiv_trp_RK3_t( kt, kit000, pFu, pFv, lbnd_ij(pFu), pFw, Kmm, Krhs )
+   END SUBROUTINE ldf_eiv_trp_RK3
+
+
+    SUBROUTINE ldf_eiv_trp_RK3_t( kt, kit000, pFu, pFv, ktFuv, pFw, Kmm, Krhs )
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE ldf_eiv_trp  ***
       !!
@@ -883,16 +894,17 @@ CONTAINS
       !!                   psi_uw = mk(aeiu) e2u mi(wslpi)   [in m3/s]
       !!                   Utr_eiv = - dk[psi_uw]
       !!                   Vtr_eiv = + di[psi_uw]
-      !!                ln_ldfeiv_dia = T : output the associated streamfunction,
+      !!                l_ldfeiv_dia0 = T : output the associated streamfunction,
       !!                                    velocity and heat transport (call ldf_eiv_dia)
       !!
       !! ** Action  : pu, pv increased by the eiv transport
       !!----------------------------------------------------------------------
+      INTEGER,  DIMENSION(2)              , INTENT(in   ) :: ktFuv
       INTEGER                             , INTENT(in   ) :: kt        ! ocean time-step index
       INTEGER                             , INTENT(in   ) :: kit000    ! first time step index
       INTEGER                             , INTENT(in   ) :: Kmm, Krhs ! ocean time level indices
-      REAL(wp), DIMENSION(A2D(nn_hls),jpk), INTENT(inout) ::   pFu     ! in : 3 ocean transport components
-      REAL(wp), DIMENSION(A2D(nn_hls),jpk), INTENT(inout) ::   pFv     ! out: same 3  transport components
+      REAL(wp), DIMENSION(AB2D(ktFuv),JPK), INTENT(inout) :: pFu       ! in : 3 ocean transport components
+      REAL(wp), DIMENSION(AB2D(ktFuv),JPK), INTENT(inout) :: pFv       ! out: same 3  transport components
       REAL(wp), DIMENSION(A2D(nn_hls),jpk), INTENT(inout) ::   pFw     !   increased by the eiv induced transport
       !!
       INTEGER  ::   ji, jj, jk                 ! dummy loop indices
@@ -902,7 +914,7 @@ CONTAINS
       REAL(wp), DIMENSION(:,:,:), ALLOCATABLE ::   ztrpu, ztrpv
       !!----------------------------------------------------------------------
       !
-      IF( ln_ldfeiv_dia ) THEN
+      IF( l_ldfeiv_dia ) THEN
          ALLOCATE( ztrpu(T2D(nn_hls),jpk), ztrpv(T2D(nn_hls),jpk) )
          ztrpu(:,:,jpk) = 0._wp ; ztrpv(:,:,jpk) = 0._wp
       ENDIF
@@ -935,7 +947,7 @@ CONTAINS
             pFv(ji,jj,jk) = pFv(ji,jj,jk) - ( zpsi_vw(ji,jj,1) - zpsi_vw(ji,jj,2) )
          END_2D
          !
-         IF( ln_ldfeiv_dia ) THEN
+         IF( l_ldfeiv_dia ) THEN
             DO_2D( nn_hls, nn_hls-1, nn_hls, nn_hls-1 )
                ztrpu(ji,jj,jk) = zpsi_uw(ji,jj,1)
                ztrpv(ji,jj,jk) = zpsi_vw(ji,jj,1)
@@ -949,7 +961,7 @@ CONTAINS
          DEALLOCATE( ztrpu, ztrpv )
       ENDIF
       !
-   END SUBROUTINE ldf_eiv_trp_RK3
+   END SUBROUTINE ldf_eiv_trp_RK3_t
 
 
    SUBROUTINE ldf_eiv_dia( psi_uw, psi_vw, Kmm )

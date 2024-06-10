@@ -41,7 +41,7 @@ MODULE step_oce
    USE dynzdf          ! vertical diffusion               (dyn_zdf routine)
    USE dynspg          ! surface pressure gradient        (dyn_spg routine)
    USE dynatf_qco          ! time-filtering                   (dyn_atf routine)
-   USE dyndmp          ! current damping                  (dyn_dmp routine)
+   USE c1d             ! current damping              (c1d_dyn_dmp routine)
 
    USE traqsr          ! solar radiation penetration      (tra_qsr routine)
    USE traisf          ! ice shelf                        (tra_isf routine)
@@ -82,13 +82,8 @@ MODULE step_oce
    USE diahsb          ! heat, salt and volume budgets    (dia_hsb routine)
    USE diacfl          ! CFL diagnostics                  (dia_cfl routine)
    USE diaobs          ! Observation operator             (dia_obs routine)
-   USE diaprod
    USE diadetide       ! Weights computation for daily detiding of model diagnostics
    USE diamlr          ! IOM context management for multiple-linear-regression analysis
-   USE flo_oce         ! floats variables
-   USE floats          ! floats computation               (flo_stp routine)
-
-   USE crsfld          ! Standard output on coarse grid   (crs_fld routine)
 
    USE asminc          ! assimilation increments      (tra_asm_inc routine)
    !                                                   (dyn_asm_inc routine)

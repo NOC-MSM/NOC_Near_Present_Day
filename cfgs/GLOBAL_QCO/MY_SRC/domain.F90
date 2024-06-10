@@ -239,7 +239,7 @@ CONTAINS
          &             nn_it000, nn_itend , nn_date0    , nn_time0     , nn_leapy  , nn_istate ,     &
          &             nn_stock, nn_write , ln_mskland  , ln_clobber   , nn_chunksz, ln_1st_euler  , &
          &             ln_cfmeta, ln_xios_read, nn_wxios, ln_rst_eos, ln_top
-      NAMELIST/namdom/ rn_Dt, rn_atfp, ln_crs, ln_c1d, ln_meshmask, ln_shuman
+      NAMELIST/namdom/ rn_Dt, rn_atfp, ln_c1d, ln_meshmask, ln_shuman
       NAMELIST/namtile/ ln_tile, nn_ltile_i, nn_ltile_j
 #if defined key_netcdf4
       NAMELIST/namnc4/ nn_nchunks_i, nn_nchunks_j, nn_nchunks_k, ln_nc4zip
@@ -272,7 +272,6 @@ CONTAINS
          WRITE(numout,*) '      create mesh/mask file                   ln_meshmask = ', ln_meshmask
          WRITE(numout,*) '      ocean time step                         rn_Dt       = ', rn_Dt
          WRITE(numout,*) '      asselin time filter parameter           rn_atfp     = ', rn_atfp
-         WRITE(numout,*) '      online coarsening of dynamical fields   ln_crs      = ', ln_crs
          WRITE(numout,*) '      single column domain (1x1pt)            ln_c1d      = ', ln_c1d
          WRITE(numout,*) '      shuman averaging (=T)                   ln_shuman   = ', ln_shuman
       ENDIF
