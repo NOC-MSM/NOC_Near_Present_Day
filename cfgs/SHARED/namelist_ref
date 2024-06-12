@@ -11,7 +11,7 @@
 !!              5 - Tracer           (nameos, namtra_adv, namtra_ldf, namtra_eiv, namtra_dmp)
 !!              6 - dynamics         (namdyn_adv, namdyn_vor, namdyn_hpg, namdyn_spg, namdyn_ldf)
 !!              7 - Vertical physics (namzdf, namzdf_ric, namzdf_tke, namzdf_gls, namzdf_iwm)
-!!              8 - diagnostics      (namnc4, namtrd, namspr, namflo, namhsb)
+!!              8 - diagnostics      (namnc4, namtrd, namspr)
 !!              9 - Obs & Assim      (namobs, nam_asminc)
 !!             10 - miscellaneous    (nammpp, namctl, namsto)
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -24,7 +24,6 @@
 !!   namcfg       parameters of the configuration                       (default: user defined GYRE)
 !!   namwad       Wetting and drying                                    (default: OFF)
 !!   namtsd       data: temperature & salinity                          (default: OFF)
-!!   namcrs       coarsened grid (for outputs and/or TOP)               (ln_crs =T)
 !!   namc1d       1D configuration options                              (ln_c1d =T)
 !!   namc1d_dyndmp 1D newtonian damping applied on currents             (ln_c1d =T)
 !!   namc1d_uvd   1D data (currents)                                    (ln_c1d =T)
@@ -74,7 +73,6 @@
    rn_Dt       = 5400.     !  time step for the dynamics and tracer
    rn_atfp     =    0.1    !  asselin time filter parameter
    !
-   ln_crs      = .false.   !  Logical switch for coarsening module      (T => fill namcrs)
    ln_c1d      = .false.   !  Single column domain (1x1pt)              (T => fill namc1d)
    !
    ln_meshmask = .true.    !  =T create a mesh file
@@ -93,9 +91,6 @@
       !
    ln_write_cfg = .false.    !  (=T) create the domain configuration file
       cn_domcfg_out = "domain_cfg_out" ! newly created domain configuration filename
-      !
-   ln_use_jattr = .false.    !  use (T) the file attribute: open_ocean_jstart, if present
-   !                         !  in netcdf input files, as the start j-row for reading
 /
 !-----------------------------------------------------------------------
 &namtile        !   parameters of the tiling
@@ -146,34 +141,11 @@
    rn_wd_sbcfra =  0.999   !  Fraction of SBC fluxes at taper depth (Must be <1)
 /
 !-----------------------------------------------------------------------
-&namcrs        !   coarsened grid (for outputs and/or TOP)              (ln_crs =T)
-!-----------------------------------------------------------------------
-   nn_factx    = 3         !  Reduction factor of x-direction
-   nn_facty    = 3         !  Reduction factor of y-direction
-   nn_binref   = 0         !  Bin centering preference: NORTH or EQUAT
-      !                    !  0, coarse grid is binned with preferential treatment of the north fold
-      !                    !  1, coarse grid is binned with centering at the equator
-      !                    !    Symmetry with nn_facty being odd-numbered. Asymmetry with even-numbered nn_facty.
-   ln_msh_crs  = .false.   ! =T create a mesh & mask file
-   nn_crs_kz   = 0         ! 0, MEAN of volume boxes
-      !                    ! 1, MAX of boxes
-      !                    ! 2, MIN of boxes
-   ln_crs_wn   = .true.    ! wn coarsened (T) or computed using horizontal divergence ( F )
-/
-!-----------------------------------------------------------------------
 &namc1d        !   1D configuration options                             (ln_c1d =T default: PAPA station)
 !-----------------------------------------------------------------------
    rn_lat1d    =    50.1   !  Column latitude
    rn_lon1d    =  -144.9   !  Column longitude
-/
-!-----------------------------------------------------------------------
-&namc1d_dyndmp !   U & V newtonian damping                              (ln_c1d =T default: OFF)
-!-----------------------------------------------------------------------
-   ln_dyndmp   =  .false.  !  add a damping term (T) or not (F)
-/
-!-----------------------------------------------------------------------
-&namc1d_uvd    !   data: U & V currents                                 (ln_c1d =T default: OFF)
-!-----------------------------------------------------------------------
+   ln_dyndmp   =  .false.  !  add a  U & V newtonian damping term (T) or not (F)
    !                       !  =T read U-V fields for:
    ln_uvd_init   = .false.       !  ocean initialisation
    ln_uvd_dyndmp = .false.       !  U-V restoring
@@ -731,7 +703,6 @@
    ln_tide     = .false.      ! Activate tides
       nn_tide_var   = 1          !  Variant of tidal parameter set and tide-potential computation
       !                          !     (1: default; 0: compatibility with previous versions)
-      ln_tide_dia   = .false.    !  Enable tidal diagnostic output
       ln_tide_pot   = .false.               !  use tidal potential forcing
          rn_tide_gamma = 0.7                   ! Tidal tilt factor
          ln_scal_load  = .false.               ! Use scalar approximation for
@@ -1002,7 +973,6 @@
       rn_Ue        = 0.02           !  lateral diffusive velocity [m/s] (nn_aht_ijk_t= 0, 10, 20, 30)
       rn_Le        = 200.e+3        !  lateral diffusive length   [m]   (nn_aht_ijk_t= 0, 10)
       !
-      ln_ldfeiv_dia =.false.   ! diagnose eiv stream function and velocities
       ln_eke_equ    =.false.   ! switch on update of GEOMETRIC eddy energy equation        (=> fill namldf_eke)
                                ! forced to be true if nn_aei_ijk_t = 32
 /
@@ -1429,21 +1399,6 @@
 !-----------------------------------------------------------------------
    ln_diurnal      = .false.   !
    ln_diurnal_only = .false.   !
-/
-!-----------------------------------------------------------------------
-&namflo        !   float parameters                                     (default: OFF)
-!-----------------------------------------------------------------------
-   ln_floats   = .false.      ! activate floats or not
-      jpnfl       = 1         !    total number of floats during the run
-      jpnnewflo   = 0         !    number of floats for the restart
-      ln_rstflo   = .false.   !    float restart (T) or not (F)
-      nn_writefl  =      75   !    frequency of writing in float output file
-      nn_stockfl  =    5475   !    frequency of creation of the float restart file
-      ln_argo     = .false.   !    Argo type floats (stay at the surface each 10 days)
-      ln_flork4   = .false.   !    trajectories computed with a 4th order Runge-Kutta (T)
-      !                       !    or computed with Blanke' scheme (F)
-      ln_ariane   = .true.    !    Input with Ariane tool convention(T)
-      ln_flo_ascii= .true.    !    Output with Ariane tool netcdf convention(F) or ascii file (T)
 /
 !-----------------------------------------------------------------------
 &nam_diadct    !   transports through some sections                     (default: OFF)

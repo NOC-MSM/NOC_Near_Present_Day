@@ -12,7 +12,7 @@
 
       <file_group id="5d" output_freq="5d"  split_freq="5d"  output_level="10" enabled=".TRUE.">  <!-- 5d files -->   
 
-	<file id="file4" mode="write" writer="t5dwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_T" description="ocean T grid variables" >
+	<file id="file4" mode="write" writer="t5dwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_T" description="ocean T grid variables" enabled=".true." >
           <field field_ref="e3t"             name="e3t"        standard_name="cell_thickness" />
 <!-- TO FIX
           <field field_ref="20d"             name="t20d"  standard_name="depth_of_isosurface_of_sea_water_potential_temperature" />
@@ -48,8 +48,8 @@
           <field field_ref="hflx_evap_cea"   name="hfevapds" long_name="Temperature Flux due to Evaporation Expressed as Heat Flux Out of Sea Water" standard_name="temperature_flux_due_to_evaporation_expressed_as_heat_flux_out_of_sea_water" />
           <field field_ref="hflx_rnf_cea"    name="hflx_rnf" long_name="Temperature Flux due to Runoff Expressed as Heat Flux into  Sea Water" standard_name="temperature_flux_due_to_runoff_expressed_as_heat_flux_into_sea_water" > hflx_rnf_cea </field> 
           <field field_ref="saltflx"         name="sfdsi" standard_name="downward_sea_ice_basal_salt_flux" />
-          <field field_ref="fmmflx"          name="fsitherm"      unit="kg/m2/s"   />
-          <field field_ref="empmr" > @empmr + @fwfisf </field>
+     <!-- <field field_ref="fmmflx"          name="fsitherm"      unit="kg/m2/s"   /> -->
+          <field field_ref="empmr" > @empmr + @fwfisf_par </field>
 <!-- TO FIX
           <field field_ref="Age" name="agessc" />
 -->
@@ -63,11 +63,11 @@
           <field field_ref="mldzint_1"       name="somxzint1"  standard_name="ocean_mixed_layer_thickness_defined_by_sigma_theta"      />
           <field field_ref="ice_cover"       name="soicecov"   standard_name="sea_ice_area_fraction"                                   />
           <field field_ref="wspd"            name="sowindsp"   standard_name="wind_speed"                                              />          
-          <field field_ref="qlatisf"         name="sohflisf"   standard_name=""                                                        />
+          <field field_ref="qlatisf_par"     name="sohflisf"   standard_name=""                                                        />
           <field field_ref="qlatisf3d_par"   name="vohflisf"   standard_name=""                                                        />
-          <field field_ref="qhcisf"          name="sohfcisf"   standard_name=""                                                        />
+          <field field_ref="qhcisf_par"      name="sohfcisf"   standard_name=""                                                        />
           <field field_ref="qhcisf3d_par"    name="vohfcisf"   standard_name=""                                                        />
-          <field field_ref="fwfisf"          name="sowflisf"   standard_name=""                                                        />
+          <field field_ref="fwfisf_par"      name="sowflisf"   standard_name=""                                                        />
           <field field_ref="fwfisf3d_par"    name="vowflisf"   standard_name=""                                                        />
 <!-- TO FIX
           <field field_ref="ketrd_ldf_vsum"     name="dispkexyfo"   standard_name="Dissipation of kinetic energy by lateral viscosity" grid_ref="vert_sum"/>
@@ -101,15 +101,15 @@
           <field field_ref="strd_atf_li"     name="strd_atf_li"                    />
 	</file>
 	
-	<file id="file5" mode="write" writer="u5dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_U" description="ocean U grid variables" >
+	<file id="file5" mode="write" writer="u5dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_U" description="ocean U grid variables"  enabled=".true.">
           <field field_ref="e3u"             name="e3u"     standard_name="cell_thickness" />
           <field field_ref="uoce"            name="uo"      operation="average" freq_op="5d" > @uoce_e3u / @e3u </field>
 	  <field field_ref="utau"            name="tauuo"   standard_name="surface_downward_x_stress"  />
 <!-- TO FIX
           <field field_ref="ut"              name="uto" standard_name="product_of_xward_sea_water_velocity_and_temperature" long_name="UT"  operation="average" freq_op="5d" > @ut_e3u / @e3u </field>
           <field field_ref="us"              name="uso" standard_name="product_of_xward_sea_water_velocity_and_salinity" long_name="US"    operation="average" freq_op="5d" > @us_e3u / @e3u </field>
--->
           <field field_ref="uoce"            name="u2o" standard_name="square_of_sea_water_x_velocity" long_name="UU"  operation="average" freq_op="5d" > @uoce2_e3u / @e3u </field>
+-->
           <!-- available with key_diaar5 -->
           <field field_ref="u_masstr"        name="umo" /> 
           <field field_ref="u_masstr_vint"   name="umo_vint" /> 
@@ -120,15 +120,15 @@
           <field field_ref="u_salttr"        name="sozosatr" />
 	</file>
 	
-	<file id="file6" mode="write" writer="u5dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables" >
+	<file id="file6" mode="write" writer="u5dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables"  enabled=".true.">
           <field field_ref="e3v"             name="e3v"     standard_name="cell_thickness" />
           <field field_ref="voce"            name="vo"      operation="average" freq_op="5d" > @voce_e3v / @e3v </field>
 	  <field field_ref="vtau"            name="tauvo"   standard_name="surface_downward_y_stress" />
 <!-- TO FIX
           <field field_ref="vt"              name="vto" standard_name="product_of_yward_sea_water_velocity_and_temperature" long_name="VT"  operation="average" freq_op="5d" > @vt_e3v / @e3v </field>
           <field field_ref="vs"              name="vso" standard_name="product_of_yward_sea_water_velocity_and_salinity" long_name="VS"  operation="average" freq_op="5d" > @vs_e3v / @e3v </field>
--->
           <field field_ref="voce"            name="v2o" standard_name="square_of_sea_water_y_velocity" long_name="VV"  operation="average" freq_op="5d" > @voce2_e3v / @e3v </field>
+-->
           <!-- available with key_diaar5 -->
           <field field_ref="v_masstr"        name="vmo" /> 
           <field field_ref="v_heattr"        name="hfy" > @vadv_heattr + @vdiff_heattr </field>
@@ -138,13 +138,14 @@
           <field field_ref="v_salttr"        name="somesatr" />
 	</file>
 	
-	<file id="file7" mode="write" writer="w5dwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_W" description="ocean W grid variables" >
+	<file id="file7" mode="write" writer="w5dwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_W" description="ocean W grid variables"  enabled=".true.">
           <field field_ref="e3w"             name="e3w"      standard_name="cell_thickness" />
 	  <field field_ref="avt"             name="difvho"   standard_name="ocean_vertical_heat_diffusivity"  />
 	  <field field_ref="avs"             name="difvso"   standard_name="ocean_vertical_salt_diffusivity"   />                 
           <field field_ref="avm"             name="difvmo"   standard_name="ocean_vertical_momentum_diffusivity"               />
           <field field_ref="avt_evd"         name="avt_evd"  standard_name="enhanced_vertical_heat_diffusivity"               />
-          <field field_ref="av_tmx"          name="diftrto"  standard_name="ocean_vertical_tracer_diffusivity_due_to_tides"               />
+<!--      <field field_ref="av_tmx"          name="diftrto"  standard_name="ocean_vertical_tracer_diffusivity_due_to_tides"               />
+-->
           <field field_ref="w_masstr"        name="wmo" />
 	  <field field_ref="woce"            name="wo"       standard_name="upward_sea_water_velocity" long_name="W"                  />
           <field field_ref="woce"            name="w2o"      standard_name="square_of_upward_sea_water_velocity" long_name="WW"  operation="average" > woce * woce </field>

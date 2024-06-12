@@ -15,7 +15,7 @@
 /
 
 &namsbc         !   Ice surface boundary conditions
-  rn_cio            =   1.0e-02       !  ice-ocean drag coefficient (-)
+  rn_Cd_io            =   1.0e-02       !  ice-ocean drag coefficient (-)
 /
 
 &namthd         !   Ice thermodynamics
@@ -48,7 +48,7 @@
    ln_pnd_TOPO      = .true.          !  topographic melt ponds
    ln_pnd_LEV       = .false.         !  level ice melt ponds
    rn_apnd_max      =   0.5           !  maximum ice fraction that contributes to melt pond. range: 0.7 -- 0.85 ??
-   nn_pnd_brsal     = 1
+   !nn_pnd_brsal     = 1
 /
 
 &namini         !   Ice initialization

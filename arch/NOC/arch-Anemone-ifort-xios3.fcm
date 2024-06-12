@@ -32,7 +32,7 @@
 #
 %NCDF_HOME           $EBROOTNETCDF
 %HDF5_HOME           $EBROOTHDF5
-%XIOS_HOME           /home/acc/xios3-trunk-head
+%XIOS_HOME           /home/acc/xios3-trunk-new
 #%OASIS_HOME          /not/defined
 
 %NCDF_INC            -I%NCDF_HOME/include 
