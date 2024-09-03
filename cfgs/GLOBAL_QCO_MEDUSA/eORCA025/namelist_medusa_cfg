@@ -12,12 +12,15 @@
    ln_msa_no_detsink   = .false.   !! debug - poc don't sink
 /
 &nammsa_bio
-!! ZMP values
-      xmd       = 0.0158    !! PACMAN values - JuP (24/09/20) - Q10 = 0.0190
-      xmdc      = 0.0127    !! PACMAN values - JuP (24/09/20) - Q10 = 0.0152
-      xfdfrac1  = 0.1       !! control parameter; no "real" value  JuP (24/09/20)
-      xfdfrac2  = 0.1       !! control parameter; no "real" value JuP (24/09/20)
-      xfdfrac3  = 0.80      !! control parameter; no "real" value JuP (24/09/20)
+!! min and max warning values  
+      tempminw = -3.0
+      tempmaxw = 45.0
+      salminw  = 0.0 
+      salmaxw  = 50.0
+      dicminw  = -2.0 
+      dicmaxw  = 10000.0
+      alkminw  = -2.0 
+      alkmaxw  = 10000.0
 /
 &nammsa_opt
 /

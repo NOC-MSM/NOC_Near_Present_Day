@@ -8,7 +8,7 @@
 ============================================================================================================
     -->
    
-    <file_definition type="one_file" compression_level="1" name="OUTPUT/@expname@_@freq@" sync_freq="1mo" min_digits="4">
+    <file_definition type="one_file" compression_level="1" name="OUTPUT/@expname@_@freq@" sync_freq="5d" min_digits="4">
     
       <file_group id="5d" output_freq="5d" output_level="10" split_freq="5d" enabled=".TRUE."> <!-- real monthly files -->
 
@@ -16,26 +16,9 @@
           <field field_ref="e3t"             name="e3t"        standard_name="cell_thickness" />
           <field_group group_ref="groupMEDUSA"       enabled=".FALSE."     />   <!-- key_medusa -->
           <field_group group_ref="groupMEDUSA_surf"  enabled=".TRUE."      />   <!-- key_medusa -->
-          <field field_ref="ZMP"      name="ZMP"     enabled=".FALSE."     />
-          <field field_ref="ZMP_E3T"  name="ZMP_E3T" enabled=".FALSE."     />
 
         </file>
 
       </file_group>
-
-      <file_group id="1y"  output_freq="1y" output_level="10" enabled=".TRUE."/> <!-- real yearly files -->
-      
-      <file_group id="1ts" output_freq="1ts" output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
-      <file_group id="2h"  output_freq="2h"  output_level="10" enabled=".TRUE."/> <!-- 2h files -->
-      <file_group id="3h"  output_freq="3h"  output_level="10" enabled=".TRUE."/> <!-- 3h files -->     
-      <file_group id="4h"  output_freq="4h"  output_level="10" enabled=".TRUE."/> <!-- 4h files -->
-      <file_group id="6h"  output_freq="6h"  output_level="10" enabled=".TRUE."/> <!-- 6h files -->     
-      <file_group id="2m"  output_freq="2mo" output_level="10" enabled=".TRUE."/> <!-- real 2m files -->
-      <file_group id="3m"  output_freq="3mo" output_level="10" enabled=".TRUE."/> <!-- real 3m files -->
-      <file_group id="4m"  output_freq="4mo" output_level="10" enabled=".TRUE."/> <!-- real 4m files -->
-      <file_group id="6m"  output_freq="6mo" output_level="10" enabled=".TRUE."/> <!-- real 6m files -->
-      <file_group id="2y"  output_freq="2y"  output_level="10" enabled=".TRUE."/> <!-- real 2y files -->
-      <file_group id="5y"  output_freq="5y"  output_level="10" enabled=".TRUE."/> <!-- real 5y files -->
-      <file_group id="10y" output_freq="10y" output_level="10" enabled=".TRUE."/> <!-- real 10y files -->
 
    </file_definition>
