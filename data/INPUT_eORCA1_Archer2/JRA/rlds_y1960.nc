@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/FORCING/JRA/rlds_y1960.nc

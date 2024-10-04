@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/FORCING/JRA/friver_y2023.nc

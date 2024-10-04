@@ -5,6 +5,14 @@ cfgs/GLOBAL_QCO_MEDUSA/MY_SRC/*.F90
 head/
 ISSUE.md
 
+data/INPUT_eORCA025
+data/INPUT_eORCA1
+data/INPUT_eORCA12
+scripts/compile_nemo
+scripts/compile_tools
+scripts/python/mkslurm_NPD
+
+
 # Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks,fortran,svn,matlab,python,emacs,vim
 # Edit at https://www.toptal.com/developers/gitignore?templates=jupyternotebooks,fortran,svn,matlab,python,emacs,vim
 

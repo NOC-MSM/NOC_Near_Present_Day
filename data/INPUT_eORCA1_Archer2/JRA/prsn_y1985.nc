@@ -1,0 +1,1 @@
+/work/n01/shared/nemo/FORCING/JRA/prsn_y1985.nc
