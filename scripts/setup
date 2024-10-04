@@ -126,6 +126,7 @@ ln -sfT compile_nemo_${SYSTEM} scripts/compile_nemo
 ln -sfT compile_tools_${SYSTEM} scripts/compile_tools
 ln -sfT mkslurm_NPD_${SYSTEM} scripts/python/mkslurm_NPD
 
+ln -sfT INPUT_eORCA1_${SYSTEM} data/INPUT_eORCA1
 ln -sfT INPUT_eORCA025_${SYSTEM} data/INPUT_eORCA025
 ln -sfT INPUT_eORCA12_${SYSTEM} data/INPUT_eORCA12
 
@@ -141,6 +142,7 @@ fi
 
 cp "$CP_ARG" "${WD}"/{arch,cfgs,data,ext,scripts,tools} "$NEMODIR"/. || exit
 
+cp "$CP_ARG" "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA1/.
 cp "$CP_ARG" "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA025/.
 cp "$CP_ARG" "${WD}"/scripts/TIDY "$NEMODIR"/cfgs/GLOBAL_QCO/eORCA12/.
 
