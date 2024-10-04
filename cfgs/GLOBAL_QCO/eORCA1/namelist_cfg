@@ -26,8 +26,8 @@
 
 &namcfg
     ln_read_cfg = .true.,
-    cn_domcfg = './INPUT/domcfg.nc',
-    ln_closea    = .true.,
+    cn_domcfg = './INPUT/domcfg_eORCA1v2.3.nc',
+    ln_closea    = .false.,   !!ATB: switched to false - domcfg.nc missing variable "mask_opensea" at the moment
 /
 
 &namclo
@@ -58,15 +58,15 @@
        rn_stau_a = -2.9e-3   !     Alpha from eq. 10: Stau = Alpha * Wnd + Beta
        rn_stau_b =  8.0e-3   !     Beta
     cn_dir = './INPUT/JRA/',
-    sn_humi    = 'huss', 3, 'huss', .true.,  .false., 'yearly', 'weights_grid_jra_bilin_eORCA1.nc', '', ''
-    sn_prec    = 'ptot', 3, 'ptot', .true.,  .false., 'yearly', 'weights_grid_jra_bilin_eORCA1.nc', '', ''
-    sn_qlw     = 'rlds', 3, 'rlds', .false., .false., 'yearly', 'weights_grid_jra_bilin_eORCA1.nc', '', ''
-    sn_qsr     = 'rsds', 3, 'rsds', .false., .false., 'yearly', 'weights_grid_jra_bilin_eORCA1.nc', '', ''
-    sn_slp     = 'psl',  3, 'psl',  .true.,  .false., 'yearly', 'weights_grid_jra_bilin_eORCA1.nc', '', ''
-    sn_snow    = 'prsn', 3, 'prsn', .true.,  .false., 'yearly', 'weights_grid_jra_bilin_eORCA1.nc', '', ''
-    sn_tair    = 'tas',  3, 'tas',  .true.,  .false., 'yearly', 'weights_grid_jra_bilin_eORCA1.nc', '', ''
-    sn_wndi    = 'uas',  3, 'uas',  .true.,  .false., 'yearly', 'weights_grid_jra_bicubic_eORCA1.nc', 'Ume', ''
-    sn_wndj    = 'vas',  3, 'vas',  .true.,  .false., 'yearly', 'weights_grid_jra_bicubic_eORCA1.nc', 'Vme', ''
+    sn_humi    = 'huss', 3, 'huss', .true.,  .false., 'yearly', '../weights_JRA_eORCA1_bilin.nc', '', ''
+    sn_prec    = 'ptot', 3, 'ptot', .true.,  .false., 'yearly', '../weights_JRA_eORCA1_bilin.nc', '', ''
+    sn_qlw     = 'rlds', 3, 'rlds', .false., .false., 'yearly', '../weights_JRA_eORCA1_bilin.nc', '', ''
+    sn_qsr     = 'rsds', 3, 'rsds', .false., .false., 'yearly', '../weights_JRA_eORCA1_bilin.nc', '', ''
+    sn_slp     = 'psl',  3, 'psl',  .true.,  .false., 'yearly', '../weights_JRA_eORCA1_bilin.nc', '', ''
+    sn_snow    = 'prsn', 3, 'prsn', .true.,  .false., 'yearly', '../weights_JRA_eORCA1_bilin.nc', '', ''
+    sn_tair    = 'tas',  3, 'tas',  .true.,  .false., 'yearly', '../weights_JRA_eORCA1_bilin.nc', '', ''
+    sn_wndi    = 'uas',  3, 'uas',  .true.,  .false., 'yearly', '../weights_JRA_eORCA1_bicub.nc', 'Ume', ''
+    sn_wndj    = 'vas',  3, 'vas',  .true.,  .false., 'yearly', '../weights_JRA_eORCA1_bicub.nc', 'Vme', ''
 /
 
 &namtra_qsr
@@ -90,7 +90,7 @@
     cn_dir = './INPUT/',
     sn_rnf = 'eORCA1_runoff_GO6_icb.nc', -1, 'sornficb', .true., .true.,
              'yearly', '', '', '',
-    sn_cnf = 'eORCA1_runoff_GO6_icb.nc', 0, 'socoefr', .false., .true.,
+    sn_cnf = 'eORCA1_runoff_GO6_icb.nc', 0, 'socoeff', .false., .true.,
              'yearly', '', '', '',
     sn_t_rnf='eORCA1_runoff_GO6_icb.nc',-12,'icbrnftemper',.false.,.true.,'yearly','','',''
     ln_rnf_mouth = .true.,

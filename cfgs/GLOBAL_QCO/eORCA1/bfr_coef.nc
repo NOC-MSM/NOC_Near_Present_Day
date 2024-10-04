@@ -1,1 +1,1 @@
-INPUT/bfr_coef.nc
+INPUT/bfr_coef01.nc

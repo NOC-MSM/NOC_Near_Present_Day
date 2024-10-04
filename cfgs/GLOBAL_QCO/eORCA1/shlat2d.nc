@@ -1,1 +1,1 @@
-INPUT/shlat2d.nc
+INPUT/eORCA_R1_shlat2d.nc
