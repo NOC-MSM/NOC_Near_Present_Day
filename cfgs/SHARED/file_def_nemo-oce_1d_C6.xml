@@ -30,12 +30,12 @@
 	  <field field_ref="utau"            name="sozotaux"   standard_name="surface_downward_x_stress" />
 	</file>
 	
-	<file id="file3" mode="write" writer="u1dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables"  enabled=".TRUE." >
+	<file id="file3" mode="write" writer="v1dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables"  enabled=".TRUE." >
           <field field_ref="ssv"             name="somecrty"   standard_name="sea_surface_northward_sea_water_velocity"                 />
 	  <field field_ref="vtau"            name="sometauy"   standard_name="surface_downward_y_stress" />
 	</file>
 
-        <file id="file9" mode="write" writer="t1dwriter" gatherer="tgatherer" using_server2="true" compression_level="0" name_suffix="_scalar" description="scalar variables"  enabled=".TRUE." >
+        <file id="file9" mode="write" writer="s1dwriter" gatherer="tgatherer" using_server2="true" compression_level="0" name_suffix="_scalar" description="scalar variables"  enabled=".TRUE." >
 <!-- TO FIX
           <field field_ref="sshthster"       name="scsshtst"   />
 -->

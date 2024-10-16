@@ -32,7 +32,7 @@
 #
 %NCDF_HOME           $EBROOTNETCDF
 %HDF5_HOME           $EBROOTHDF5
-%XIOS_HOME           /home/acc/xios-trunk
+%XIOS_HOME           /dssgfs01/working/atb299/XIOS3
 #%OASIS_HOME          /not/defined
 
 %NCDF_INC            -I%NCDF_HOME/include 
@@ -45,7 +45,7 @@
 #%OASIS_LIB           -L%OASIS_HOME/lib -lpsmile.MPI1 -lmct -lmpeu -lscrip
 
 %CPP	             cpp 
-%FC                  mpiifort -c -fpp -fpp-name:/opt/software/eb/software/GCCcore/11.2.0/bin/cpp -Wp,-P,-traditional
+%FC                  mpiifort -c -fpp -fpp-name:/opt/software/rocky9/eb/software/GCCcore/12.3.0/bin/cpp -Wp,-P,-traditional
 %FCFLAGS             -i4 -r8 -O3 -fp-model precise -fno-alias
 %FFLAGS              %FCFLAGS
 %LD                  mpiifort 

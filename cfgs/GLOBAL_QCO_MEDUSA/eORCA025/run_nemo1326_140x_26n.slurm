@@ -36,6 +36,7 @@ fi
 ## modules load
 
 module load NEMO/prg-env
+module load libfabric/1.18.0-GCCcore-12.3.0
 
 # ========================================================
 # Define useful functions
@@ -238,7 +239,7 @@ mkdir -p {RESTARTS,OUTPUT}
 # Link nemo
 ln -fs ../BLD/bin/nemo.exe nemo
 
-export XIO_HOME=/home/acc/xios3-trunk-head
+export XIO_HOME=/dssgfs01/working/atb299/XIOS3
 #
 export OMP_NUM_THREADS=1
 export I_MPI_SHM=off
