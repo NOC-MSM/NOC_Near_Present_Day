@@ -120,7 +120,7 @@
           <field field_ref="u_salttr"        name="sozosatr" />
 	</file>
 	
-	<file id="file22" mode="write" writer="u1ywriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables" >
+	<file id="file22" mode="write" writer="v1ywriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables" >
           <field field_ref="e3v"             name="e3v"     standard_name="cell_thickness" />
           <field field_ref="voce"            name="vo"      operation="average" freq_op="1y" > @voce_e3v / @e3v </field>
 	  <field field_ref="vtau"            name="tauvo"   standard_name="surface_downward_y_stress" />
@@ -156,7 +156,7 @@
 -->
 	</file>
 	
-        <file id="file24" mode="write" writer="t1ywriter" gatherer="tgatherer" using_server2="true" compression_level="0" name_suffix="_scalar" description="scalar variables" enabled=".true." >
+        <file id="file24" mode="write" writer="s1ywriter" gatherer="tgatherer" using_server2="true" compression_level="0" name_suffix="_scalar" description="scalar variables" enabled=".true." >
           <field field_ref="voltot"          name="scvoltot"   />
           <field field_ref="temptot"         name="thetaoga"   />
           <field field_ref="saltot"          name="soga"   />
