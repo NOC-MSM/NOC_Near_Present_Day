@@ -26,12 +26,8 @@
 
 &namcfg
     ln_read_cfg = .true.,
-    cn_domcfg = './INPUT/domcfg_eORCA1v2.3.nc',
-    ln_closea    = .false.,   !!ATB: switched to false - domcfg.nc missing variable "mask_opensea" at the moment
-/
-
-&namclo
-   ln_maskcs = .true.,
+    cn_domcfg = './INPUT/domain_cfg.nc',
+    ln_closea    = .true.,
 /
 
 &namtsd
