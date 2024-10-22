@@ -153,16 +153,13 @@
     ln_traldf_iso = .true.,
     ln_traldf_msc = .false.,
     nn_aht_ijk_t = 20,
-    rn_Ud        = 0.011
+    rn_Ud        = 0.018
 /
 
 &namtra_eiv
     ln_ldfeiv = .true.,
-    rn_ue = 1.5,
-    rn_le = 100.0,
     nn_aei_ijk_t = 21,
     ln_ldfeiv_dia = .true.,
-    nn_ldfeiv_shape = 2,
 /
 
 &namdyn_adv
@@ -183,10 +180,9 @@
 /
 
 &namdyn_ldf
-    ln_dynldf_blp = .true.,
+    ln_dynldf_lap = .true.,
     ln_dynldf_lev = .true.,
-    nn_ahm_ijk_t = 20,
-    rn_uv = 0.0838,
+    nn_ahm_ijk_t = -30,
 /
 
 &namzdf
@@ -208,6 +204,7 @@
 
 &namzdf_tke
     nn_htau  =  5
+    nn_mxlice = 2
 /
 
 &namzdf_iwm
