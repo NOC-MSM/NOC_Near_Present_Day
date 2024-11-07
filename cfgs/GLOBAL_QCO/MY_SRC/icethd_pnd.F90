@@ -686,8 +686,8 @@ CONTAINS
                         ! differential growth of base of surface floating ice layer
                         zdTice = MAX( - ( t_su(ji,jj,jl) - zTd ) , 0._wp ) ! > 0
                         zomega = rcnd_i * zdTice / zrhoi_L
-                        zdHui  = SQRT( 2._wp * zomega * rDt_ice + ( v_il(ji,jj,jl) / a_i(ji,jj,jl) )**2 ) &
-                               - v_il(ji,jj,jl) / a_i(ji,jj,jl)
+                        zdHui  = SQRT( 2._wp * zomega * rDt_ice + ( v_il(ji,jj,jl) / a_ip(ji,jj,jl) )**2 ) &
+                               - v_il(ji,jj,jl) / a_ip(ji,jj,jl)
                         zdvice = min( zdHui*a_ip(ji,jj,jl) , v_ip(ji,jj,jl) )
 
                         IF ( zdvice > epsi10 ) THEN
