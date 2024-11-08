@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/IMMERSE/immerse_wp6.2_data/INPUT/sss_1m.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA12_v4.2/sss_1m.nc

@@ -17,3 +17,33 @@
     nn_nevp = 120,
 /
 
+&namthd
+ln_leadhfx=.false.,
+/
+
+&namthd_zdf
+rn_cnd_s=0.5,
+/
+
+&namthd_da
+rn_beta=1.2,
+rn_dmin=10.0,
+/
+
+&namthd_pnd
+ln_pnd_lev=.false.,
+ln_pnd_topo=.true.,
+rn_apnd_max=0.5,
+rn_pnd_flush=0.01,
+/
+
+&namalb
+rn_alb_dpnd=0.36,
+rn_alb_idry=0.70,
+rn_alb_sdry=0.87,
+/
+
+&namdia
+rn_icechk_cel=100.0,
+rn_icechk_glo=1.0,
+/
