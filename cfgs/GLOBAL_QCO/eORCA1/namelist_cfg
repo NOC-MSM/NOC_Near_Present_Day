@@ -63,6 +63,8 @@
     sn_tair    = 'tas',  3, 'tas',  .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bilin.nc', '', ''
     sn_wndi    = 'uas',  3, 'uas',  .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bicub.nc', 'Ume', ''
     sn_wndj    = 'vas',  3, 'vas',  .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bicub.nc', 'Vme', ''
+    sn_uoatm   = 'uos',  -12, 'uos',  .false., .true., 'yearly', 'weights_JRA_eORCA1_bicub.nc', 'Uoceatm', ''
+    sn_voatm   = 'vos',  -12, 'vos',  .false., .true., 'yearly', 'weights_JRA_eORCA1_bicub.nc', 'Voceatm', ''
 /
 
 &namtra_qsr
