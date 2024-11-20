@@ -1,1 +1,0 @@
-/work/n01/shared/nemo/FORCING/JRA/ptot_y2022.nc
