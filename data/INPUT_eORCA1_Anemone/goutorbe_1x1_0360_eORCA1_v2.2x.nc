@@ -1,0 +1,1 @@
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA1_v4.2/goutorbe_1x1_0360_eORCA1_v2.2x.nc

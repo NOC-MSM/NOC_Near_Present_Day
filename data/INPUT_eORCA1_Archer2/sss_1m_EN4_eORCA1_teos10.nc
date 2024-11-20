@@ -1,0 +1,1 @@
+/work/n01/n01/atb299/NPD_eORCA1_v4.2/sss_1m_EN4_eORCA1_teos10.nc
