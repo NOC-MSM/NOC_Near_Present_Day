@@ -104,7 +104,7 @@
 	<file id="file5" mode="write" writer="u5dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_U" description="ocean U grid variables" >
           <field field_ref="e3u"             name="e3u"     standard_name="cell_thickness" />
           <field field_ref="uoce"            name="uo"      operation="average" freq_op="5d" > @uoce_e3u / @e3u </field>
-          <field field_ref="uoce_eiv"        name="uo_eiv"  operation="average" freq_op="1mo" />
+          <field field_ref="uoce_eiv"        name="uo_eiv"  operation="average" freq_op="5d" />
 	        <field field_ref="utau"            name="tauuo"   standard_name="surface_downward_x_stress"  />
 <!-- TO FIX
           <field field_ref="ut"              name="uto" standard_name="product_of_xward_sea_water_velocity_and_temperature" long_name="UT"  operation="average" freq_op="5d" > @ut_e3u / @e3u </field>
