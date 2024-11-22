@@ -1,1 +1,1 @@
-/work/n01/n01/atb299/eORCA12/NEMO_v4.2/sss_1m.nc
+/work/n01/n01/atb299/NPD_eORCA12_v4.2/sss_1m.nc
