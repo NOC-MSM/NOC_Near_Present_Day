@@ -71,6 +71,9 @@
     sn_tair    = 't2m',      1, 't2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
     sn_wndi    = 'u10',      1, 'u10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bicub.nc', 'Ume', ''
     sn_wndj    = 'v10',      1, 'v10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bicub.nc', 'Vme', ''
+! ATB: Need to check whether uos,vos are required for ERA5, and if so what fields to use.
+!   sn_uoatm   = 'uos', -12, 'uos', .false., .true.,  'yearly', 'weights_ERA5_eORCA025_bicub.nc', 'Uoceatm', ''
+!   sn_voatm   = 'vos', -12, 'vos', .false., .true.,  'yearly', 'weights_ERA5_eORCA025_bicub.nc', 'Voceatm', ''
 /
 
 &namtra_qsr
