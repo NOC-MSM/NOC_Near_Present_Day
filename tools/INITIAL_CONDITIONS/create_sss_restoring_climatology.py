@@ -20,7 +20,7 @@ Created On: 25/11/2024
 """
 # ============================================ DEFINE USER INPUTS ============================================ #
 # Define filepaths for WOA23 and NEMO model data:
-working_dir = "/dssgfs01/working/otooth/NOC_NPD/20241017/NOC_Near_Present_Day/tools/INITIAL_CONDITIONS"
+working_dir = "/dssgfs01/working/otooth/NOC_NPD/20241017/NOC_Near_Present_Day/tools/INITIAL_CONDITIONS/data"
 nemo_grid_filepath = "/dssgfs01/working/atb299/NEMO_cfgs/eORCA025_RK3/mesh_mask.nc"
 # Define climate norms decade for WOA23 salinity data:
 woa23_decav = "decav91C0"
@@ -136,7 +136,7 @@ regridder = xe.Regridder(ds_u10_grid,
                          )
 
 # Regrid WOA23 temperature and salinity fields to NEMO eORCA grid:
-ds_sss_out = regridder(ds_u10_grid['s_abs']).to_dataset(name='s_abs')
+ds_sss_out = regridder(ds_u10_grid['s_abs']).to_dataset(name='salinity')
 
 # -- Step 7: Save Initial Conditions to NetCDF File -- #
 logging.info("Step 7: Writing regrided TEOS-10 World Ocean Atlas upper 10m average salinity to netCDF file.")
@@ -145,9 +145,12 @@ ds_sss_out = ds_sss_out.assign_coords({'time':(('time'), time)})
 # Add NEMO eORCA grid coordinates:
 ds_sss_out['nav_lat'] = ds_mesh_mask['nav_lat']
 ds_sss_out['nav_lon'] = ds_mesh_mask['nav_lon']
+# Convert data types to float32:
+for var in ds_sss_out.data_vars:
+    ds_sss_out[var] = ds_sss_out[var].astype('float32')
 
 # Write output to netCDF file:
-ds_sss_out.to_netcdf(out_filepath, encoding={"s_abs": {"chunksizes": out_chunks}})
+ds_sss_out.to_netcdf(out_filepath, encoding={"salinity": {"chunksizes": out_chunks}})
 logging.info("✔ Created WOA23 SSS restoring climatology for eORCA grid successfully ✔")
 
 # ============================================ END OF SCRIPT ============================================ #
