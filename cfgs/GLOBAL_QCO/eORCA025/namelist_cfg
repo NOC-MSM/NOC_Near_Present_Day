@@ -67,6 +67,8 @@
     sn_tair    = 'tas',  3, 'tas',  .true.,  .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
     sn_wndi    = 'uas',  3, 'uas',  .true.,  .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Ume', ''
     sn_wndj    = 'vas',  3, 'vas',  .true.,  .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Vme', ''
+    sn_uoatm   = 'uos', -12, 'uos', .false., .true.,  'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Uoceatm', ''
+    sn_voatm   = 'vos', -12, 'vos', .false., .true.,  'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Voceatm', ''
 /
 
 &namtra_qsr
