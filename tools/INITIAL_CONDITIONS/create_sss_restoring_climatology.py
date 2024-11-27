@@ -150,7 +150,7 @@ for var in ds_sss_out.data_vars:
     ds_sss_out[var] = ds_sss_out[var].astype('float32')
 
 # Write output to netCDF file:
-ds_sss_out.to_netcdf(out_filepath, encoding={"salinity": {"chunksizes": out_chunks}})
+ds_sss_out.to_netcdf(out_filepath, encoding={"salinity": {"chunksizes":out_chunks}}, unlimited_dims="time")
 logging.info("✔ Created WOA23 SSS restoring climatology for eORCA grid successfully ✔")
 
 # ============================================ END OF SCRIPT ============================================ #

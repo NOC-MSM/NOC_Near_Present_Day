@@ -203,7 +203,7 @@ ds_TS_out['nav_lon'] = ds_mesh_mask['nav_lon']
 for var in ds_TS_out.data_vars:
     ds_TS_out[var] = ds_TS_out[var].astype('float32')
 
-ds_TS_out.to_netcdf(out_filepath, encoding={"temperature": {"chunksizes": out_chunks}, "salinity": {"chunksizes": out_chunks}})
+ds_TS_out.to_netcdf(out_filepath, encoding={"temperature": {"chunksizes": out_chunks}, "salinity": {"chunksizes": out_chunks}}, unlimited_dims="time")
 logging.info("✔ Created WOA23 initial conditions for eORCA grid successfully ✔")
 
 # ============================================ END OF SCRIPT ============================================ #
