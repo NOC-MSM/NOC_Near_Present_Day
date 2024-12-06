@@ -1,0 +1,20 @@
+name: env_initial_conditions
+channels:
+  - conda-forge
+dependencies:
+  - cf_xarray=0.10.0=pyhd8ed1ab_0
+  - esmf=8.7.0=nompi_h6063b07_0
+  - esmpy=8.7.0=pyhecae5ae_0
+  - gsw=3.6.19=py312hc0a28a1_1
+  - ipykernel=6.29.5=pyh3099207_0
+  - ipython=8.29.0=pyh707e725_0
+  - netcdf4=1.7.2=nompi_py312ha728dd9_100
+  - numba=0.60.0=py312h83e6fd3_0
+  - numpy=1.26.4=py312heda63a1_0
+  - pys2index=0.1.5=py312hfb10629_0
+  - python=3.12.7=hc5c86c4_0_cpython
+  - s2geometry=0.10.0=h8413349_4
+  - tqdm=4.67.0=pyhd8ed1ab_0
+  - xarray=2024.10.0=pyhd8ed1ab_0
+  - xesmf=0.8.8=pyhd8ed1ab_0
+  - xoak=0.1.1=pyhd8ed1ab_0

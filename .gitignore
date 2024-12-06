@@ -11,8 +11,8 @@ data/INPUT_eORCA12
 scripts/compile_nemo
 scripts/compile_tools
 scripts/python/mkslurm_NPD
-tools/INITIAL_CONDITIONS/data
 tools/INITIAL_CONDITIONS/dev
+tools/INITIAL_CONDITIONS/data
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks,fortran,svn,matlab,python,emacs,vim
