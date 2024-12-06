@@ -1,5 +1,5 @@
 """
-apply_gaussian_filter.py
+apply_eORCA12_gaussian_filter.py
 
 Workflow for applying a Gaussian smoothing filter to WOA23 initial conditions
 regridded for NEMO ocean general circulation models. Gaussian filtering is used
@@ -7,18 +7,18 @@ to smooth temperature and salinity gradients arising from nearest-neighbour
 interpolation in create_initial_conditions.py.
 
 Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
-Created On: 03/12/2024
+Created On: 06/12/2024
 """
 # ============================================ DEFINE USER INPUTS ============================================ #
-# Define filepath to WOA23 flood-filled interpolated initial conditions:
-filepath = "/dssgfs01/working/otooth/NEMO_cfgs/NPD_eORCA025_v4.2/woa23_decav71A0_TS_TEOS10_eORCA025.nc"
+# Define filepath to WOA23 flood-filled, vertically interpolated and regridded initial conditions:
+filepath = "/dssgfs01/working/otooth/NEMO_cfgs/NPD_eORCA12_v4.2/woa23_decav71A0_TS_TEOS10_eORCA12_m01.nc"
 
 # Define x-y subdomain limits to apply Gaussian smoothing:
-xmin, xmax = 1242, 1270
-ymin, ymax = 860, 880
+xmin, xmax = 3720, 3800
+ymin, ymax = 2590, 2615
 
 # Define sigma value for Gaussian filter:
-n_pixel_sigma = 3
+n_pixel_sigma = 4
 
 # -- Define output netCDF file parameters -- #
 # Define output chunk sizes:
@@ -78,6 +78,6 @@ temperature = xr.DataArray(temperature, coords=[ds.time, ds.deptht, ds.y, ds.x],
 
 # Write the Gaussian filtered absolute salinity and conservative temperature WOA23 fields to a new netCDF file:
 ds_out = xr.Dataset({'salinity': salinity, 'temperature': temperature})
-ds_out.to_netcdf(filepath.replace('.nc', '_gauss_smoothed.nc'), encoding={"temperature": {"chunksizes": out_chunks}, "salinity": {"chunksizes": out_chunks}}, unlimited_dims="time")
+ds_out.to_netcdf(filepath.replace('.nc', '_gauss_smoothed.nc'), encoding={"temperature": {"chunksizes": out_chunks, "zlib":True, "complevel":4}, "salinity": {"chunksizes": out_chunks, "zlib":True, "complevel":4}}, unlimited_dims="time")
 
 logging.info("✔ Applied Gaussian smoothing filter to regridded WOA23 data successfully ✔")
