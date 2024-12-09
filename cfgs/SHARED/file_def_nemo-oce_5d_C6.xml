@@ -110,8 +110,8 @@
           <field field_ref="strd_tot_li"     name="osalttend"       unit="kg/m2/s" />
           <field field_ref="strd_bbl_li"     name="strd_bbl_li"                    />
           <field field_ref="strd_atf_li"     name="strd_atf_li"                    />
-	</file>
   -->
+	</file>
 	
 	<file id="file5" mode="write" writer="u5dwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_U" description="ocean U grid variables" >
           <field field_ref="e3u"             name="e3u"     standard_name="cell_thickness" />
@@ -148,6 +148,13 @@
 	
 	<file id="file7" mode="write" writer="w5dwriter" gatherer="tgatherer" using_server2="true" name_suffix="_grid_W" description="ocean W grid variables" >
           <field field_ref="e3w"             name="e3w"      standard_name="cell_thickness" />
+          <!-- vertical diffusivities diagnostics
+	        <field field_ref="avt"             name="difvho"   standard_name="ocean_vertical_heat_diffusivity" />
+	        <field field_ref="avs"             name="difvso"   standard_name="ocean_vertical_salt_diffusivity" />                 
+          <field field_ref="avm"             name="difvmo"   standard_name="ocean_vertical_momentum_diffusivity" />
+          <field field_ref="avt_evd"         name="avt_evd"  standard_name="enhanced_vertical_heat_diffusivity" />
+          <field field_ref="av_tmx"          name="diftrto"  standard_name="ocean_vertical_tracer_diffusivity_due_to_tides" />
+          -->
           <field field_ref="w_masstr"        name="wmo" />
 	        <field field_ref="woce"            name="wo"       standard_name="upward_sea_water_velocity" long_name="W" />
           <field field_ref="woce"            name="w2o"      standard_name="square_of_upward_sea_water_velocity" long_name="WW"  operation="average" > woce * woce </field>
