@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<!--
+============================================================================================================
+=                                           output files definition                                        =
+=                                            Define your own filesfor ocean dynamics context               =
+=                                         put the variables you want...                                    =
+============================================================================================================
+    -->
+   
+    <file_definition type="one_file" compression_level="1" name="OUTPUT/@expname@_@freq@" sync_freq="5d" min_digits="4">
+    
+      <file_group id="5d" output_freq="5d" output_level="10" split_freq="5d" enabled=".TRUE."> <!-- real monthly files -->
+
+        <file id="file36" mode="write" writer="p5dwriter" gatherer="pgatherer" using_server2="true" name_suffix="_ptrc_T" description="Medusa sms variables" >
+          <field field_ref="e3t"             name="e3t"        standard_name="cell_thickness" />
+          <field_group group_ref="groupMEDUSA"       enabled=".FALSE."     />   <!-- key_medusa -->
+          <field_group group_ref="groupMEDUSA_surf"  enabled=".TRUE."      />   <!-- key_medusa -->
+
+        </file>
+
+      </file_group>
+
+   </file_definition>

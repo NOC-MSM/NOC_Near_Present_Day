@@ -19,7 +19,7 @@
 export OMP_NUM_THREADS=1
 #
 srcdir=${PWD}/OUTPUT/
-dstroot=${STORE_OUT}
+dstroot=$1  ## target storing directory
 ecount=0
 cd $srcdir
 

@@ -4,7 +4,7 @@
 #SBATCH --error=./job.err
 #SBATCH --partition=standard
 #SBATCH --qos=standard
-#SBATCH --time=03:45:00
+#SBATCH --time=05:00:00
 #SBATCH --account=n01-CLASS
 #SBATCH --nodes=37
 
@@ -16,7 +16,7 @@ set -o pipefail
 # ========================================================
 # PARAMETERS TO SET
 # time units used here for restart frequency and simulaion length
-  TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
+  TIME_UNITS=0 # 0=years ; 1=days ; 2=hours ; 3=month
 # Restart/resubmission frequency (in TIME_UNITS)
   FREQRST=1
 # job-step initial time step (0: infer from time.step)
@@ -26,12 +26,12 @@ set -o pipefail
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS)
-  LENGTH=48
+  LENGTH=57
 # Name of this script (to resubmit)
   SCRIPTNAME=run_het_nemo2998_96x_37n_a2.slurm
 # Move OUTPUTS to a store-place : 
   ISTORE=.true.
-  STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/eORCA025_3D"
+export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/eORCA025_river"
 #
 echo "PWD = " $PWD
 #export NEMO_EXP_DIR="/work/n01/n01/atb299/NOC_NPD/20240321/NOC_Near_Present_Day/nemo/cfgs/GLOBAL_QCO/eORCA025"
@@ -117,6 +117,44 @@ greg_length() {
     fi
 }
 
+greg_month_length() {
+    # Returns month length (in days) given month and year (Gregorian calendar)
+    MN=$1
+    YR=$2
+    if [ $MN -eq 1 ] ; then  
+      echo 31
+    elif [ $MN -eq 2 ] ; then  
+      if [ $(( $YR % 400 )) -eq 0 ] ; then
+        echo 29
+      elif [ $(( $YR % 100 )) -eq 0 ] ; then
+        echo 28
+      elif [ $(( $YR % 4 )) -eq 0 ] ; then
+        echo 29
+      else
+        echo 28
+      fi
+    elif [ $MN -eq 3 ] ; then  
+      echo 31
+    elif [ $MN -eq 4 ] ; then  
+      echo 30
+    elif [ $MN -eq 5 ] ; then  
+      echo 31
+    elif [ $MN -eq 6 ] ; then  
+      echo 30
+    elif [ $MN -eq 7 ] ; then  
+      echo 31
+    elif [ $MN -eq 8 ] ; then  
+      echo 31
+    elif [ $MN -eq 9 ] ; then  
+      echo 30
+    elif [ $MN -eq 10 ] ; then  
+      echo 31
+    elif [ $MN -eq 11 ] ; then  
+      echo 30
+    elif [ $MN -eq 12 ] ; then  
+      echo 31
+   fi
+}
 
 # Get it000
 if [ "$IT000" -eq 0 ]; then
@@ -235,6 +273,48 @@ if [ "$TIME_UNITS" -eq 0 ]; then
     fi
     ITEND=$NEXT_STOCK
     edit_var nn_stocklist "$STOCK_LIST" ./namelist_cfg
+elif [ "$TIME_UNITS" -eq 3 ]; then
+    #
+    # First calculate the final timestep of the experiment based on LENGTH, ITBEGIN and nn_date0
+    # For simplicity, assume always starting at the beginning of the year.
+    #
+    DATE0=$(get_var nn_date0 ./namelist_cfg)
+    EXP_START_YR=${DATE0:0:4} ; EXP_START_MTH=${DATE0:4:2} ; EXP_START_DAY=${DATE0:6:2}
+    EXP_LENGTH=$(greg_month_length $EXP_START_MTH $EXP_START_YR )
+    LT=$(( LENGTH - 1 ))
+    if [ "$LT" -gt 0 ] ; then
+      for mm in `seq 1 1 $LT`
+       do
+        EXP_START_MTH=$(( EXP_START_MTH + 1 ))
+        YL=$( greg_month_length $mm $EXP_START_YR )
+        EXP_LENGTH=$(( EXP_LENGTH + YL ))
+       done
+    fi
+    # convert from days to hours
+    EXP_LENGTH=$(( EXP_LENGTH * 24 ))
+    #
+    # Next calculate the end-of-year timesteps in this period of the experiment
+    # based on FREQRST, IT000 and ending date of previous job-step
+    # Note FREQRST is used to determine the length of each job-step. End of year restarts
+    # are always written even when FREQRST > 1
+    #
+    NEXT_STOCK="$(( IT000 - 1 + $EXP_LENGTH * 60 * 60 / DT ))"
+    STOCK_LIST=$NEXT_STOCK
+    LT=$(( FREQRST - 1 ))
+    if [ "$LT" -gt 0 ] ; then
+      for y in `seq 1 1 $LT`
+       do
+        START_YR=$(( START_YR + 1 ))
+        YL=$( greg_month_length $y $START_YR )
+        NEXT_STOCK="$(( NEXT_STOCK + YL * 24 * 60 * 60 / DT ))"
+        # stocklist is limited to length 10
+        if [ "$y" -lt 10 ] ; then
+          STOCK_LIST="${STOCK_LIST},${NEXT_STOCK}"
+        fi
+       done
+    fi
+    ITEND=$NEXT_STOCK
+    edit_var nn_stocklist "$STOCK_LIST" ./namelist_cfg
     edit_var ln_rst_list ".true." ./namelist_cfg
 elif [ "$TIME_UNITS" -eq 1 ]; then
     ITEND=$(( IT000 - 1 + FREQRST * 24 * 60 * 60 / DT ))
@@ -257,8 +337,8 @@ edit_var nn_itend "$ITEND" ./namelist_cfg
 # Submit next job
 if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
     sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
-    if [ ISTORE ] then
-      sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm"
+    if [ "$ISTORE" ]; then
+      sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm" ${STORE_OUT}
     fi
 fi
 

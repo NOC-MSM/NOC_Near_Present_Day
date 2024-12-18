@@ -17,10 +17,10 @@
       tempmaxw = 45.0
       salminw  = 0.0 
       salmaxw  = 50.0
-      dicminw  = -2.0 
-      dicmaxw  = 10000.0
-      alkminw  = -2.0 
-      alkmaxw  = 10000.0
+      dicminw  = 0.0 
+      dicmaxw  = 20000.0
+      alkminw  = 0.0 
+      alkmaxw  = 20000.0
 /
 &nammsa_opt
 /
@@ -32,3 +32,23 @@
    !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
    sn_dust =       'mahowald.eORCA025_4.2.nc' ,  -1          , 'dust'    ,   .true.    , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
 /
+&nammsa_river        
+   ln_read_rivn   = .true.
+   ln_read_rivsi  = .true.
+   ln_read_rivc   = .true.
+   ln_read_rivalk = .true.
+   rivn_kind      = 2
+   rivsi_kind     = 2
+   rivc_kind      = 2
+   rivalk_kind    = 2
+   rivdepmax      = 10.0
+   cn_dir      = './INPUT/INIT_MEDUSA/'      !  root directory for the dust data location
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_riv_n  =  'river42_tot_N_flux_LS200km_SP10_5ITER_ORCA025.nc'    ,  -12 , 'RIV_N'   ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_s  =  'river42_tot_Si_flux_LS200km_SP10_5ITER_ORCA025.nc'   ,  -12 , 'RIV_Si'  ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_c  =  'river42_total_DIC_flux_LS200km_SP10_5ITER_ALIGN_ORCA025.nc',  -12 , 'RIV_C'   ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_a  =  'river42_total_ALK_flux_LS200km_SP10_5ITER_ALIGN_ORCA025.nc',  -12 , 'RIV_ALK' ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+/
+
