@@ -350,9 +350,9 @@ mkdir -p {RESTARTS,OUTPUT}
 cd "$NEMO_EXP_DIR"
 
 # Link nemo
-#echo ln -fs "$NEMO_EXP_DIR"/../BLD/bin/nemo.exe nemo
-#ln -fs "$NEMO_EXP_DIR"/../BLD/bin/nemo.exe nemo
-#cp -p "$XIO_HOME"/bin/xios_server.exe xios_server.exe
+echo ln -fs "$NEMO_EXP_DIR"/../BLD/bin/nemo.exe nemo
+ln -fs "$NEMO_EXP_DIR"/../BLD/bin/nemo.exe nemo
+cp -p "$XIO_HOME"/bin/xios_server.exe xios_server.exe
 # Run NEMO
 sbcast --compress=none ./nemo /tmp/nemo
 sbcast --compress=none ./xios_server.exe /tmp/xios_server.exe

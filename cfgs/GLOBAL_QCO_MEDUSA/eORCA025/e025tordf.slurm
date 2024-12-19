@@ -21,10 +21,32 @@ export OMP_NUM_THREADS=1
 srcdir=${PWD}/OUTPUT/
 dstroot=$1  ## target storing directory
 ecount=0
+
+
+# ========================================================
+## module loads
+module load cray-mpich/8.1.23
+module load cray-hdf5-parallel/1.12.2.1
+module load cray-netcdf-hdf5parallel/4.9.0.1
+
+
+# ========================================================
+# Define useful functions
+get_time_count () {
+    VARNAME=time_counter
+    NAMNAME=$1
+    VAR=$(ncdump -h ${NAMNAME} | grep "time_counter = ")
+    VAR=${VAR%\ *}
+    VAR=${VAR#*\(}
+    echo "$VAR"
+}
+
+
 cd $srcdir
 
-## fresh kill list
+## refresh copied and corrupted  list
 rm to_be_deleted.txt
+rm corrupted_list.txt
 #
 echo ptrc files to proceed : 
 ls *ptrc*nc
@@ -50,12 +72,14 @@ do
     echo 'Transferring '${numfiles}' for '$g' at '${t}' interval:'
     for f in $files
     do
-     if [ ! -f $dstdir/$f ] ; then
+     time_c=$(get_time_count $f)
+     if [ ! -f $dstdir/$f ] && [ ${time_c} >= 1 ] ; then
+      ## files not yet store and full --> copy them to storedir
       echo rsync -vtpo $f $dstdir
       rsync -vtpo  $f $dstdir
       #cp -p $f $dstdir
       if [ $? -eq 0 ] ; then scount=$(( $scount + 1 )) ; fi
-     else
+     elif [ ! -f $dstdir/$f ] ; then
       ## file already there check if files are the same size : 
       heres=`wc -c $f | cut -d' ' -f1`
       theres=`wc -c $dstdir/$f | cut -d' ' -f1`
@@ -70,6 +94,9 @@ do
         echo rsync -vtpo --append $f $dstdir
         rsync -vtpo --append $f $dstdir
       fi 
+     else
+      ## file not stored because empty or corrupted : record them in corrupted list
+      echo $f >> corrupted_list.txt
      fi
     done
     if [ $scount -ne $numfiles ] ; then echo 'Errors have occurred' ; ecount=$(( $ecount + 1 )) ; fi
