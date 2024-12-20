@@ -2,17 +2,20 @@
 
 &namrun
     cn_exp = 'eORCA12',
-    nn_it000 = 'CHANGEME',
-    nn_itend = 'CHANGEME',
-    nn_date0 = 20060101,
-    ln_rstart = 'CHANGEME',
+	nn_it000 = CHANGEME,
+	nn_itend = CHANGEME,
+    nn_date0 = 19760101,
+	ln_rstart = CHANGEME,
         ln_reset_ts=.false.,
+    nn_leapy = 1,
     nn_rstctl = 2,
-    cn_ocerst_in = 'CHANGEME',
+	cn_ocerst_in = 'CHANGEME',
     cn_ocerst_indir = './RESTARTS',
     cn_ocerst_outdir = './RESTARTS',
-    ln_mskland = .false.,
-    ln_cfmeta = .true.,
+    nn_stock = 70128,
+    ln_mskland = .true.,
+    ln_rst_list = .false.
+    nn_stocklist = 0,0,0,0,0,0,0,0,0,0
 /
 
 &namdom
@@ -27,11 +30,11 @@
 /
 
 &namtsd
-    ln_tsd_init = 'CHANGEME',
     cn_dir = './INPUT/',
-    sn_tem = 'g8p7ho_tsd_init_filled', 24.0, 'tn', .false., .false., 'daily',
+	ln_tsd_init = .false.,
+    sn_tem = 'woa23_decav71A0_TS_TEOS10_eORCA12.nc', -1, 'temperature', .true., .true., 'yearly',
              '', '', '',
-    sn_sal = 'g8p7ho_tsd_init_filled', 24.0, 'sn', .false., .false., 'daily',
+    sn_sal = 'woa23_decav71A0_TS_TEOS10_eORCA12.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
@@ -75,8 +78,8 @@
     nn_sssr = 2,
     rn_deds = -33.3333333,
     cn_dir = './INPUT/',
-    sn_sss = 'sss_1m.nc', -1, 'salinity', .true., .true., 'yearly', '',
-             '', '',
+    sn_sss = 'woa23_decav91C0_sss_TEOS10_eORCA12.nc', -1, 'salinity', .true., .true., 'yearly',
+             '', '', '',
 /
 
 &namsbc_rnf
@@ -178,3 +181,6 @@
     ln_timing = .true.,
 /
 
+&namtrd
+    ln_tra_trd = .true.,
+/

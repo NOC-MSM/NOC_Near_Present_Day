@@ -37,9 +37,9 @@
 &namtsd
     cn_dir = './INPUT/',
 	ln_tsd_init = .false.,
-    sn_tem = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc', -1, 'temperature', .true., .true., 'yearly',
+    sn_tem = 'woa23_decav71A0_TS_TEOS10_eORCA025.nc', -1, 'temperature', .true., .true., 'yearly',
              '', '', '',
-    sn_sal = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc', -1, 'salinity', .true., .true., 'yearly',
+    sn_sal = 'woa23_decav71A0_TS_TEOS10_eORCA025.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
@@ -67,6 +67,8 @@
     sn_tair    = 'tas',  3, 'tas',  .true.,  .false., 'yearly', 'weights_grid_jra_bilin_e025_nohaloes_full.nc', '', ''
     sn_wndi    = 'uas',  3, 'uas',  .true.,  .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Ume', ''
     sn_wndj    = 'vas',  3, 'vas',  .true.,  .false., 'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Vme', ''
+    sn_uoatm   = 'uos', -12, 'uos', .false., .true.,  'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Uoceatm', ''
+    sn_voatm   = 'vos', -12, 'vos', .false., .true.,  'yearly', 'weights_grid_jra_bicubic_e025_nohaloes_full.nc', 'Voceatm', ''
 /
 
 &namtra_qsr
@@ -82,7 +84,7 @@
     nn_sssr = 2,
     rn_deds = -33.3333333,
     cn_dir = './INPUT/',
-    sn_sss = 'sss_1m_teos10_v4.2.nc', -1, 'salinity', .true., .true., 'yearly',
+    sn_sss = 'woa23_decav91C0_sss_TEOS10_eORCA025.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
@@ -232,3 +234,6 @@
     ln_diacfl = .true.,
 /
 
+&namtrd
+    ln_tra_trd = .true.,
+/

@@ -13,17 +13,19 @@
 # time units used here for restart frequency and simulaion length
   TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
 # Restart/resubmission frequency (in TIME_UNITS)
-  FREQRST=1 
+  FREQRST=1
 # job-step initial time step (0: infer from time.step)
 # IT000 != 0 -> auto-resubmission is switched OFF
-  IT000=1
+  IT000=0
 #
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=1   
+  LENGTH=3   
 # Name of this script (to resubmit)
   SCRIPTNAME=run_nemo1326_96x_26n.slurm
+# If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
+  SPIN=0
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -34,8 +36,9 @@ if [ "$TIME_UNITS" -eq 0 ] ; then
 fi
 # ========================================================
 ## modules load
-
+module purge
 module load NEMO/prg-env
+module load libfabric/1.18.0-GCCcore-12.3.0
 
 # ========================================================
 # Define useful functions
@@ -136,6 +139,21 @@ if [ "$IT000" -gt 1 ]; then
       RST_FILE=$RST_DIR/${OCERST_IN}_0000.nc
     fi
     read -r RST_YR START_MTH START_DAY START_YR <<< "$(date_from_restart $RST_FILE )"
+
+    if [ $SPIN = 1 ] ; then
+      START_YR=$RST_YR
+      edit_var ln_reset_ts ".true." ./namelist_cfg
+      edit_var nn_rstctl "0" ./namelist_cfg
+    elif [ $SPIN = 0 ] ; then
+      edit_var ln_reset_ts ".false." ./namelist_cfg
+      edit_var nn_rstctl "2" ./namelist_cfg
+    else
+      echo "Error: it is unclear whether this is a spinup with T and S reset, or a normal simulation"
+      exit 1
+    fi
+
+    echo "Start year is: " $START_YR
+
 else
     # Start from rest
     edit_var ln_rstart ".false." ./namelist_cfg
@@ -170,12 +188,16 @@ if [ "$TIME_UNITS" -eq 0 ]; then
     EXP_LENGTH=$(greg_length $EXP_START_YR )
     LT=$(( LENGTH - 1 ))
     if [ "$LT" -gt 0 ] ; then
-      for y in `seq 1 1 $LT`
-       do
-        EXP_START_YR=$(( EXP_START_YR + 1 ))
-        YL=$( greg_length $EXP_START_YR )
-        EXP_LENGTH=$(( EXP_LENGTH + YL ))
-       done
+      if [ $SPIN = 1 ] ; then
+        EXP_LENGTH=$(( EXP_LENGTH * LENGTH ))
+      else
+        for y in `seq 1 1 $LT`
+        do
+          EXP_START_YR=$(( EXP_START_YR + 1 ))
+          YL=$( greg_length $EXP_START_YR )
+          EXP_LENGTH=$(( EXP_LENGTH + YL ))
+        done
+      fi
     fi
     # convert from days to hours
     EXP_LENGTH=$(( EXP_LENGTH * 24 ))
@@ -190,7 +212,7 @@ if [ "$TIME_UNITS" -eq 0 ]; then
     LT=$(( FREQRST - 1 ))
     if [ "$LT" -gt 0 ] ; then
       for y in `seq 1 1 $LT`
-       do
+      do
         START_YR=$(( START_YR + 1 ))
         YL=$( greg_length $START_YR )
         NEXT_STOCK="$(( NEXT_STOCK + YL * 24 * 60 * 60 / DT ))"
@@ -198,7 +220,7 @@ if [ "$TIME_UNITS" -eq 0 ]; then
         if [ "$y" -lt 10 ] ; then
           STOCK_LIST="${STOCK_LIST},${NEXT_STOCK}"
         fi
-       done
+      done
     fi
     ITEND=$NEXT_STOCK
     edit_var nn_stocklist "$STOCK_LIST" ./namelist_cfg
@@ -232,7 +254,7 @@ mkdir -p {RESTARTS,OUTPUT}
 # Link nemo
 ln -fs ../BLD/bin/nemo.exe nemo
 
-export XIO_HOME=/home/acc/xios3-trunk-head
+export XIO_HOME=/dssgfs01/working/atb299/XIOS3
 #
 export OMP_NUM_THREADS=1
 export I_MPI_SHM=off
