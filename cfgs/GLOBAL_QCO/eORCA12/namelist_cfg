@@ -1,7 +1,7 @@
 ! Created by: print_concise_namelist_cfg -c ./namelist_cfg -r ./namelist_ref -overwrite False
 
 &namrun
-    cn_exp = 'eORCA025',
+    cn_exp = 'eORCA12',
 	nn_it000 = CHANGEME,
 	nn_itend = CHANGEME,
     nn_date0 = 19760101,
@@ -19,7 +19,7 @@
 /
 
 &namdom
-    rn_Dt = 600.0,
+    rn_Dt = 450.0,
     rn_atfp = 0.05,
     ln_meshmask = .false.,
 /
@@ -37,10 +37,14 @@
 &namtsd
     cn_dir = './INPUT/',
 	ln_tsd_init = .true.,
-    sn_tem = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA12.temperature.teos10_r42.nc', -1, 'temperature', .true., .true., 'yearly',
+    sn_tem = 'woa23_decav71A0_TS_TEOS10_eORCA12_gauss_smoothed.nc', -1, 'temperature', .true., .true., 'yearly',
              '', '', '',
-    sn_sal = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA12.salinity.teos10_r42.nc', -1, 'salinity', .true., .true., 'yearly',
+    sn_sal = 'woa23_decav71A0_TS_TEOS10_eORCA12_gauss_smoothed.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
+!   sn_tem = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA12.temperature.teos10_r42.nc', -1, 'temperature', .true., .true., 'yearly',
+!            '', '', '',
+!   sn_sal = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA12.salinity.teos10_r42.nc', -1, 'salinity', .true., .true., 'yearly',
+!            '', '', '',
 /
 
 &namsbc
@@ -84,8 +88,10 @@
     nn_sssr = 2,
     rn_deds = -33.3333333,
     cn_dir = './INPUT/',
-    sn_sss = 'sss_1m.nc', -1, 'salinity', .true., .true., 'yearly',
+    sn_sss = 'woa23_decav91C0_sss_TEOS10_eORCA12.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
+!   sn_sss = 'sss_1m.nc', -1, 'salinity', .true., .true., 'yearly',
+!            '', '', '',
 /
 
 &namsbc_rnf
@@ -226,6 +232,10 @@
    sn_mps      = 'zdfiwm_forcing_eORCA12.nc'  , -12.         , 'power_sho' , .false.  , .true. , 'yearly' , '' , ''  , ''
    sn_dsb      = 'zdfiwm_forcing_eORCA12.nc'  , -12.         , 'scale_bot' , .false.  , .true. , 'yearly' , '' , ''  , ''
    sn_dsc      = 'zdfiwm_forcing_eORCA12.nc'  , -12.         , 'scale_cri' , .false.  , .true. , 'yearly' , '' , ''  , ''
+/
+
+&namtrd
+   ln_tra_trd  = .true.   ! (T) 3D tracer trend output
 /
 
 &namctl

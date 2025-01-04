@@ -1,0 +1,52 @@
+#!/bin/bash
+# Is the model still running
+
+get_var () {
+    VARNAME=$1
+    NAMNAME=$2
+    VAR=$(grep "^\s*${VARNAME}\s*=.*" "$NAMNAME" | sed "s/[', ]//g")
+    VAR=${VAR%%!*}
+    VAR=${VAR#*=}
+    echo "$VAR"
+}
+
+get_timestep () {
+    TIMENAME=$1
+    TIMESTEP=$(grep -Eo '[0-9\.]+' "$TIMENAME")
+    echo "$TIMESTEP"
+}
+ 
+if [ ! -f time.step ] ; then touch time.step ; fi
+time_step_b=`stat -c '%Y' time.step`
+ 
+while [ 1 ]
+do
+sleep 600
+time_step_n=`stat -c '%Y' time.step`
+
+# If model has started then allow additional 10 mins 
+# ...Maybe resolve cancels during finalise?
+IT000=$(get_var nn_it000 ./namelist_cfg)
+if [ $time_step_n -gt $IT000 ]
+then
+  sleep 600
+fi
+ 
+if [ $time_step_n -le $time_step_b ]
+then
+   echo 'Having to cancel!'
+   #Mod to auto-resubmit if the run never started at all...
+  IT00R=$(get_timestep time.step)
+  IT00R=$(( IT00R + 1 ))
+  IT000=$(get_var nn_it000 ./namelist_cfg)
+  if [ $IT00R -eq $IT000 ]
+  then
+    echo 'Run never started - resubmitting'
+    sbatch $2
+  fi
+  scancel $1
+
+else
+  time_step_b=$time_step_n
+fi
+done
