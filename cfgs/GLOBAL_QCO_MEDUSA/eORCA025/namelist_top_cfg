@@ -78,6 +78,9 @@
 !-----------------------------------------------------------------------
    ln_trcadv_mus =  .true.   !  MUSCL scheme
       ln_mus_ups =  .false.  !  use upstream scheme near river mouths
+   ln_trcadv_fct =  .false.  !  FCT scheme
+      nn_fct_h   =  4               !  =2/4, horizontal 2nd / 4th order
+      nn_fct_v   =  4               !  =2/4, vertical   2nd / COMPACT 4th order
 /
 !-----------------------------------------------------------------------
 &namtrc_ldf    !   lateral diffusion scheme for passive tracer 

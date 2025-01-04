@@ -1,0 +1,1 @@
+/work/n01/n01/atb299/NPD_eORCA1_v4.2/weights_REG05_to_eORCA1_bilin.nc

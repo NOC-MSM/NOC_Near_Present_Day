@@ -14,7 +14,8 @@
     cn_ocerst_outdir = './RESTARTS',
     nn_stock = 70128,
     ln_mskland = .true.,
-	ln_rst_list = .false.,
+  	ln_rst_list = .false.,
+
     nn_stocklist = 0,0,0,0,0,0,0,0,0,0
 /
 
@@ -36,10 +37,11 @@
 
 &namtsd
     cn_dir = './INPUT/',
-	ln_tsd_init = .true.,
+  	ln_tsd_init = .true.,
     sn_tem = 'woa23_decav71A0_TS_TEOS10_eORCA12_gauss_smoothed.nc', -1, 'temperature', .true., .true., 'yearly',
              '', '', '',
     sn_sal = 'woa23_decav71A0_TS_TEOS10_eORCA12_gauss_smoothed.nc', -1, 'salinity', .true., .true., 'yearly',
+
              '', '', '',
 !   sn_tem = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA12.temperature.teos10_r42.nc', -1, 'temperature', .true., .true., 'yearly',
 !            '', '', '',
@@ -244,3 +246,6 @@
     ln_diacfl = .true.,
 /
 
+&namtrd
+    ln_tra_trd = .true.,
+/

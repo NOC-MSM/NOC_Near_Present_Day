@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<simulation>
+
+<!-- ============================================================================================ -->
+<!-- XIOS context                                                                                 -->
+<!-- ============================================================================================ -->
+
+<!-- XIOS3 -->
+  <context id="xios" >
+    <variable_definition>
+      <variable_group id="buffer">
+        <variable id="min_buffer_size" type="int">4000000</variable>
+        <variable id="optimal_buffer_size" type="string">performance</variable>
+      </variable_group>
+
+      <variable_group id="parameters" >
+        <variable id="using_server" type="bool">true</variable>
+        <variable id="info_level" type="int">10</variable>
+        <variable id="print_file" type="bool">false</variable>
+        <variable id="using_server2" type="bool">false</variable>
+        <variable id="transport_protocol" type="string" >p2p</variable>
+        <variable id="using_oasis"      type="bool">false</variable>
+      </variable_group>
+    </variable_definition>
+    <pool_definition>
+     <pool name="Opool" nprocs="40">
+      <service name="t1dwriter" nprocs="1"  type="writer"/>
+      <service name="u1dwriter" nprocs="1"  type="writer"/>
+      <service name="v1dwriter" nprocs="1"  type="writer"/>
+      <service name="s1dwriter" nprocs="1"  type="writer"/>
+      <service name="t5dwriter" nprocs="1"  type="writer"/>
+      <service name="u5dwriter" nprocs="1"  type="writer"/>
+      <service name="v5dwriter" nprocs="1"  type="writer"/>
+      <service name="w5dwriter" nprocs="1"  type="writer"/>
+      <service name="s5dwriter" nprocs="1"  type="writer"/>
+      <service name="t1mwriter" nprocs="2"  type="writer"/>
+      <service name="u1mwriter" nprocs="1"  type="writer"/>
+      <service name="v1mwriter" nprocs="1"  type="writer"/>
+      <service name="w1mwriter" nprocs="2"  type="writer"/>
+      <service name="s1mwriter" nprocs="1"  type="writer"/>
+      <service name="t1ywriter" nprocs="2"  type="writer"/>
+      <service name="u1ywriter" nprocs="1"  type="writer"/>
+      <service name="v1ywriter" nprocs="1"  type="writer"/>
+      <service name="w1ywriter" nprocs="2"  type="writer"/>
+      <service name="s1ywriter" nprocs="1"  type="writer"/>
+      <service name="iwriter"   nprocs="1"  type="writer"/>
+      <service name="tgatherer" nprocs="8" type="gatherer"/>
+      <service name="igatherer" nprocs="4"  type="gatherer"/>
+      <service name="ugatherer" nprocs="4" type="gatherer"/>
+     </pool>
+    </pool_definition>
+  </context>
+
+<!-- ============================================================================================ -->
+<!-- NEMO  CONTEXT add and suppress the components you need                                       -->
+<!-- ============================================================================================ -->
+
+  <context id="nemo" default_pool_writer="Opool" default_pool_gatherer="Opool" src="./context_nemo.xml"/>       <!--  NEMO       -->
+
+</simulation>

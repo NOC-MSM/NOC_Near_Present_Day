@@ -77,7 +77,7 @@ msasrc=./cfgs/SHARED_MEDUSA/MY_SRC
 nemosrc=./cfgs/GLOBAL_QCO_MEDUSA/MY_SRC
 echo "updating MEDUSA - MY_SRC files"
 #for bibi in cpl_oasis3.F90 oce.F90 par_trc.F90 sbccpl.F90 sbcrnf.F90 stpctl.F90 trcice.F90 trcini.F90 trcnam.F90 trcrst.F90 trcsbc.F90 trcsms.F90 trcwri.F90 
-for bibi in oce.F90 par_trc.F90 sbccpl.F90 stpctl.F90 trcice.F90 trcini.F90 trcnam.F90 trcrst.F90 trcsbc.F90 trcsms.F90 trcwri.F90 diawri.F90  
+for bibi in oce.F90 par_trc.F90 sbccpl.F90 stpctl.F90 traqsr.F90 trcice.F90 trcini.F90 trcnam.F90 trcrst.F90 trcsbc.F90 trcsms.F90 trcwri.F90 diawri.F90  
 do 
    echo copying ${msasrc}/${bibi} into ${nemosrc}/${bibi}
    cp -d ${msasrc}/${bibi} ${nemosrc}/${bibi}
