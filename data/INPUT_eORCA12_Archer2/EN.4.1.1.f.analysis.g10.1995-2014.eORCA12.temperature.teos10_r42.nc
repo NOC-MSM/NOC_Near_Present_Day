@@ -1,0 +1,1 @@
+/work/n01/n01/atb299/NPD_eORCA12_v4.2/EN.4.1.1.f.analysis.g10.1995-2014.eORCA12.temperature.teos10_r42.nc
