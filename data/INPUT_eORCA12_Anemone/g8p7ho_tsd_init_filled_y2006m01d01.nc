@@ -1,1 +1,1 @@
-/dssgfs01/working/atb299/IMMERSE/immerse_wp6.2_data/INPUT/g8p7ho_tsd_init_filled_y2006m01d01.nc
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA12_v4.2/g8p7ho_tsd_init_filled_y2006m01d01.nc

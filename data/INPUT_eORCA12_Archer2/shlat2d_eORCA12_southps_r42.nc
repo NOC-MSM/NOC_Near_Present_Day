@@ -1,0 +1,1 @@
+/work/n01/n01/atb299/NPD_eORCA12_v4.2/shlat2d_eORCA12_southps_r42.nc

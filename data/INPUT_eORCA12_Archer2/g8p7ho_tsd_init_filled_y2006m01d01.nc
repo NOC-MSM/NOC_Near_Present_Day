@@ -1,1 +1,1 @@
-/work/n01/n01/atb299/eORCA12/NEMO_v4.2/g8p7ho_tsd_init_filled_y2006m01d01.nc
+/work/n01/n01/atb299/NPD_eORCA12_v4.2/g8p7ho_tsd_init_filled_y2006m01d01.nc

@@ -1,0 +1,1 @@
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA12_v4.2/zdfiwm_forcing_eORCA12.nc

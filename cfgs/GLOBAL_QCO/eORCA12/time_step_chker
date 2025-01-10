@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Usage: time_step_check TASK_PID itend submission_script
+# Is the model still running
+
+time_step_reached=0
+if [ ! -f time.step ] 
+then 
+ echo 0 > time.step 
+fi
+time_step_b=`stat -c '%Y' time.step`
+
+while [ 1 ]
+do
+ sleep 960
+ time_step_n=`stat -c '%Y' time.step`
+ if [ -f time.step ] 
+ then
+  time_step_reached=`cat time.step`
+ fi
+
+ if [ $time_step_n -le $time_step_b ]
+ then
+   if [ $time_step_reached -lt $2 ]
+   then
+ 	echo 'Having to cancel!'
+        touch failed_to_start
+        sleep 1
+        kill -9 $1
+        break
+   fi
+ else
+  time_step_b=$time_step_n
+ fi
+done

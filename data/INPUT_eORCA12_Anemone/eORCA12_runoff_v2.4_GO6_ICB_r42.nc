@@ -1,0 +1,1 @@
+/dssgfs01/working/atb299/NEMO_cfgs/NPD_eORCA12_v4.2/eORCA12_runoff_v2.4_GO6_ICB_r42.nc
