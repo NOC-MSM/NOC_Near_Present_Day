@@ -42,4 +42,4 @@ for model in ['eORCA1', 'eORCA025']:
                         df_inv.loc[len(df_inv)] = [var, attrs['standard_name'].lower(), attrs['long_name'].lower(), attrs['units'], ds[var].dims, model, grid, freq, url]
 
 # Save inventory DataFrame to CSV file:
-df_inv.to_csv('.../NOC_Near_Present_Day/jasmin_os/intake/npd_variable_inventory.csv', index=False)
+df_inv.to_csv('.../NOC_Near_Present_Day/jasmin_os/intake/npd_v1_variable_inventory.csv', index=False)
