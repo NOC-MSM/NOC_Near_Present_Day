@@ -1,6 +1,6 @@
 # Getting Started
 
-**Welcome to the documentation for the Near-Present Day simulations developed by the National Oceanography Centre :wave:**
+**Welcome to the documentation for the Near-Present-Day simulations developed by the National Oceanography Centre :wave:**
 
 ## Introduction :ocean:
 As part of the Atlantic Climate and Environment Strategic Science ([**AtlantiS**](https://noc.ac.uk/projects/atlantis)) project, the National Oceanography Centre is developing a full suite of global ocean model configurations to perform multi-decadal Near-Present-Day simulations.
