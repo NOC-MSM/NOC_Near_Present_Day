@@ -26,7 +26,7 @@ The ocean model grids and bathymetry used in the Near-Present-Day simulations ar
 
 The eORCA1, eORCA025 and eORCA12 have a nominal resolution of 1$^{\circ}$, 1/4$^{\circ}$ and 1/12$^{\circ}$ at the Equator. The meridional resolution of the eORCA1 model increases to 1/3$^{\circ}$ at the equator to improve the representation of equatorial ocean dynamics. In the Southern Hemisphere, all grids are extended to 85$^{\circ}$S to include ice shelf cavities (see [Guiavarc’h et al., in review](https://doi.org/10.5194/egusphere-2024-805)).
 
-All three configurations use a non-linear free surface and 75 vertical levels, meaning that grid cell thickness throughout the water column vary with time (z$^{*}$ coordinate, [Adcroft and Campin, 2004](https://doi.org/10.1016/j.ocemod.2003.09.003)). Partial step topography is also used to ensure that the depth of each water column equates to the real depth of the ocean by modifying the thickness of the bottom grid cell (e.g., [Barnier et al., 2006](https://doi.org/10.1007/s10236-006-0082-1)).  
+All three configurations use a non-linear free surface and 75 vertical levels, meaning that grid cell thicknesses throughout the water column vary with time (z$^{*}$ coordinate, [Adcroft and Campin, 2004](https://doi.org/10.1016/j.ocemod.2003.09.003)). Partial step topography is also used to ensure that the depth of each water column equates to the real depth of the ocean by modifying the thickness of the bottom grid cell (e.g., [Barnier et al., 2006](https://doi.org/10.1007/s10236-006-0082-1)).  
 
 #### Mixing
 
@@ -82,13 +82,13 @@ Near-Present-Day version 2 integrations are forced over the period 1976-present 
 
     Since global atmospheric reanalyses already take into account the coupling between ocean currents and surface wind wind stress (termed the Current Feedback), directly forcing an ocean model with reanalysis (relative) winds results in unrealistically weak mesoscale activity and large-scale circulation features (see [Renault et al., 2020](https://doi.org/10.1029/2019MS001715)).
 
-    To overcome this, the parameterisation of [Renault et al., 2017](https://doi.org/10.1038/s41598-017-17939-1) is used to remove the wind and surface stress anomalies induced by the reanalysis oceanic surface currents and replace them with those induced by the currents of the Near-Present-Day simulation. This relies on a linear estimate for the current-stress coupling coefficient, $S_{\tau} = \alpha |U_{10_{abs}}| + \beta$, where $\alpha$ = -2.9x10$^{-3}$ N s$^{2}$ m$^{-4}$ and $\beta$ = 0.008 N s m$^{-3}$.
+    To overcome this, the parameterisation of [Renault et al., 2017](https://doi.org/10.1038/s41598-017-17939-1) is used to remove the wind and surface stress anomalies induced by the reanalysis surface ocean currents and replace them with those induced by the currents of the Near-Present-Day simulation. This relies on a linear estimate for the current-stress coupling coefficient, $S_{\tau} = \alpha |U_{10_{abs}}| + \beta$, where $\alpha$ = -2.9x10$^{-3}$ N s$^{2}$ m$^{-4}$ and $\beta$ = 0.008 N s m$^{-3}$.
 
 #### Initial Conditions
 
 To initialise the Near-Present-Day integrations, conservative temperature and absolute salinity fields from the World Ocean Atlas 2023 ([Reagen et al., 2024](https://www.ncei.noaa.gov/products/world-ocean-atlas)) Climate Normal (30-year average) corresponding to 1971-2000 are used.
 
-Each integration begins with a 3-year spin-up period during which the corrected ERA-5 1976 forcing is repeated applied and the initial conservative temperature and absolute salinity are taken from the final time-step of the previous simulation year.
+Each integration begins with a 3-year spin-up period during which the JRA55-do (v1) / corrected ERA-5 (v2) 1976 forcing is repeatedly applied while the initial conservative temperature and absolute salinity fields are reset to the final time-step of the previous simulation year.
 
 #### Sea Surface Salinity Restoration
 
@@ -143,7 +143,7 @@ SPIN=0
 
 * **FREQRST** defines the frequency (in the time units defined above) at which the runscript will be resubmitted as a SLURM batch job. In the above example, ```FREQRST=1``` indicates that every simulation year should be submitted as a separate SLURM batch job (dependent on the successful completion of the previous job/year).
 
-* **IT000** specifies the initial time-step of this job. If ```IT000=0``` then the initial time-step will be determined from the time.step file in the run directory (if no time.step files exists then IT000 = 1). When IT000 != 0, runscript resubmission is turned off and its value will be unchanged.
+* **IT000** specifies the initial time-step of this job. If ```IT000=0``` then the initial time-step will be determined from the time.step file in the run directory (if no time.step files exists then IT000 is set to 1). When IT000 != 0, runscript resubmission is turned off and its value will be unchanged.
 
 * **ITBEGIN** specifies the starting time-step of the simulation. This is used to update the namelist_cfg file with the final time-step of the job when a restart file is to be written.
 
@@ -195,7 +195,7 @@ IT000=0
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
 ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-LENGTH=25   
+LENGTH=30   
 # Name of this script (to resubmit)
 SCRIPTNAME=run_nemo_example_hindcast.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
@@ -206,7 +206,7 @@ SPIN=0
     
     In the example above, we did not modify ```ITBEGIN``` in ```run_nemo_example_hindcast.slurm``` since using ```IT000=0``` means that this simulation will automatically start in 2001 following the final year of the 2000 spin-up simulation.
 
-    Also, note that ```LENGTH=25``` in ```run_nemo_example_hindcast.slurm``` defines the total simulation length in years starting from 2000 rather than the number of additional years to simulate from 2001.  
+    Also, note that ```LENGTH=30``` in ```run_nemo_example_hindcast.slurm``` defines the total simulation length in years, including the 5-year spin-up period and 25-year hindcast, rather than the number of additional years to simulate starting from 2001.  
 
 ---
 
