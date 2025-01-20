@@ -72,6 +72,7 @@ markdown_extensions:
 plugins:
   - search
   - glightbox
+  - marimo
 
 extra:
   social:
