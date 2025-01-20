@@ -1,6 +1,24 @@
-# NOC Near-Present-Day simulation
+<br />
+<p align="center">
+    <img src="./docs/docs/assets/icons/noc_logo.png" alt="Logo" width="240" height="80">
+  </a>
 
-Global configurations at eORCA12 and eORCA025
+
+  <h1 align="center">Near-Present-Day Simulations</h1>
+
+  <p align="center">
+    Global ocean model configurations (eORCA1, eORCA025 & eORCA12) to perform multi-decadal Near-Present-Day simulations.
+    </a>
+    <br />
+    <br />
+    ·
+    <a href="https://noc-msm.github.io/NOC_Near_Present_Day/"><strong>Read the Docs</strong></a>
+    ·
+    <a href="https://github.com/NOC-MSM/NOC_Near_Present_Day/issues"><strong>Report an Issue</strong></a>
+    ·
+  </p>
+</p>
+
 
 ## Quick start on {Archer2|Anemone}
 
@@ -8,7 +26,9 @@ The following commands will check out and set up an instance of NPD. It is not a
 
 ```shell
 git clone git@github.com:NOC-MSM/NOC_Near_Present_Day.git
+
 cd NOC_Near_Present_Day
+
 ./setup {-s Archer2}
 ```
 The setup script downloads nemo, compiles tools and configurations. Setup defaults to Anemone, which is ideally suited for fast development/turnaround of smaller configurations (e.g. eORCA025). 
@@ -84,23 +104,24 @@ Finally:
 sbatch run_nemo11168_48X.slurm
 ```
 
-## Using Cylc workflow [Under development]
+## Using Cylc Workflow [Under development]
 
-NPD can be run using Cylc, which provides the ability to graph the workflow, automating the resubmission of job increments, post-processing, data transfer, etc. It is currently being set up and tested on Anemone. The NEMO_cylc workflow is accessible here:
+NPD can be run using Cylc, which provides the ability to graph the workflow, automating the resubmission of job increments, post-processing, data transfer, etc. It is currently being set up and tested on Anemone. The NEMO_cylc workflow is accessible [here](https://github.com/NOC-OI/NEMO_cylc).
 
-https://github.com/NOC-OI/NEMO_cylc
-
-
-
-
-
-## Setups
-### Global eORCA12
+## Current Configurations
+### Global eORCA1
 Resolution:
-- Horizontal: 1/12°
+- Horizontal: 1°
 - Vertical: 75 levels
 
 ### Global eORCA025
 Resolution:
 - Horizontal: 1/4°
 - Vertical: 75 levels
+
+### Global eORCA12
+Resolution:
+- Horizontal: 1/2°
+- Vertical: 75 levels
+
+For more information see the [Near-Present-Day Documentation](https://noc-msm.github.io/NOC_Near_Present_Day/).
