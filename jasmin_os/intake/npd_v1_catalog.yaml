@@ -6,7 +6,7 @@ sources:
   variable_inventory:
     args:
       keep_default_na: false
-      urlpath: '{{ CATALOG_DIR }}/npd_variable_inventory.csv'
+      urlpath: '{{ CATALOG_DIR }}npd_v1_variable_inventory.csv'
     description: Inventory of output variables available from the NOC Near-Present Day (NPD) simulations.
     driver: intake.source.csv.CSVSource
     metadata: {}
