@@ -12,11 +12,16 @@ Primary outputs of the Near-Present-Day simulations are those variables which ar
 !!! info "Example: eORCA1"
     The conservative temperature ```thetao_con``` averaged at monthly intervals will be stored in the ```eORCA1_1m_YYYYMM_grid_T.nc``` file. 
 
-Below we include tables of the available ocean and sea-ice variables output by each Near-Present-Day simulation:
+Below we include a table of the available ocean and sea-ice variables output by each Near-Present-Day simulation:
 
 ### List of Available Ocean & Sea-Ice Outputs
 
-**In Progress:** We are currently working on improving access to the Near-Present-Day simulations by using [Intake](https://intake.readthedocs.io/en/latest/) to catalog the available datasets.
+```python {marimo}
+import marimo as mo
+import pandas as pd
+data = pd.read_csv("https://raw.githubusercontent.com/NOC-MSM/NOC_Near_Present_Day/main/jasmin_os/intake/npd_v1_variable_inventory.csv")
+mo.ui.table(data, selection=None)
+```
 
 ---
 
@@ -183,19 +188,47 @@ Although many users will be more familiar with analysing ocean-climate data via 
 
     [Click here](https://zarr-specs.readthedocs.io/en/latest/specs.html) more information on the Zarr specification.
 
-The simplest way to access Near-Present-Day simulation outputs is using the [xarray](https://docs.xarray.dev/) Python package for working with labelled multi-dimensional arrays. Here, we will provide a brief example of accessing the annual mean sea surface temperature ```tos_con``` dataset (1976-2024) output by the eORCA1 Near-Present-Day configuration:
+#### Method 1: Accessing Data Directly via URL
+The simplest way to access Near-Present-Day simulation outputs is to use the URLs included in the **List of Available Ocean & Sea-Ice Outputs** in combination with [xarray](https://docs.xarray.dev/) - a Python package for working with labelled multi-dimensional arrays. Here, we will provide an example of accessing the annual mean sea surface temperature ```tos_con``` dataset (1976-2023) output by the eORCA1-JRA55v1 Near-Present-Day configuration:
 
-```py title="Example: Accessing eORCA1 Sea Surface Temperature Dataset" 
+```py title="Example: Accessing eORCA1-JRA55v1 Sea Surface Temperature via URL" 
 # Import required Python packages:
 import xarray as xr
 
 # Define path to sea surface temperature dataset in the JASMIN object store:
-filepath = ""https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca1-jra55v1/T1y/tos_con"
+sst_url = "https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca1-jra55v1/T1y/tos_con"
 
 # Open sea surface conservative temperature (C) dataset with xarray:
-tos_con = xr.open_zarr(f"{output_dir}/T1y/tos_con", consolidated=True, chunks={}) # (1)
+tos_con = xr.open_zarr(sst_url, consolidated=True, chunks={}) # (1)
 ```
 
 1.  :man_raising_hand: Here, ```consolidated=True``` means open the store using zarr’s consolidated metadata capability and ```chunks={}``` means load the data with dask using engine preferred chunks. See the xarray [documentation](https://docs.xarray.dev/en/stable/generated/xarray.open_zarr.html) for more details.
 
-**In Progress:** We are currently working on improving access to the Near-Present-Day simulations by using [Intake](https://intake.readthedocs.io/en/latest/) to catalog the available datasets.
+#### Method 2: Accessing Data using Intake
+
+Alternatively, users can access metadata & output variables from the Near-Present-Day simulations using [Intake](https://intake.readthedocs.io/en/latest/). Below, we show how to access the same eORCA1-JRA55v1 annual mean sea surface temperature dataset using the NPD Intake catalog, which contains all of the NPD v1 datasets available on the JASMIN Object Store:
+
+```py title="Example: Accessing eORCA1-JRA55v1 Sea Surface Temperature using Intake" 
+# Import required Python packages:
+import intake
+
+# Define path to sea surface temperature dataset in the JASMIN object store:
+catalog_url = "https://raw.githubusercontent.com/NOC-MSM/NOC_Near_Present_Day/main/jasmin_os/intake/npd_v1_catalog.yaml"
+
+# Access NPD v1 catalog using Intake:
+catalog = intake.open_catalog(catalog_url)
+
+# Open eORCA1-JRA55v1 annual mean SST data:
+ds_sst = catalog.eORCA1_JRA55v1(grid="T", freq="1y", var='tos_con')
+```
+
+!!! info "Searching the NPD Intake Catalog"
+    To search the available Near-Present-Day outputs stored in the JASMIN Object Store, users can access the variable inventory (shown in **List of Ocean & Sea-Ice Outputs**) as a DataFrame using: ```df_vars = catalog.variable_inventory.read()```.
+
+	Once a chosen output variable is identified, users can specify the NEMO model grid type (```grid```), temporal frequency (```freq```) of the output, and the variable name (```var```) to access the data as an xarray Dataset. The options for the ```grid``` & ```freq``` parameters are listed below:
+
+	```grid = ["T", "U", "V",  "W", "I", "S", "M"]```
+
+	```freq = ["5d", "1m", "1y"]```
+
+	For users seeking to access Secondary outputs of the Near-Present-Day simulations (including AMOC diagnostics), the following options should be chosen: ```grid="M"``` and ```freq="1m"```.
