@@ -1,0 +1,117 @@
+!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+!! NEMO/TOP1 :  Configuration namelist : used to overwrite defaults values defined in SHARED/namelist_top_ref
+!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+!-----------------------------------------------------------------------
+&namtrc_run     !   run information
+!-----------------------------------------------------------------------
+   ln_top_euler  = .false.   !  use Euler time-stepping for TOP
+	ln_rsttr = .false.,
+   nn_rsttr      =   2       !  restart control = 0 initial time step is not compared to the restart file value
+                             !                  = 1 do not use the value in the restart file
+                             !                  = 2 calendar parameters read in the restart file
+	cn_trcrst_in = 'dummy',
+   cn_trcrst_indir = "./RESTARTS/"          !  directory from which to read input passive tracer restarts
+   cn_trcrst_out = "restart_trc"   !  suffix of pass. sn_tracer restart name (output)
+   cn_trcrst_outdir = "./RESTARTS/"         !  directory to which to write output passive tracer restarts
+/
+!-----------------------------------------------------------------------
+&namtrc     !   tracers definition
+!-----------------------------------------------------------------------
+   jp_bgc        = 15
+   ln_medusa     =  .true.   !  Run MEDUSA BGC model
+   ln_pisces     =  .false.  !  Run PISCES BGC model
+	ln_trcdta = .true.,
+!                !    name   !           title of the field              ! initial data ! initial data 
+!                !           !                                           !  units       ! from file    
+!                !           !                                           !              ! or not       
+   sn_tracer(1)   = 'CHN' , 'Chl-a concentration in non-diatom phytoplankton ',  'mg Chl/m3' ,  .false.
+   sn_tracer(2)   = 'CHD' , 'Chl-a concentration in     diatom phytoplankton ',  'mg Chl/m3' ,  .false.
+   sn_tracer(3)   = 'PHN' , 'non-diatom phytoplankton                        ',  'mmol-N/m3' ,  .false.
+   sn_tracer(4)   = 'PHD' , 'diatom phytoplankton                            ',  'mmol-N/m3' ,  .false.
+   sn_tracer(5)   = 'ZMI' , 'micro zooplankton                               ',  'mmol-N/m3' ,  .false.
+   sn_tracer(6)   = 'ZME' , 'meso  zooplankton                               ',  'mmol-N/m3' ,  .false.
+   sn_tracer(7)   = 'DIN' , 'dissolved inorganic nitrogen                    ',  'mmol-N/m3' ,  .true.
+   sn_tracer(8)   = 'SIL' , 'silicate                                        ',  'mmolSi/m3' ,  .true.
+   sn_tracer(9)   = 'FER' , 'dissolved iron                                  ',  'mmolFe/m3' ,  .true.
+   sn_tracer(10)  = 'DET' , 'detrital nitrogen                               ',  'mmol-N/m3' ,  .false.
+   sn_tracer(11)  = 'PDS' , 'biogenic silicon in diatom phytoplankton        ',  'mmolSi/m3' ,  .false.
+   sn_tracer(12)  = 'DTC' , 'detrital carbon                                 ',  'mmol-C/m3' ,  .false.
+   sn_tracer(13)  = 'DiC' , 'dissolved inorganic carbon                      ',  'mmol-C/m3' ,  .true.
+   sn_tracer(14)  = 'ALK' , 'alkalinity                                      ',  'meq/m3'    ,  .true.
+   sn_tracer(15)  = 'OXY' , 'dissolved oxygen                                ',  'mmolO2/m3' ,  .true.
+/
+!-----------------------------------------------------------------------
+&namtrc_dta      !    Initialisation from data input file
+!-----------------------------------------------------------------------
+!
+!                !  file name               ! frequency (hours) ! variable   ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation !
+!                !                          !  (if <0  months)  !   name     !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  !
+   sn_trcdta(7)  = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNDIN'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(8)  = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNSIL'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(9)  = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNFER'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(13) = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNDiC'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(14) = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNALK'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(15) = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNOXY'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+!
+  cn_dir        =  './INPUT/INIT_MEDUSA/' !  root directory for the location of the data files
+  rn_trfac(7)   =   1.0      !  multiplicative factor
+  rn_trfac(8)   =   1.0      !  -      -      -     -
+  rn_trfac(9)   =   1.0      !  -      -      -     -
+  rn_trfac(13)  =   1.0      !  -      -      -     -
+  rn_trfac(14)  =   1.0      !  -      -      -     -
+  rn_trfac(15)  =   1.0      !  -      -      -     -
+!   sn_trcdta(7)   = 'data_NO3_nomask'        ,        -1         ,  'NO3'     ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(8)   = 'data_Si_nomask'         ,        -1         ,  'Si'      ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(9)   = 'data_Fer_nomask'        ,        -12        ,  'Fer'     ,    .false.   , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(13)  = 'data_DIC_nomask'        ,        -12        ,  'DIC'     ,    .false.   , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(14)  = 'data_Alkalini_nomask'   ,        -12        ,  'Alkalini',    .false.   , .true. , 'yearly'  , ''       , ''   , ''
+!   sn_trcdta(15)  = 'data_O2_nomask'         ,        -1         ,  'O2'      ,    .true.    , .true. , 'yearly'  , ''       , ''   , ''
+!   rn_trfac(7)    =   7.6e-06  !  -      -      -     -
+!   rn_trfac(8)    =   1.0e-06  !  -      -      -     -
+!   rn_trfac(9)    =   1.0      !  -      -      -     -
+!   rn_trfac(13)   =   1.0e-06  !  multiplicative factor
+!   rn_trfac(14)   =   1.0e-06  !  -      -      -     -
+!   rn_trfac(15)   =   44.6e-06  !  -      -      -     -
+/
+!-----------------------------------------------------------------------
+&namtrc_adv    !   advection scheme for passive tracer 
+!-----------------------------------------------------------------------
+   ln_trcadv_mus =  .true.   !  MUSCL scheme
+      ln_mus_ups =  .false.  !  use upstream scheme near river mouths
+   ln_trcadv_fct =  .false.  !  FCT scheme
+      nn_fct_h   =  4               !  =2/4, horizontal 2nd / 4th order
+      nn_fct_v   =  4               !  =2/4, vertical   2nd / COMPACT 4th order
+/
+!-----------------------------------------------------------------------
+&namtrc_ldf    !   lateral diffusion scheme for passive tracer 
+!-----------------------------------------------------------------------
+   ln_trcldf_tra   = .true.      !  use active tracer setting
+/
+!-----------------------------------------------------------------------
+&namtrc_rad      !  treatment of negative concentrations
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namtrc_snk      !  sedimentation of particles
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namtrc_dmp      !   passive tracer newtonian damping
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namtrc_ice      !    Representation of sea ice growth & melt effects
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namtrc_trd      !   diagnostics on tracer trends                       ('key_trdtrc')
+!----------------------------------------------------------------------
+/
+!----------------------------------------------------------------------
+&namtrc_bc       !   data for boundary conditions
+!-----------------------------------------------------------------------
+/
+!----------------------------------------------------------------------
+&namtrc_bdy      !   Setup of tracer boundary conditions
+!-----------------------------------------------------------------------
+/

@@ -36,7 +36,7 @@
    !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
    !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
    !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
-   sn_dust =       'mahowald.eORCA025_4.2.nc' ,  -1          , 'dust'    ,   .true.    , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_dust =       'mahowald.orca100_ext_nh.nc' ,  -1             , 'dust' ,   .true.    , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
 /
 &nammsa_river        
    ln_read_rivn   = .true.
@@ -52,9 +52,9 @@
    !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
    !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
    !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
-   sn_riv_n  =  'river42_tot_N_flux_LS200km_SP10_5ITER_ORCA025.nc'    ,  -12 , 'RIV_N'   ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
-   sn_riv_s  =  'river42_tot_Si_flux_LS200km_SP10_5ITER_ORCA025.nc'   ,  -12 , 'RIV_Si'  ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
-   sn_riv_c  =  'river42_total_DIC_flux_LS200km_SP10_5ITER_ALIGN_ORCA025.nc',  -12 , 'RIV_C'   ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
-   sn_riv_a  =  'river42_total_ALK_flux_LS200km_SP10_5ITER_ALIGN_ORCA025.nc',  -12 , 'RIV_ALK' ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_n  =  'river_total_N_flux_IT03_SP10_eORCA100.nc'         ,  -12 , 'RIV_N'   ,   .false.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_s  =  'river_inorg_Si_flux_IT03_SP10_eORCA100.nc'        ,  -12 , 'RIV_SI'  ,   .false.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_c  =  'river_total_DIC_flux_IT03_SP10_OBfix_eORCA100.nc' ,  -12 , 'RIV_C' ,   .false.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_a  =  'river_total_ALK_flux_IT03_SP10_OBfix_eORCA100.nc' ,  -12 , 'RIV_ALK' ,   .false.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
 /
 
