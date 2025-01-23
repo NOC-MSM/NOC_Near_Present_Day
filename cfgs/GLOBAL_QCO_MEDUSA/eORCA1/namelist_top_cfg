@@ -46,12 +46,12 @@
 !
 !                !  file name               ! frequency (hours) ! variable   ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation !
 !                !                          !  (if <0  months)  !   name     !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  !
-   sn_trcdta(7)  = 'eORCA025_v4.2_DIN.nc' , -12       ,  'DIN'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
-   sn_trcdta(8)  = 'eORCA025_v4.2_SIL.nc' , -12       ,  'SIL'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
-   sn_trcdta(9)  = 'eORCA025_v4.2_FER.nc' , -12       ,  'FER'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
-   sn_trcdta(13) = 'eORCA025_v4.2_DIC.nc' , -12       ,  'DIC'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
-   sn_trcdta(14) = 'eORCA025_v4.2_ALK.nc' , -12       ,  'ALK'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
-   sn_trcdta(15) = 'eORCA025_v4.2_OXY.nc' , -12       ,  'OXY'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(7)  = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNDIN'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(8)  = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNSIL'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(9)  = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNFER'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(13) = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNDiC'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(14) = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNALK'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
+   sn_trcdta(15) = 'NPD_ORCA1_MEDUSA_INIT.nc' , -12       ,  'TRNOXY'      ,  .false.    , .true. , 'yearly'  , '', '' ,  ''
 !
   cn_dir        =  './INPUT/INIT_MEDUSA/' !  root directory for the location of the data files
   rn_trfac(7)   =   1.0      !  multiplicative factor
