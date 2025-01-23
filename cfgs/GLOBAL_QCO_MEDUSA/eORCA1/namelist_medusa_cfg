@@ -14,6 +14,8 @@
                                    !!        avoids carb chem crashes   
    ln_msa_kill_medusa  = .false.   !! debug - no bio sources and sinks
    ln_msa_no_detsink   = .false.   !! debug - poc don't sink
+   ln_msa_nemo_qsr     = .false.   !! use 3D light field attenuated
+                                   !!     from NEMO if TRUE
 /
 &nammsa_bio
 !! min and max warning values  
