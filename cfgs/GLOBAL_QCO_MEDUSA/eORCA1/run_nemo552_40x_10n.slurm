@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=NPD_1
 #SBATCH --partition=test
-#SBATCH --time=00:20:00
+#SBATCH --time=00:30:00
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
