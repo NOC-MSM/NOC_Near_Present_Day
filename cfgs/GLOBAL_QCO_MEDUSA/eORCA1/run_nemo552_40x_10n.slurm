@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=NPD_1
-#SBATCH --partition=test
+#SBATCH --partition=compute
 #SBATCH --time=00:30:00
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=64
