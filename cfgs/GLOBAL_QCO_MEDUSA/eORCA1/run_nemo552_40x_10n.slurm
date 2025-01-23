@@ -7,6 +7,7 @@
 #SBATCH --ntasks-per-socket=32
 #SBATCH --nodes=10
 ##SBATCH --exclude=compute[001-059]
+#SBATCH --exclude=compute[001]
 
 # ========================================================
 # PARAMETERS TO SET
@@ -25,9 +26,9 @@
 # Name of this script (to resubmit)
   SCRIPTNAME=run_nemo552_40x_10n.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
-  SPIN=0
-# Move OUTPUTS to a store-place :                                                                                   |  # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0                                   
-  ISTORE=.true.                                                                                                     |    SPIN=0                                                                                                           
+  SPIN=0 
+# Move OUTPUTS to a store-place :                            
+  ISTORE=.false.                                               
 export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/eORCA025_river"  
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-

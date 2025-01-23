@@ -79,7 +79,7 @@ do
       rsync -vtpo  $f $dstdir
       #cp -p $f $dstdir
       if [ $? -eq 0 ] ; then scount=$(( $scount + 1 )) ; fi
-     elif [ ! -f $dstdir/$f ] ; then
+     elif [ -f $dstdir/$f ] ; then
       ## file already there check if files are the same size : 
       heres=`wc -c $f | cut -d' ' -f1`
       theres=`wc -c $dstdir/$f | cut -d' ' -f1`
