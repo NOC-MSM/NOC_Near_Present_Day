@@ -5,26 +5,56 @@
 <!-- XIOS context                                                                                 -->
 <!-- ============================================================================================ -->
 
+<!-- XIOS3 -->
   <context id="xios" >
+    <variable_definition>
+      <variable_group id="buffer">
+        <variable id="min_buffer_size" type="int">6000000</variable>
+        <variable id="optimal_buffer_size" type="string">performance</variable>
+      </variable_group>
 
-      <variable_definition>
-
-          <variable id="info_level"                type="int">10</variable>
-          <variable id="using_server"              type="bool">true</variable>
-          <variable id="using_oasis"               type="bool">false</variable>
-          <variable id="oasis_codes_id"            type="string" >oceanx</variable>
-
-          <variable_group id="buffer">
-          <variable id="optimal_buffer_size"       type="string">memory</variable>
-          <variable id="buffer_size_factor"        type="double">2.0</variable>
-          </variable_group>
-
-      </variable_definition>
+      <variable_group id="parameters" >
+        <variable id="using_server" type="bool">true</variable>
+        <variable id="info_level" type="int">10</variable>
+        <variable id="print_file" type="bool">false</variable>
+        <variable id="using_server2" type="bool">false</variable>
+        <variable id="transport_protocol" type="string" >p2p</variable>
+        <variable id="using_oasis"      type="bool">false</variable>
+      </variable_group>
+    </variable_definition>
+    <pool_definition>
+     <pool name="Opool" nprocs="280">
+      <service name="t1dwriter" nprocs="8"  type="writer"/>
+      <service name="t5dwriter" nprocs="8"  type="writer"/>
+      <service name="w5dwriter" nprocs="8"  type="writer"/>
+      <service name="p5dwriter" nprocs="8"  type="writer"/>
+      <service name="iwriter"   nprocs="8"  type="writer"/>
+      <service name="t1mwriter" nprocs="8"  type="writer"/>
+      <service name="w1mwriter" nprocs="8"  type="writer"/>
+      <service name="d1mwriter" nprocs="8"  type="writer"/>
+      <service name="p1mwriter" nprocs="8"  type="writer"/>
+      <service name="u1dwriter" nprocs="8"  type="writer"/>
+      <service name="u5dwriter" nprocs="8"  type="writer"/>
+      <service name="u1mwriter" nprocs="16" type="writer"/>
+      <service name="t1ywriter" nprocs="8"  type="writer"/>
+      <service name="w1ywriter" nprocs="8"  type="writer"/>
+      <service name="u1ywriter" nprocs="16" type="writer"/>
+      <service name="d1ywriter" nprocs="8"  type="writer"/>
+      <service name="p1ywriter" nprocs="8"  type="writer"/>
+      <service name="ugatherer" nprocs="16" type="gatherer"/>
+      <service name="igatherer" nprocs="16" type="gatherer"/>
+      <service name="tgatherer" nprocs="24" type="gatherer"/>
+      <service name="wgatherer" nprocs="24" type="gatherer"/>
+      <service name="pgatherer" nprocs="24" type="gatherer"/>
+      <service name="dgatherer" nprocs="24" type="gatherer"/>
+     </pool>
+    </pool_definition>
   </context>
 
 <!-- ============================================================================================ -->
 <!-- NEMO  CONTEXT add and suppress the components you need                                       -->
 <!-- ============================================================================================ -->
 
-  <context id="nemo" src="./context_nemo.xml"/>       <!--  NEMO       -->
+  <context id="nemo" default_pool_writer="Opool" default_pool_gatherer="Opool" src="./context_nemo.xml"/>       <!--  NEMO       -->
+
 </simulation>

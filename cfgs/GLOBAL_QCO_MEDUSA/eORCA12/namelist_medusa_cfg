@@ -1,0 +1,60 @@
+&nammsa_ctl
+   ln_msa_carbchem     = .true.    !! activates Carbone cycle
+   ln_msa_avgqsr       = .true.    !! biology sees daily avg light
+   ln_msa_ccd          = .false.   !! reads ccd file to init ccd field.
+   ln_msa_preico2      = .false.    !! atm co2 forced at pre-ind level
+   ln_msa_ukesm_cpl    = .false.   !! activate coupling in MEDUSA with UKESM.
+   ln_msa_omipdic      = .false.   !! 2 dic pre-ind and date-related
+   ln_msa_zmp          = .false.   !! switch to Tom's Oithona + 2 very fast detritus 
+   ln_msa_noco2flux    = .false.   !! debug - cut sea-air co2 fluxes
+   ln_msa_debug        = .false.   !! add lots of debug print statements
+   ln_msa_nancheck     = .false.   !! checks if any nans in bio 3D fields
+   ln_msa_check_n_fix  = .false.   !! check and exceptionally fix crazy 
+                                   !!        values for DIC, ALK, T, and S. 
+                                   !!        avoids carb chem crashes   
+   ln_msa_kill_medusa  = .false.   !! debug - no bio sources and sinks
+   ln_msa_no_detsink   = .false.   !! debug - poc don't sink
+   ln_msa_nemo_qsr     = .false.   !! use 3D light field attenuated
+                                   !!     from NEMO if TRUE
+/
+&nammsa_bio
+!! min and max warning values  
+      tempminw = -3.0
+      tempmaxw = 45.0
+      salminw  = 0.0 
+      salmaxw  = 50.0
+      dicminw  = 0.0 
+      dicmaxw  = 20000.0
+      alkminw  = 0.0 
+      alkmaxw  = 20000.0
+/
+&nammsa_opt
+/
+&nammsa_dust
+   ln_read_dust = .false.
+   cn_dir      = './INPUT/INIT_MEDUSA/'      !  root directory for the dust data location
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_dust =       'mahowald.eORCA025_4.2.nc' ,  -1          , 'dust'    ,   .true.    , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+/
+&nammsa_river        
+   ln_read_rivn   = .false.
+   ln_read_rivsi  = .false.
+   ln_read_rivc   = .false.
+   ln_read_rivalk = .false.
+   rivn_kind      = 2
+   rivsi_kind     = 2
+   rivc_kind      = 2
+   rivalk_kind    = 2
+   rivdepmax      = 10.0
+   cn_dir      = './INPUT/INIT_MEDUSA/'      !  root directory for the dust data location
+   !___________!_________________________!___________________!___________!_____________!________!___________!__________________!__________!_______________!
+   !           !  file name              ! frequency (hours) ! variable  ! time interp.!  clim  ! 'yearly'/ ! weights filename ! rotation ! land/sea mask !
+   !           !                         !  (if <0  months)  !   name    !   (logical) !  (T/F) ! 'monthly' !                  ! pairing  !    filename   !
+   sn_riv_n  =  'river42_tot_N_flux_LS200km_SP10_5ITER_ORCA025.nc'    ,  -12 , 'RIV_N'   ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_s  =  'river42_tot_Si_flux_LS200km_SP10_5ITER_ORCA025.nc'   ,  -12 , 'RIV_Si'  ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_c  =  'river42_total_DIC_flux_LS200km_SP10_5ITER_ALIGN_ORCA025.nc',  -12 , 'RIV_C'   ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+   sn_riv_a  =  'river42_total_ALK_flux_LS200km_SP10_5ITER_ALIGN_ORCA025.nc',  -12 , 'RIV_ALK' ,   .true.  , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
+/
+
