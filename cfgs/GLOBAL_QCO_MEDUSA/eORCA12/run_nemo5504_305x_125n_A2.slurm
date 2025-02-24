@@ -61,9 +61,6 @@ export UCX_TLS=rc,dc,self,sm
 
 cd "$NEMO_EXP_DIR"
 
-# Link nemo
-sbcast --compress=none "$NEMO_EXP_DIR"/nemo.exe /tmp/nemo
-sbcast --compress=none "$NEMO_EXP_DIR"/xios_server.exe /tmp/xios_server.exe
 
 
 # ========================================================
@@ -370,8 +367,6 @@ fi
 # Create directories
 mkdir -p {RESTARTS,OUTPUT}
 
-# Link nemo
-ln -fs ../BLD/bin/nemo.exe nemo
 
 export XIO_HOME=/dssgfs01/working/atb299/XIOS3
 #
@@ -382,7 +377,12 @@ unset I_MPI_PMI_LIBRARY
 # Run checker to trap hanging jobs
 ./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
 
+# Link nemo
+ln -fs ../BLD/bin/nemo.exe nemo
+cp -p "$XIO_HOME"/bin/xios_server.exe xios_server.exe
 # Run NEMO
+sbcast --compress=none "$NEMO_EXP_DIR"/nemo.exe /tmp/nemo
+sbcast --compress=none "$NEMO_EXP_DIR"/xios_server.exe /tmp/xios_server.exe
 echo "Commence srun.."
 
 srun --mem-bind=local \
