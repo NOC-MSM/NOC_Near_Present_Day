@@ -6,7 +6,7 @@
 #SBATCH --qos=standard
 #SBATCH --time=05:00:00
 #SBATCH --account=n01-CLASS
-#SBATCH --nodes=37
+#SBATCH --nodes=48
 
 set -u
 set -e
@@ -363,7 +363,7 @@ export SLURM_OVERLAP=1
 
 srun --mem-bind=local \
 --overlap --oversubscribe --mem=220GB --unbuffered \
---het-group=0 --nodes=10 --ntasks=160 --ntasks-per-node=16 /tmp/xios_server.exe \
+--het-group=0 --nodes=21 --ntasks=168 --ntasks-per-node=8 /tmp/xios_server.exe \
 : --het-group=1 --nodes=26 --ntasks=2912 --ntasks-per-node=112  /tmp/nemo \
 : --het-group=2 --nodes=1 --ntasks=76 --ntasks-per-node=76 /tmp/nemo &
 

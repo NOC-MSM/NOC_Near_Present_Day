@@ -49,7 +49,8 @@
       <service name="w1ywriter" nprocs="2"  type="writer"/>
       <service name="s1ywriter" nprocs="1"  type="writer"/>
       <service name="iwriter"   nprocs="1"  type="writer"/>
-      <service name="pgatherer" nprocs="8"  type="gatherer"/>
+      <service name="dgatherer" nprocs="4"  type="gatherer"/>
+      <service name="pgatherer" nprocs="4"  type="gatherer"/>
       <service name="tgatherer" nprocs="8"  type="gatherer"/>
       <service name="igatherer" nprocs="4"  type="gatherer"/>
       <service name="ugatherer" nprocs="4"  type="gatherer"/>

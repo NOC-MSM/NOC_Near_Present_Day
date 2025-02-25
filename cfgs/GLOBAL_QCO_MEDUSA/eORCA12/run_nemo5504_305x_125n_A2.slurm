@@ -2,7 +2,7 @@
 #SBATCH --job-name=NPDtest
 #SBATCH --account=n01-CLASS
 #SBATCH --time=15:00:00
-#SBATCH --nodes=125
+#SBATCH --nodes=112
 #SBATCH --partition=standard
 #SBATCH --qos=standard
 #SBATCH --exclusive
@@ -52,11 +52,11 @@ export NEMO_EXP_DIR="$PWD"
 echo "NEMO_EXP_DIR = " $NEMO_EXP_DIR
 export OMP_NUM_THREADS="1"
 export I_MPI_SHM="off"
+#export UCX_UD_MLX5_TIMEOUT="2m"
 export FI_CXI_OPTIMIZED_MRS=false
 
-#export UCX_UD_MLX5_RX_QUEUE_LEN_INIT=256
-#export UCX_UD_MLX5_TIMEOUT=3000000000.00us
-# UD transport layer is "unreliable", so disable it by setting...
+export UCX_UD_MLX5_RX_QUEUE_LEN_INIT=256
+export UCX_UD_MLX5_TIMEOUT=3000000000.00us
 export UCX_TLS=rc,dc,self,sm
 
 cd "$NEMO_EXP_DIR"
@@ -368,7 +368,8 @@ fi
 mkdir -p {RESTARTS,OUTPUT}
 
 
-export XIO_HOME=/dssgfs01/working/atb299/XIOS3
+#export XIO_HOME=/dssgfs01/working/atb299/XIOS3
+export XIO_HOME=/work/n01/shared/nemo/XIOS3_MGR
 #
 export OMP_NUM_THREADS=1
 export I_MPI_SHM=off
@@ -381,13 +382,13 @@ unset I_MPI_PMI_LIBRARY
 ln -fs ../BLD/bin/nemo.exe nemo
 cp -p "$XIO_HOME"/bin/xios_server.exe xios_server.exe
 # Run NEMO
-sbcast --compress=none "$NEMO_EXP_DIR"/nemo.exe /tmp/nemo
+sbcast --compress=none "$NEMO_EXP_DIR"/nemo /tmp/nemo
 sbcast --compress=none "$NEMO_EXP_DIR"/xios_server.exe /tmp/xios_server.exe
 echo "Commence srun.."
 
 srun --mem-bind=local \
 --het-group=0 --nodes=1 --ntasks=1 --ntasks-per-core=1 --ntasks-per-node=1 --cpus-per-task=8 /tmp/xios_server.exe : \
---het-group=1 --nodes=38 --ntasks=304 --ntasks-per-core=1 --ntasks-per-node=8 --cpus-per-task=8 /tmp/xios_server.exe \
+--het-group=1 --nodes=25 --ntasks=400 --ntasks-per-core=1 --ntasks-per-node=16 --cpus-per-task=4 /tmp/xios_server.exe \
 : --het-group=2 --nodes=86 --ntasks=5504 --ntasks-per-core=1 --ntasks-per-node=64 --cpus-per-task=2  /tmp/nemo 
 
 
