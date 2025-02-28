@@ -43,7 +43,7 @@ module swap cray-mpich cray-mpich-ucx
 module load cray-hdf5-parallel/1.12.2.1 
 module load cray-netcdf-hdf5parallel/4.9.0.1
 
-export NEMO_EXP_DIR="/work/n01/n01/atb299/NOC_NPD/eORCA12_test/NOC_Near_Present_Day/nemo/cfgs/GLOBAL_QCO/eORCA12"
+export NEMO_EXP_DIR="!!! SET ME !!!"
 export OMP_NUM_THREADS="1"
 export I_MPI_SHM="off"
 export FI_CXI_OPTIMIZED_MRS=false
@@ -55,10 +55,13 @@ export UCX_TLS=rc,dc,self,sm
 
 cd "$NEMO_EXP_DIR"
 
-# Link nemo
+# Link nemo and xios -> Check consistency with arch file 
+ln -s /work/n01/shared/nemo/XIOS3_r2700/bin/xios_server.exe .
+ln -s ../BLD/bin/nemo.exe .
+
+# Broadcast executables
 sbcast --compress=none "$NEMO_EXP_DIR"/nemo.exe /tmp/nemo
 sbcast --compress=none "$NEMO_EXP_DIR"/xios_server.exe /tmp/xios_server.exe
-
 
 # ========================================================
 # Define useful functions
