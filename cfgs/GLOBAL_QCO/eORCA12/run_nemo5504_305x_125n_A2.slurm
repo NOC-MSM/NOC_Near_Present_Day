@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=NPDtest
 #SBATCH --account=n01-CLASS
-#SBATCH --time=15:00:00
+#SBATCH --time=03:20:00
 #SBATCH --nodes=125
 #SBATCH --partition=standard
 #SBATCH --qos=standard
@@ -22,11 +22,13 @@
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS)
-  LENGTH=3
+  LENGTH=1
 # Name of this script (to resubmit)
   SCRIPTNAME=run_nemo5504_305x_125n_A2.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
   SPIN=0
+# Option to start from a pre-prepared restart file
+  use_2yr_restart=true
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -43,7 +45,8 @@ module swap cray-mpich cray-mpich-ucx
 module load cray-hdf5-parallel/1.12.2.1 
 module load cray-netcdf-hdf5parallel/4.9.0.1
 
-export NEMO_EXP_DIR="!!! SET ME !!!"
+echo $PWD
+export NEMO_EXP_DIR="/work/n01/n01/atb299/NOC_NPD/NOC_Near_Present_Day/nemo/cfgs/GLOBAL_QCO/eORCA12"
 export OMP_NUM_THREADS="1"
 export I_MPI_SHM="off"
 export FI_CXI_OPTIMIZED_MRS=false
@@ -177,11 +180,25 @@ if [ "$IT000" -gt 1 ]; then
     echo "Start year is: " $START_YR
 
 else
-    # Start from rest
-    edit_var ln_rstart ".false." ./namelist_cfg
-    edit_var ln_tsd_init ".true." ./namelist_cfg
-    edit_var cn_ocerst_in "'dummy'" ./namelist_cfg
-    edit_var cn_icerst_in "'dummy'" ./namelist_ice_cfg
+    if [ $use_2yr_restart ]; then
+        # Use 2yr restart file
+        edit_var ln_rstart ".true." ./namelist_cfg
+        edit_var ln_tsd_init ".false." ./namelist_cfg
+        # Set restart prefixes
+        EXP=$(get_var cn_exp ./namelist_cfg)
+        RST_DIR=$(get_var cn_ocerst_indir ./namelist_cfg)
+        OCERST_IN=${EXP}_restart
+        ICERST_IN=${OCERST_IN}_ice
+        edit_var cn_ocerst_in "'${OCERST_IN}'" ./namelist_cfg
+        edit_var cn_icerst_in "'${ICERST_IN}'" ./namelist_ice_cfg
+        edit_var nn_rstctl "0" ./namelist_cfg
+    else
+        # Start from rest
+        edit_var ln_rstart ".false." ./namelist_cfg
+        edit_var ln_tsd_init ".true." ./namelist_cfg
+        edit_var cn_ocerst_in "'dummy'" ./namelist_cfg
+        edit_var cn_icerst_in "'dummy'" ./namelist_ice_cfg
+    fi
     edit_var nn_it000 "1" ./namelist_cfg
     DATE0=$(get_var nn_date0 ./namelist_cfg)
     START_YR=${DATE0:0:4} ; START_MTH=${DATE0:4:2} ; START_DAY=${DATE0:6:2}
@@ -285,10 +302,13 @@ unset I_MPI_PMI_LIBRARY
 # Run checker to trap hanging jobs
 ./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
 
+srun --overlap --oversubscribe --mem=1GB --ntasks=$SLURM_NNODES --ntasks-per-node=1 ./run_check_mem.sh &
+export SLURM_OVERLAP=1
+
 # Run NEMO
 echo "Commence srun.."
 
-srun --mem-bind=local \
+srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
 --het-group=0 --nodes=1 --ntasks=1 --ntasks-per-core=1 --ntasks-per-node=1 --cpus-per-task=8 /tmp/xios_server.exe : \
 --het-group=1 --nodes=38 --ntasks=304 --ntasks-per-core=1 --ntasks-per-node=8 --cpus-per-task=8 /tmp/xios_server.exe \
 : --het-group=2 --nodes=86 --ntasks=5504 --ntasks-per-core=1 --ntasks-per-node=64 --cpus-per-task=2  /tmp/nemo 
