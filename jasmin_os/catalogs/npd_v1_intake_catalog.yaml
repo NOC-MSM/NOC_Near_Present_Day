@@ -5,7 +5,6 @@ plugins:
 sources:
   variable_inventory:
     args:
-      keep_default_na: false
       urlpath: '{{ CATALOG_DIR }}npd_v1_variable_inventory.csv'
     description: Inventory of output variables available from the NOC Near-Present Day (NPD) simulations.
     driver: intake.source.csv.CSVSource
@@ -39,6 +38,7 @@ sources:
         type: str
       var:
         default: thetao_con
+        allowed: ["thetao_con", "so_abs", "tos_con", "uo", "vo"]
         description: Name of the output variable.
         type: str
 
