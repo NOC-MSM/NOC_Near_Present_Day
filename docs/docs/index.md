@@ -1,4 +1,4 @@
-# Getting Started
+# **Getting Started**
 
 **Welcome to the documentation for the Near-Present-Day simulations developed by the National Oceanography Centre :wave:**
 
@@ -21,7 +21,7 @@ The key features of each configuration are summarised below:
     * Eddy induced velocities determined using the [Gent and McWilliams (1990)](https://doi.org/10.1175/1520-0485(1990)020<0150:IMIOCM>2.0.CO;2) diffusion scheme.
     * Coupled to [SI$^{3}$](https://doi.org/10.5281/zenodo.7534900) sea ice engine.
     * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.
-    * Forced with JRA55-do (v1; 1976-2023) and climatologically corrected ERA-5 (v2; 1976-present) atmospheric forcing.
+    * Forced with JRA55-do (v1; 1976-2023) and climatologically adjusted ERA-5 (v1; 1976-present) atmospheric forcing.
 
 === "eORCA025"
     * 1/4$^{\circ}$ nominal horizontal resolution (j=1206, i=1440).
@@ -29,14 +29,14 @@ The key features of each configuration are summarised below:
     * Eddy induced velocities determined using the grid-scale dependent [Gent and McWilliams (1990)](https://doi.org/10.1175/1520-0485(1990)020<0150:IMIOCM>2.0.CO;2) diffusion scheme.
     * Coupled to [SI$^{3}$](https://doi.org/10.5281/zenodo.7534900) sea ice engine.
     * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.
-    * Forced with JRA55-do (v1; 1976-2023) and climatologically corrected ERA-5 (v2; 1976-present) atmospheric forcing.
+    * Forced with JRA55-do (v1; 1976-2023) and climatologically adjusted ERA-5 (v1; 1976-present) atmospheric forcing.
 
 === "eORCA12"
     * 1/12$^{\circ}$ nominal horizontal resolution (j=3605, i=4320).
     * 75 vertical z$^{*}$ levels.
     * Coupled to [SI$^{3}$](https://doi.org/10.5281/zenodo.7534900) sea ice engine.
     * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.
-    * Forced with JRA55-do (v1; 1976-2023) and climatologically corrected ERA-5 (v2; 1976-present) atmospheric forcing.
+    * Forced with climatologically adjusted ERA-5 (v1; 1976-present) atmospheric forcing.
 
 For more details on each model configuration see [Deep Dives: Model Configurations].
 
