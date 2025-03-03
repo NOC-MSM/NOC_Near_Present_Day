@@ -69,10 +69,21 @@ markdown_extensions:
   - md_in_html
   - pymdownx.blocks.caption
 
+nav:
+  - Getting started: index.md
+  - Outputs: outputs.md
+  - Deep Dives: deep_dives.md
+  - Validation: validation.md
+  - Analysis: 
+    - analysis.md
+    - Notebooks: tutorial_1_exploring_sst.ipynb
+
 plugins:
   - search
   - glightbox
   - marimo
+  - mkdocs-jupyter:
+      include_source: True
 
 extra:
   social:
