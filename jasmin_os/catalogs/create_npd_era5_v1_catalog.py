@@ -1,19 +1,19 @@
 """
-create_npd_variable_inventory.py
+create_npd_era5_v1_catalog.py
 
-Description: This script creates a variable inventory for the National
-Oceanography Centre's Near-Present-Day (NPD) JRA55 version 1 simulation
-outputs. The variabe inventory is saved as a CSV file.
+Description: This script creates a catalog for the National
+Oceanography Centre's Near-Present-Day (NPD) ERA-5 version 1
+outputs. The catalog is saved as a CSV file.
 
 Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
-Creation Date: 2025-01-10
+Creation Date: 2025-03-03
 """
 # -- Import required packages -- #
 import glob
 import pandas as pd
 import xarray as xr
 
-# -- Create inventory DataFrame -- #
+# -- Create catalog DataFrame -- #
 # Define empty dataframe:
 df_inv = pd.DataFrame(columns=['variable', 'standard_name', 'long_name', 'units', 'dims', 'model', 'grid', 'freq', 'url'])
 
@@ -26,7 +26,7 @@ for model in ['eORCA1', 'eORCA025']:
                 continue
             else:
                 # Open example dataset to get variable metadata:
-                filepaths = glob.glob(f'/dssgfs01/scratch/otooth/npd_data/simulations/{model}_JRA55/exp_npd_v1/{model}_{freq}_grid_{grid}*.nc')
+                filepaths = glob.glob(f'/dssgfs01/scratch/npd/simulations/{model}_ERA5_v1/{model}_ERA5_{freq}_grid_{grid}*.nc')
                 filepaths.sort()
                 ds = xr.open_dataset(filepaths[0])
                 # Iterate over available variables:
@@ -37,9 +37,9 @@ for model in ['eORCA1', 'eORCA025']:
                         continue
                     else:
                         # Create JASMIN OS read-only URL:
-                        url = f'https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-{model.lower()}-jra55v1/{grid}{freq}/{var}'
-                        # Append variable metadata to inventory dataframe:
+                        url = f'https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-{model.lower()}-era5v1/{grid}{freq}/{var}'
+                        # Append variable metadata to catalog dataframe:
                         df_inv.loc[len(df_inv)] = [var, attrs['standard_name'].lower(), attrs['long_name'].lower(), attrs['units'], ds[var].dims, model, grid, freq, url]
 
-# Save inventory DataFrame to CSV file:
-df_inv.to_csv('.../NOC_Near_Present_Day/jasmin_os/intake/npd_v1_variable_inventory.csv', index=False)
+# Save catalog DataFrame to CSV file:
+df_inv.to_csv('/dssgfs01/scratch/otooth/NOC_NPD/20241209/NOC_Near_Present_Day/jasmin_os/catalogs/npd_era5_v1_catalog.csv', index=False)
