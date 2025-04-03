@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=xfer_metric_eORCA025
-#SBATCH --partition=compute
-#SBATCH --time=00:30:00
+#SBATCH --partition=test
+#SBATCH --time=00:20:00
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
@@ -26,13 +26,16 @@ filepath_move=$filedir/eORCA025_ERA5_1976-01-2024-09_natl_meridional_transports_
 filepath_samba=$filedir/eORCA025_ERA5_1976-01-2024-09_natl_meridional_transports_at_34_5S.nc
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=.../credentials/jasmin_os_credentials.json
+store_credentials_json=..../jasmin_os_credentials.json
+
+# Filepath to Dask Configuration file:
+dask_config_json=..../jasmin_os/dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca025-era5v1
 
 # Variables - save entire dataset to single zarr store - and chunks:
-variables=compact
+variables=consolidated
 
 # -- Python Environment -- #
 # Activate miniconda environment:
@@ -41,18 +44,18 @@ conda activate env_jasmin_os
 
 # -- Send METRIC eORCA025 monthly mean output to JASMIN OS -- #
 echo "In Progress: Sending eORCA025 ERA-5 v1 monthly METRIC RAPID 26.5N outputs to JASMIN object store..."
-msm_os send_with_dask -f $filepath_rapid -c $store_credentials_json -b $bucket -p M1m/rapid_26N -v $variables \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/M1m/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/M1m/"}' \
-                      -dlc '{"n_workers":10,"threads_per_worker":4,"memory_limit":"3GB"}'
+msm_os send_with_dask -f $filepath_rapid -c $store_credentials_json -b $bucket -p M1m/rapid_26N \
+                      -v $variables -dc $dask_config_json -zv 3 \
+                      || { echo "Error: msm_os send_with_dask failed."; exit 1; }
 
 echo "In Progress: Sending eORCA025 ERA-5 v1 monthly METRIC MOVE 16N outputs to JASMIN object store..."
-msm_os send_with_dask -f $filepath_move -c $store_credentials_json -b $bucket -p M1m/move_16N -v $variables \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/M1m/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/M1m/"}' \
-                      -dlc '{"n_workers":10,"threads_per_worker":4,"memory_limit":"3GB"}'
+msm_os send_with_dask -f $filepath_move -c $store_credentials_json -b $bucket -p M1m/move_16N \
+                      -v $variables -dc $dask_config_json -zv 3 \
+                      || { echo "Error: msm_os send_with_dask failed."; exit 1; }
 
 echo "In Progress: Sending eORCA025 ERA-5 v1 monthly METRIC SAMBA 34.5S outputs to JASMIN object store..."
-msm_os send_with_dask -f $filepath_samba -c $store_credentials_json -b $bucket -p M1m/samba_34_5S -v $variables \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/M1m/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/M1m/"}' \
-                      -dlc '{"n_workers":10,"threads_per_worker":4,"memory_limit":"3GB"}'
+msm_os send_with_dask -f $filepath_samba -c $store_credentials_json -b $bucket -p M1m/samba_34_5S \
+                      -v $variables -dc $dask_config_json -zv 3 \
+                      || { echo "Error: msm_os send_with_dask failed."; exit 1; }
 
 echo "Completed: Sent eORCA025 ERA-5 v1 monthly METRIC outputs to JASMIN object store."

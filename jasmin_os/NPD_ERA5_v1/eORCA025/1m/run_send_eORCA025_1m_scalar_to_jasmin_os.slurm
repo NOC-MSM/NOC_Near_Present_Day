@@ -18,15 +18,15 @@
 #
 # ==============================================================
 # -- Input arguments to msm-os -- #
-# Filepath to eORCA025 ancillary file:
-filepath_grid=/dssgfs01/scratch/npd/simulations/Domains/eORCA025/domain_cfg.nc
-
 # Filepath to eORCA025 monthly mean output files:
 filedir=/dssgfs01/scratch/npd/simulations/eORCA025_ERA5_v1
 filepath_scalar=$filedir/eORCA025_ERA5_1m_scalar_*.nc
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=.../credentials/jasmin_os_credentials.json
+store_credentials_json=..../jasmin_os_credentials.json
+
+# Filepath to Dask Configuration file:
+dask_config_json=..../dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca025-era5v1
@@ -38,10 +38,8 @@ conda activate env_jasmin_os
 
 # -- Send eORCA025 files to JASMIN OS -- #
 echo "In Progress: Sending eORCA025 ERA-5 v1 scalar variables to JASMIN object store..."
-msm_os send_with_dask -f $filepath_scalar -c $store_credentials_json -b $bucket -p S1m \
-                      -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/S1m/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/S1m/"}' \
-                      -dlc '{"n_workers":10,"threads_per_worker":1,"memory_limit":"2GB"}'
+msm_os send_with_dask -f $filepath_scalar -c $store_credentials_json -b $bucket -p S1m -zv 3 \
+                      -dc $dask_config_json || { echo "Error: msm_os send_with_dask failed."; exit 1; }
 
 echo "Completed: Sent eORCA025 ERA-5 v1 monthly mean fields to JASMIN object store."
 
