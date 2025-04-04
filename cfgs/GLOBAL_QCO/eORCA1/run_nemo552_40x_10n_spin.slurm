@@ -21,11 +21,11 @@
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=51
+  LENGTH=3
 # Name of this script (to resubmit)
-  SCRIPTNAME=run_nemo552_40x_10n.slurm
+  SCRIPTNAME=run_nemo552_40x_10n_spin.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
-  SPIN=0
+  SPIN=1
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
