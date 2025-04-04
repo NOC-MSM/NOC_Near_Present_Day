@@ -49,7 +49,6 @@ do
 
     echo "In Progress: Sending $yr eORCA025 ERA-5 v1 S5d variables to JASMIN object store..."
     msm_os send_with_dask -f $filepath_scalar -c $store_credentials_json -b $bucket -p $object_prefix \
-                          -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                           -dc $dask_config_json -zv 3 || { echo "Error: msm_os send_with_dask failed."; exit 1; }
 
     echo "Completed: Sent $yr eORCA025 ERA-5 v1 5-day mean fields to JASMIN object store."
