@@ -45,34 +45,34 @@ echo "In Progress: Sending eORCA1 T1m variables to JASMIN object store..."
 msm_os send_with_dask -f $filepath_gridT -c $store_credentials_json -b $bucket -p T1m \
                       -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                       -cs '{"x":360,"y":331,"deptht":25}' \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/"}' \
+                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/"}' \
                       -dlc '{"n_workers":30,"threads_per_worker":1,"memory_limit":"2GB"}'
 
 echo "In Progress: Sending eORCA1 U1m variables to JASMIN object store..."
 msm_os send_with_dask -f $filepath_gridU -c $store_credentials_json -b $bucket -p U1m \
                       -gf $filepath_grid -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
                       -cs '{"x":360,"y":331,"depthu":25}' \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/"}' \
+                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/"}' \
                       -dlc '{"n_workers":30,"threads_per_worker":1,"memory_limit":"2GB"}'
 
 echo "In Progress: Sending eORCA1 V1m variables to JASMIN object store..."
 msm_os send_with_dask -f $filepath_gridV -c $store_credentials_json -b $bucket -p V1m \
                       -gf $filepath_grid -uc '{"nav_lon":"glamv", "nav_lat":"gphiv"}' \
                       -cs '{"x":360,"y":331,"depthv":25}' \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/"}' \
+                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/"}' \
                       -dlc '{"n_workers":30,"threads_per_worker":1,"memory_limit":"2GB"}'
 
 echo "In Progress: Sending eORCA1 W1m variables to JASMIN object store..."
 msm_os send_with_dask -f $filepath_gridW -c $store_credentials_json -b $bucket -p W1m \
                       -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                       -cs '{"x":360,"y":331,"depthw":25}' \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/"}' \
+                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/"}' \
                       -dlc '{"n_workers":30,"threads_per_worker":1,"memory_limit":"2GB"}'
 
 echo "In Progress: Sending eORCA1 scalar variables to JASMIN object store..."
 msm_os send_with_dask -f $filepath_scalar -c $store_credentials_json -b $bucket -p S1m \
                       -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/"}' \
+                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/jasmin_os_tmp/"}' \
                       -dlc '{"n_workers":5,"threads_per_worker":1,"memory_limit":"2GB"}'
 
 echo "Completed: Sent eORCA1 monthly mean fields to JASMIN object store."
