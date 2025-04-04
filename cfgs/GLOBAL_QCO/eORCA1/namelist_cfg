@@ -50,21 +50,23 @@
 /
 
 &namsbc_blk
-    ln_crt_fbk = .true.,     !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
+    ln_ECMWF     = .true.,   ! "ECMWF"     algorithm   (IFS cycle 45r1)
+       rn_zqt       = 2.,    !  Air temperature & humidity reference height (m)
+    ln_humi_sph  = .false.,  !  humidity "sn_humi" is specific humidity  [kg/kg]
+    ln_humi_dpt  = .true.,   !  humidity "sn_humi" is dew-point temperature [K]
+    ln_crt_fbk = .false.,    !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
        rn_stau_a = -2.9e-3   !     Alpha from eq. 10: Stau = Alpha * Wnd + Beta
        rn_stau_b =  8.0e-3   !     Beta
-    cn_dir = './INPUT/JRA/',
-    sn_humi    = 'huss', 3, 'huss', .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bilin.nc', '', ''
-    sn_prec    = 'ptot', 3, 'ptot', .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bilin.nc', '', ''
-    sn_qlw     = 'rlds', 3, 'rlds', .false., .false., 'yearly', 'weights_JRA_eORCA1_bilin.nc', '', ''
-    sn_qsr     = 'rsds', 3, 'rsds', .false., .false., 'yearly', 'weights_JRA_eORCA1_bilin.nc', '', ''
-    sn_slp     = 'psl',  3, 'psl',  .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bilin.nc', '', ''
-    sn_snow    = 'prsn', 3, 'prsn', .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bilin.nc', '', ''
-    sn_tair    = 'tas',  3, 'tas',  .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bilin.nc', '', ''
-    sn_wndi    = 'uas',  3, 'uas',  .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bicub.nc', 'Ume', ''
-    sn_wndj    = 'vas',  3, 'vas',  .true.,  .false., 'yearly', 'weights_JRA_eORCA1_bicub.nc', 'Vme', ''
-    sn_uoatm   = 'uos',  -12, 'uos',  .false., .true., 'yearly', 'weights_JRA_eORCA1_bicub.nc', 'Uoceatm', ''
-    sn_voatm   = 'vos',  -12, 'vos',  .false., .true., 'yearly', 'weights_JRA_eORCA1_bicub.nc', 'Voceatm', ''
+    cn_dir = './INPUT/ERA5_t2m_adj/',
+    sn_humi    = 'd2m',      1, 'd2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bilin.nc', '', ''
+    sn_prec    = 'mtpr',     1, 'mtpr',     .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bilin.nc', '', ''
+    sn_qlw     = 'msdwlwrf', 1, 'msdwlwrf', .false., .false., 'monthly', 'weights_ERA5_eORCA1_bilin.nc', '', ''
+    sn_qsr     = 'msdwswrf', 1, 'msdwswrf', .false., .false., 'monthly', 'weights_ERA5_eORCA1_bilin.nc', '', ''
+    sn_slp     = 'msl',      1, 'msl',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bilin.nc', '', ''
+    sn_snow    = 'msr',      1, 'msr',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bilin.nc', '', ''
+    sn_tair    = 't2m',      1, 't2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bilin.nc', '', ''
+    sn_wndi    = 'u10',      1, 'u10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bicub.nc', 'Ume', ''
+    sn_wndj    = 'v10',      1, 'v10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bicub.nc', 'Vme', ''
 /
 
 &namtra_qsr
@@ -202,7 +204,6 @@
 
 &namzdf_tke
     nn_htau  =  5
-    nn_mxlice = 2
 /
 
 &namzdf_iwm
@@ -230,4 +231,3 @@
 &namtrd
     ln_tra_trd = .true.,
 /
-

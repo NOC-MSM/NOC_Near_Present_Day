@@ -33,9 +33,9 @@
 &namtsd
     cn_dir = './INPUT/',
 	ln_tsd_init = .false.,
-    sn_tem = 'EN4_v1.1.1995_2014.monthlymean_eORCA1_NEMO_L75_teos10.nc', -1, 'temperature', .true., .true., 'yearly',
+    sn_tem = 'woa23_decav71A0_TS_TEOS10_eORCA1.nc', -1, 'temperature', .true., .true., 'yearly',
              '', '', '',
-    sn_sal = 'EN4_v1.1.1995_2014.monthlymean_eORCA1_NEMO_L75_teos10.nc', -1, 'salinity', .true., .true., 'yearly',
+    sn_sal = 'woa23_decav71A0_TS_TEOS10_eORCA1.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
@@ -50,7 +50,11 @@
 /
 
 &namsbc_blk
-    ln_crt_fbk = .true.,     !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
+    ln_ECMWF     = .true.,   ! "ECMWF"     algorithm   (IFS cycle 45r1)
+       rn_zqt       = 2.,    !  Air temperature & humidity reference height (m)
+    ln_humi_sph  = .false.,  !  humidity "sn_humi" is specific humidity  [kg/kg]
+    ln_humi_dpt  = .true.,   !  humidity "sn_humi" is dew-point temperature [K]
+    ln_crt_fbk = .false.,    !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
        rn_stau_a = -2.9e-3   !     Alpha from eq. 10: Stau = Alpha * Wnd + Beta
        rn_stau_b =  8.0e-3   !     Beta
     cn_dir = './INPUT/ERA5/',
@@ -63,9 +67,6 @@
     sn_tair    = 't2m',      1, 't2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bilin.nc', '', ''
     sn_wndi    = 'u10',      1, 'u10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bicub.nc', 'Ume', ''
     sn_wndj    = 'v10',      1, 'v10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA1_bicub.nc', 'Vme', ''
-! ATB: Need to check whether uos,vos are required for ERA5, and if so what fields to use.
-!    sn_uoatm   = 'uos',  -12, 'uos',  .false., .true., 'yearly', 'weights_ERA5_eORCA1_bicub.nc', 'Uoceatm', ''
-!    sn_voatm   = 'vos',  -12, 'vos',  .false., .true., 'yearly', 'weights_ERA5_eORCA1_bicub.nc', 'Voceatm', ''
 /
 
 &namtra_qsr
@@ -81,7 +82,7 @@
     nn_sssr = 2,
     rn_deds = -33.3333333,
     cn_dir = './INPUT/',
-    sn_sss = 'sss_1m_EN4_eORCA1_teos10.nc', -1, 'salinity', .true., .true., 'yearly',
+    sn_sss = 'woa23_decav91C0_sss_TEOS10_eORCA1.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
@@ -203,7 +204,6 @@
 
 &namzdf_tke
     nn_htau  =  5
-    nn_mxlice = 2
 /
 
 &namzdf_iwm
