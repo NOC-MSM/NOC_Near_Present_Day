@@ -1,13 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=NPDtest
+#SBATCH --job-name=NPD_025
 #SBATCH --account=n01-CLASS
-#SBATCH --time=03:20:00
-#SBATCH --nodes=125
+#SBATCH --time=00:20:00
+#SBATCH --nodes=47
 #SBATCH --partition=standard
 #SBATCH --qos=standard
 #SBATCH --exclusive
 #SBATCH --hint=nomultithread
 #SBATCH --distribution=block:cyclic
+
 
 # ========================================================
 # PARAMETERS TO SET
@@ -17,18 +18,14 @@
   FREQRST=1
 # job-step initial time step (0: infer from time.step)
 # IT000 != 0 -> auto-resubmission is switched OFF
-  IT000=0
+  IT000=1
 #
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS)
   LENGTH=1
 # Name of this script (to resubmit)
-  SCRIPTNAME=run_nemo5504_305x_125n_A2.slurm
-# If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
-  SPIN=0
-# Option to start from a pre-prepared restart file
-  use_2yr_restart=true
+  SCRIPTNAME=run_het_nemo2998_96x_47n_a2.slurm
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -39,26 +36,25 @@ if [ "$TIME_UNITS" -eq 0 ] ; then
 fi
 # ========================================================
 ## modules load
-module load cray-mpich/8.1.23 
+module load cray-mpich/8.1.23
 module swap craype-network-ofi craype-network-ucx
 module swap cray-mpich cray-mpich-ucx
-module load cray-hdf5-parallel/1.12.2.1 
+module load cray-hdf5-parallel/1.12.2.1
 module load cray-netcdf-hdf5parallel/4.9.0.1
+module load libfabric
 
-echo $PWD
-export NEMO_EXP_DIR="/work/n01/n01/atb299/NOC_NPD/NOC_Near_Present_Day/nemo/cfgs/GLOBAL_QCO/eORCA12"
+export NEMO_EXP_DIR=$PWD
+echo $NEMO_EXP_DIR
 export OMP_NUM_THREADS="1"
 export I_MPI_SHM="off"
+unset I_MPI_PMI_LIBRARY
 export FI_CXI_OPTIMIZED_MRS=false
-
-#export UCX_UD_MLX5_RX_QUEUE_LEN_INIT=256
-#export UCX_UD_MLX5_TIMEOUT=3000000000.00us
 # UD transport layer is "unreliable", so disable it by setting...
 export UCX_TLS=rc,dc,self,sm
 
 cd "$NEMO_EXP_DIR"
 
-# Link nemo and xios -> Check consistency with arch file 
+# Link nemo and xios -> Check consistency with arch file
 ln -s /work/n01/shared/nemo/XIOS3_r2700/bin/xios_server.exe .
 ln -s ../BLD/bin/nemo.exe .
 
@@ -124,6 +120,7 @@ greg_length() {
     fi
 }
 
+
 # Get it000
 if [ "$IT000" -eq 0 ]; then
     RESUBMIT=true
@@ -144,6 +141,7 @@ if [ "$IT000" -gt 1 ]; then
     # Use restarts
     edit_var ln_rstart ".true." ./namelist_cfg
     edit_var ln_tsd_init ".false." ./namelist_cfg
+
     # Set start
     TSTEP=$((IT000 - 1))
     IT000=$((TSTEP + 1))
@@ -164,41 +162,12 @@ if [ "$IT000" -gt 1 ]; then
       RST_FILE=$RST_DIR/${OCERST_IN}_0000.nc
     fi
     read -r RST_YR START_MTH START_DAY START_YR <<< "$(date_from_restart $RST_FILE )"
-
-    if [ $SPIN = 1 ] ; then
-      START_YR=$RST_YR
-      edit_var ln_reset_ts ".true." ./namelist_cfg
-      edit_var nn_rstctl "0" ./namelist_cfg
-    elif [ $SPIN = 0 ] ; then
-      edit_var ln_reset_ts ".false." ./namelist_cfg
-      edit_var nn_rstctl "2" ./namelist_cfg
-    else
-      echo "Error: it is unclear whether this is a spinup with T and S reset, or a normal simulation"
-      exit 1
-    fi
-
-    echo "Start year is: " $START_YR
-
 else
-    if [ $use_2yr_restart ]; then
-        # Use 2yr restart file
-        edit_var ln_rstart ".true." ./namelist_cfg
-        edit_var ln_tsd_init ".false." ./namelist_cfg
-        # Set restart prefixes
-        EXP=$(get_var cn_exp ./namelist_cfg)
-        RST_DIR=$(get_var cn_ocerst_indir ./namelist_cfg)
-        OCERST_IN=${EXP}_restart
-        ICERST_IN=${OCERST_IN}_ice
-        edit_var cn_ocerst_in "'${OCERST_IN}'" ./namelist_cfg
-        edit_var cn_icerst_in "'${ICERST_IN}'" ./namelist_ice_cfg
-        edit_var nn_rstctl "0" ./namelist_cfg
-    else
-        # Start from rest
-        edit_var ln_rstart ".false." ./namelist_cfg
-        edit_var ln_tsd_init ".true." ./namelist_cfg
-        edit_var cn_ocerst_in "'dummy'" ./namelist_cfg
-        edit_var cn_icerst_in "'dummy'" ./namelist_ice_cfg
-    fi
+    # Start from rest
+    edit_var ln_rstart ".false." ./namelist_cfg
+    edit_var ln_tsd_init ".true." ./namelist_cfg
+    edit_var cn_ocerst_in "'dummy'" ./namelist_cfg
+    edit_var cn_icerst_in "'dummy'" ./namelist_ice_cfg
     edit_var nn_it000 "1" ./namelist_cfg
     DATE0=$(get_var nn_date0 ./namelist_cfg)
     START_YR=${DATE0:0:4} ; START_MTH=${DATE0:4:2} ; START_DAY=${DATE0:6:2}
@@ -227,16 +196,12 @@ if [ "$TIME_UNITS" -eq 0 ]; then
     EXP_LENGTH=$(greg_length $EXP_START_YR )
     LT=$(( LENGTH - 1 ))
     if [ "$LT" -gt 0 ] ; then
-      if [ $SPIN = 1 ] ; then
-        EXP_LENGTH=$(( EXP_LENGTH * LENGTH ))
-      else
-        for y in `seq 1 1 $LT`
-        do
-          EXP_START_YR=$(( EXP_START_YR + 1 ))
-          YL=$( greg_length $EXP_START_YR )
-          EXP_LENGTH=$(( EXP_LENGTH + YL ))
-        done
-      fi
+      for y in `seq 1 1 $LT`
+       do
+        EXP_START_YR=$(( EXP_START_YR + 1 ))
+        YL=$( greg_length $EXP_START_YR )
+        EXP_LENGTH=$(( EXP_LENGTH + YL ))
+       done
     fi
     # convert from days to hours
     EXP_LENGTH=$(( EXP_LENGTH * 24 ))
@@ -251,7 +216,7 @@ if [ "$TIME_UNITS" -eq 0 ]; then
     LT=$(( FREQRST - 1 ))
     if [ "$LT" -gt 0 ] ; then
       for y in `seq 1 1 $LT`
-      do
+       do
         START_YR=$(( START_YR + 1 ))
         YL=$( greg_length $START_YR )
         NEXT_STOCK="$(( NEXT_STOCK + YL * 24 * 60 * 60 / DT ))"
@@ -259,7 +224,7 @@ if [ "$TIME_UNITS" -eq 0 ]; then
         if [ "$y" -lt 10 ] ; then
           STOCK_LIST="${STOCK_LIST},${NEXT_STOCK}"
         fi
-      done
+       done
     fi
     ITEND=$NEXT_STOCK
     edit_var nn_stocklist "$STOCK_LIST" ./namelist_cfg
@@ -290,14 +255,6 @@ fi
 # Create directories
 mkdir -p {RESTARTS,OUTPUT}
 
-# Link nemo
-ln -fs ../BLD/bin/nemo.exe nemo
-
-export XIO_HOME=/dssgfs01/working/atb299/XIOS3
-#
-export OMP_NUM_THREADS=1
-export I_MPI_SHM=off
-unset I_MPI_PMI_LIBRARY
 
 # Run checker to trap hanging jobs
 ./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
@@ -309,9 +266,9 @@ export SLURM_OVERLAP=1
 echo "Commence srun.."
 
 srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
---het-group=0 --nodes=1 --ntasks=1 --ntasks-per-core=1 --ntasks-per-node=1 --cpus-per-task=8 /tmp/xios_server.exe : \
---het-group=1 --nodes=38 --ntasks=304 --ntasks-per-core=1 --ntasks-per-node=8 --cpus-per-task=8 /tmp/xios_server.exe \
-: --het-group=2 --nodes=86 --ntasks=5504 --ntasks-per-core=1 --ntasks-per-node=64 --cpus-per-task=2  /tmp/nemo 
+--het-group=0 --nodes=12 --ntasks=192 --ntasks-per-core=1 --ntasks-per-node=16 --cpus-per-task=1 /tmp/xios_server.exe \
+: --het-group=1 --nodes=34 --ntasks=2924 --ntasks-per-core=1 --ntasks-per-node=86 --cpus-per-task=1  /tmp/nemo \
+: --het-group=2 --nodes=1 --ntasks=74 --ntasks-per-core=1 --ntasks-per-node=74 --cpus-per-task=1  /tmp/nemo
 
 
 # Move log files

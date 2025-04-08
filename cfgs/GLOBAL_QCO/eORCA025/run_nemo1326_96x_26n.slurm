@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
 #SBATCH --nodes=26
-#SBATCH --exclude=compute[005,054,058]
+##SBATCH --exclude=compute[005,054,058]
 
 # ========================================================
 # PARAMETERS TO SET
