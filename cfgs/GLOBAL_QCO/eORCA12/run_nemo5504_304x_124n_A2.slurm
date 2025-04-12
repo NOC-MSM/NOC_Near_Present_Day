@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=NPDtest
+#SBATCH --job-name=NPD_12
 #SBATCH --account=n01-CLASS
 #SBATCH --time=20:20:00
 #SBATCH --nodes=124

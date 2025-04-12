@@ -2,7 +2,7 @@
 #SBATCH --job-name=NPD_025
 #SBATCH --account=n01-CLASS
 #SBATCH --time=00:20:00
-#SBATCH --nodes=47
+#SBATCH --nodes=41
 #SBATCH --partition=standard
 #SBATCH --qos=standard
 #SBATCH --exclusive
@@ -25,7 +25,7 @@
 # Simulation length (in TIME_UNITS)
   LENGTH=1
 # Name of this script (to resubmit)
-  SCRIPTNAME=run_het_nemo2998_96x_47n_a2.slurm
+  SCRIPTNAME=run_nemo2998_96x_41n_a2.slurm
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -266,7 +266,7 @@ export SLURM_OVERLAP=1
 echo "Commence srun.."
 
 srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
---het-group=0 --nodes=12 --ntasks=192 --ntasks-per-core=1 --ntasks-per-node=16 --cpus-per-task=1 /tmp/xios_server.exe \
+--het-group=0 --nodes=6 --ntasks=96 --ntasks-per-core=1 --ntasks-per-node=16 --cpus-per-task=1 /tmp/xios_server.exe \
 : --het-group=1 --nodes=34 --ntasks=2924 --ntasks-per-core=1 --ntasks-per-node=86 --cpus-per-task=1  /tmp/nemo \
 : --het-group=2 --nodes=1 --ntasks=74 --ntasks-per-core=1 --ntasks-per-node=74 --cpus-per-task=1  /tmp/nemo
 
