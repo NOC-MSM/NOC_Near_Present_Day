@@ -114,7 +114,7 @@
 	<file id="file11" mode="write" writer="u1mwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_U" description="ocean U grid variables" >
           <field field_ref="e3u"             name="e3u"     standard_name="cell_thickness" />
           <field field_ref="uoce"            name="uo"      operation="average" freq_op="1mo" > @uoce_e3u / @e3u </field>
-	        <field field_ref="uoce_eiv"        name="uo_eiv"  operation="average" freq_op="1mo" />
+	        <field field_ref="uoce_eiv"        name="uo_eiv" />
 	        <field field_ref="utau"            name="tauuo"   standard_name="surface_downward_x_stress" />
 <!-- TO FIX
           <field field_ref="ut"              name="uto" standard_name="product_of_xward_sea_water_velocity_and_temperature" long_name="UT"  operation="average" freq_op="1mo" > @ut_e3u / @e3u </field>
@@ -134,7 +134,7 @@
 	<file id="file12" mode="write" writer="v1mwriter" gatherer="ugatherer" using_server2="true" name_suffix="_grid_V" description="ocean V grid variables" >
           <field field_ref="e3v"             name="e3v"     standard_name="cell_thickness" />
           <field field_ref="voce"            name="vo"      operation="average" freq_op="1mo" > @voce_e3v / @e3v </field>
-	        <field field_ref="voce_eiv"        name="vo_eiv"  operation="average" freq_op="1mo" />
+	        <field field_ref="voce_eiv"        name="vo_eiv" />
 	        <field field_ref="vtau"            name="tauvo"   standard_name="surface_downward_y_stress" />
 <!-- TO FIX
           <field field_ref="vt"              name="vto" standard_name="product_of_yward_sea_water_velocity_and_temperature" long_name="VT"  operation="average" freq_op="1mo" > @vt_e3v / @e3v </field>
