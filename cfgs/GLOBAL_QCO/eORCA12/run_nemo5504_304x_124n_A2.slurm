@@ -1,12 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=NPD_1
-#SBATCH --partition=test
-#SBATCH --time=00:20:00
-#SBATCH --ntasks-per-core=1
-#SBATCH --ntasks-per-node=64
-#SBATCH --ntasks-per-socket=32
-#SBATCH --nodes=10
-#SBATCH --exclude=compute[005,054,058]
+#SBATCH --job-name=NPD_12
+#SBATCH --account=n01-CLASS
+#SBATCH --time=20:20:00
+#SBATCH --nodes=124
+#SBATCH --partition=standard
+#SBATCH --qos=standard
+#SBATCH --exclusive
+#SBATCH --hint=nomultithread
+#SBATCH --distribution=block:cyclic
 
 # ========================================================
 # PARAMETERS TO SET
@@ -20,25 +21,51 @@
 #
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
-# Simulation length (in TIME_UNITS) 
-  LENGTH=51
+# Simulation length (in TIME_UNITS)
+  LENGTH=30
 # Name of this script (to resubmit)
-  SCRIPTNAME=run_nemo552_40x_10n.slurm
+  SCRIPTNAME=run_nemo5504_304x_124n_A2.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
   SPIN=0
+# Option to start from a pre-prepared restart file
+  use_2yr_restart=true
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
 # yearly time units are used:
 #
-if [ "$TIME_UNITS" -eq 0 ] ; then 
+if [ "$TIME_UNITS" -eq 0 ] ; then
     if [ "$FREQRST" -gt 10 ] ; then FREQRST=10 ; fi
 fi
 # ========================================================
 ## modules load
-module purge
-module load NEMO/prg-env
-module load libfabric/1.18.0-GCCcore-12.3.0
+module load cray-mpich/8.1.23 
+module swap craype-network-ofi craype-network-ucx
+module swap cray-mpich cray-mpich-ucx
+module load cray-hdf5-parallel/1.12.2.1 
+module load cray-netcdf-hdf5parallel/4.9.0.1
+module load libfabric
+
+export NEMO_EXP_DIR=$PWD
+echo $NEMO_EXP_DIR
+export OMP_NUM_THREADS="1"
+export I_MPI_SHM="off"
+export FI_CXI_OPTIMIZED_MRS=false
+
+#export UCX_UD_MLX5_RX_QUEUE_LEN_INIT=256
+#export UCX_UD_MLX5_TIMEOUT=3000000000.00us
+# UD transport layer is "unreliable", so disable it by setting...
+export UCX_TLS=rc,dc,self,sm
+
+cd "$NEMO_EXP_DIR"
+
+# Link nemo and xios -> Check consistency with arch file 
+ln -s /work/n01/shared/nemo/XIOS3_r2700/bin/xios_server.exe .
+ln -s ../BLD/bin/nemo.exe .
+
+# Broadcast executables
+sbcast --compress=none "$NEMO_EXP_DIR"/nemo.exe /tmp/nemo
+sbcast --compress=none "$NEMO_EXP_DIR"/xios_server.exe /tmp/xios_server.exe
 
 # ========================================================
 # Define useful functions
@@ -65,11 +92,11 @@ get_timestep () {
     echo "$TIMESTEP"
 }
 date_from_restart() {
-    # Retrieves the date variable from a restart file and also returns the appropriate year 
+    # Retrieves the date variable from a restart file and also returns the appropriate year
     # for the itend calculation. If the restart is from a date in December, then the next year
     # is returned
     if [ -f $1 ] ; then
-     DATEN=$(ncdump -v ndastp $1 | grep "ndastp =" | awk '{print $3}' ) 
+     DATEN=$(ncdump -v ndastp $1 | grep "ndastp =" | awk '{print $3}' )
      YRST=${DATEN:0:4}
      MTHN=${DATEN:4:2}
      DAY=${DATEN:6:2}
@@ -118,7 +145,6 @@ if [ "$IT000" -gt 1 ]; then
     # Use restarts
     edit_var ln_rstart ".true." ./namelist_cfg
     edit_var ln_tsd_init ".false." ./namelist_cfg
-
     # Set start
     TSTEP=$((IT000 - 1))
     IT000=$((TSTEP + 1))
@@ -155,11 +181,25 @@ if [ "$IT000" -gt 1 ]; then
     echo "Start year is: " $START_YR
 
 else
-    # Start from rest
-    edit_var ln_rstart ".false." ./namelist_cfg
-    edit_var ln_tsd_init ".true." ./namelist_cfg
-    edit_var cn_ocerst_in "'dummy'" ./namelist_cfg
-    edit_var cn_icerst_in "'dummy'" ./namelist_ice_cfg
+    if [ $use_2yr_restart ]; then
+        # Use 2yr restart file
+        edit_var ln_rstart ".true." ./namelist_cfg
+        edit_var ln_tsd_init ".false." ./namelist_cfg
+        # Set restart prefixes
+        EXP=$(get_var cn_exp ./namelist_cfg)
+        RST_DIR=$(get_var cn_ocerst_indir ./namelist_cfg)
+        OCERST_IN=${EXP}_restart
+        ICERST_IN=${OCERST_IN}_ice
+        edit_var cn_ocerst_in "'${OCERST_IN}'" ./namelist_cfg
+        edit_var cn_icerst_in "'${ICERST_IN}'" ./namelist_ice_cfg
+        edit_var nn_rstctl "0" ./namelist_cfg
+    else
+        # Start from rest
+        edit_var ln_rstart ".false." ./namelist_cfg
+        edit_var ln_tsd_init ".true." ./namelist_cfg
+        edit_var cn_ocerst_in "'dummy'" ./namelist_cfg
+        edit_var cn_icerst_in "'dummy'" ./namelist_ice_cfg
+    fi
     edit_var nn_it000 "1" ./namelist_cfg
     DATE0=$(get_var nn_date0 ./namelist_cfg)
     START_YR=${DATE0:0:4} ; START_MTH=${DATE0:4:2} ; START_DAY=${DATE0:6:2}
@@ -167,7 +207,7 @@ else
       echo "Warning: not starting at the beginning of the year; itend calculation may not result in an end-of-year finish"
     fi
 fi
-    
+
 if [ "$START_YR" -lt 0 ] ; then
     # START_YR not discoverable; assume 365 day year
     YR_LEN=365
@@ -175,13 +215,12 @@ else
     YR_LEN=$(greg_length $START_YR )
 fi
 
-
 # Edit nn_itend and (possibly) ln_rst_list and nn_stocklist
 # Deal with frequency and length units (convert to hours in all cases)
 # TIME_UNITS=0 # 0=years ; 1=days ; 2=hours ; no conversion required for last case.
 if [ "$TIME_UNITS" -eq 0 ]; then
     #
-    # First calculate the final timestep of the experiment based on LENGTH, ITBEGIN and nn_date0 
+    # First calculate the final timestep of the experiment based on LENGTH, ITBEGIN and nn_date0
     # For simplicity, assume always starting at the beginning of the year.
     #
     DATE0=$(get_var nn_date0 ./namelist_cfg)
@@ -209,6 +248,7 @@ if [ "$TIME_UNITS" -eq 0 ]; then
     # are always written even when FREQRST > 1
     #
     NEXT_STOCK="$(( IT000 - 1 + YR_LEN * 24 * 60 * 60 / DT ))"
+#    STOCK_LIST=1180608,$NEXT_STOCK Stored restart at end October 1992 to get around issue with November segfault
     STOCK_LIST=$NEXT_STOCK
     LT=$(( FREQRST - 1 ))
     if [ "$LT" -gt 0 ] ; then
@@ -232,7 +272,7 @@ elif [ "$TIME_UNITS" -eq 1 ]; then
     edit_var ln_rst_list ".false." ./namelist_cfg
 elif [ "$TIME_UNITS" -eq 2 ]; then
     ITEND=$(( IT000 - 1 + FREQRST * 60 * 60 / DT ))
-    EXP_LENGTH=$LENGTH 
+    EXP_LENGTH=$LENGTH
     edit_var ln_rst_list ".false." ./namelist_cfg
 fi
 
@@ -259,12 +299,21 @@ export XIO_HOME=/dssgfs01/working/atb299/XIOS3
 #
 export OMP_NUM_THREADS=1
 export I_MPI_SHM=off
-unset I_MPI_PMI_LIBRARY 
+unset I_MPI_PMI_LIBRARY
 
 # Run checker to trap hanging jobs
 ./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
 
-mpiexec.hydra -print-rank-map -ppn 1 -np 40 $XIO_HOME/bin/xios_server.exe : -np 552 ./nemo
+srun --overlap --oversubscribe --mem=1GB --ntasks=$SLURM_NNODES --ntasks-per-node=1 ./run_check_mem.sh &
+export SLURM_OVERLAP=1
+
+# Run NEMO
+echo "Commence srun.."
+
+srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
+--het-group=0 --nodes=38 --ntasks=304 --ntasks-per-core=1 --ntasks-per-node=8 --cpus-per-task=8 /tmp/xios_server.exe \
+: --het-group=1 --nodes=86 --ntasks=5504 --ntasks-per-core=1 --ntasks-per-node=64 --cpus-per-task=2  /tmp/nemo 
+
 
 # Move log files
 mkdir -p LOGS/"$SLURM_JOB_ID"
@@ -303,4 +352,3 @@ for NAMELIST in *namelist_cfg; do
         exit 1
     fi
 done
-

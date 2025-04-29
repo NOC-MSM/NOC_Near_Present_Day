@@ -35,9 +35,9 @@
 &namtsd
     cn_dir = './INPUT/',
 	ln_tsd_init = .false.,
-    sn_tem = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc', -1, 'temperature', .true., .true., 'yearly',
+    sn_tem = 'woa23_decav71A0_TS_TEOS10_eORCA025.nc', -1, 'temperature', .true., .true., 'yearly',
              '', '', '',
-    sn_sal = 'EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc', -1, 'salinity', .true., .true., 'yearly',
+    sn_sal = 'woa23_decav71A0_TS_TEOS10_eORCA025.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
@@ -57,11 +57,10 @@
        rn_zqt       = 2.,    !  Air temperature & humidity reference height (m)
     ln_humi_sph  = .false.,  !  humidity "sn_humi" is specific humidity  [kg/kg]
     ln_humi_dpt  = .true.,   !  humidity "sn_humi" is dew-point temperature [K]
-    ln_crt_fbk   = .true.,   !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
+    ln_crt_fbk = .false.,    !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
        rn_stau_a = -2.9e-3   !     Alpha from eq. 10: Stau = Alpha * Wnd + Beta
        rn_stau_b =  8.0e-3   !     Beta
-
-    cn_dir = './INPUT/ERA5/',
+    cn_dir = './INPUT/ERA5_t2m_adj/',
     sn_humi    = 'd2m',      1, 'd2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
     sn_prec    = 'mtpr',     1, 'mtpr',     .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
     sn_qlw     = 'msdwlwrf', 1, 'msdwlwrf', .false., .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
@@ -71,9 +70,6 @@
     sn_tair    = 't2m',      1, 't2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
     sn_wndi    = 'u10',      1, 'u10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bicub.nc', 'Ume', ''
     sn_wndj    = 'v10',      1, 'v10',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bicub.nc', 'Vme', ''
-! ATB: Need to check whether uos,vos are required for ERA5, and if so what fields to use.
-!   sn_uoatm   = 'uos', -12, 'uos', .false., .true.,  'yearly', 'weights_ERA5_eORCA025_bicub.nc', 'Uoceatm', ''
-!   sn_voatm   = 'vos', -12, 'vos', .false., .true.,  'yearly', 'weights_ERA5_eORCA025_bicub.nc', 'Voceatm', ''
 /
 
 &namtra_qsr
@@ -89,7 +85,7 @@
     nn_sssr = 2,
     rn_deds = -33.3333333,
     cn_dir = './INPUT/',
-    sn_sss = 'sss_1m_teos10_v4.2.nc', -1, 'salinity', .true., .true., 'yearly',
+    sn_sss = 'woa23_decav91C0_sss_TEOS10_eORCA025.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',
 /
 
@@ -143,7 +139,6 @@
 &nambbl
     ln_trabbl = .true.,
     nn_bbl_adv  =  1,
-
 /
 
 &nameos
@@ -171,7 +166,6 @@
     nn_aei_ijk_t = 21,
     ln_ldfeiv_dia = .true.,
     nn_ldfeiv_shape = 2,
-
 /
 
 &namdyn_adv

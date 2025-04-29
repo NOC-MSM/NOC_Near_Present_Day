@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=NPD_1
-#SBATCH --partition=test
-#SBATCH --time=00:20:00
+#SBATCH --job-name=NPD_025
+#SBATCH --partition=compute
+#SBATCH --time=03:00:00
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
-#SBATCH --nodes=10
-#SBATCH --exclude=compute[005,054,058]
+#SBATCH --nodes=26
+##SBATCH --exclude=compute[054,058]
 
 # ========================================================
 # PARAMETERS TO SET
@@ -21,11 +21,11 @@
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=51
+  LENGTH=3   
 # Name of this script (to resubmit)
-  SCRIPTNAME=run_nemo552_40x_10n.slurm
+  SCRIPTNAME=run_nemo1326_96x_26n_spin.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
-  SPIN=0
+  SPIN=1
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -175,7 +175,6 @@ else
     YR_LEN=$(greg_length $START_YR )
 fi
 
-
 # Edit nn_itend and (possibly) ln_rst_list and nn_stocklist
 # Deal with frequency and length units (convert to hours in all cases)
 # TIME_UNITS=0 # 0=years ; 1=days ; 2=hours ; no conversion required for last case.
@@ -264,7 +263,7 @@ unset I_MPI_PMI_LIBRARY
 # Run checker to trap hanging jobs
 ./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
 
-mpiexec.hydra -print-rank-map -ppn 1 -np 40 $XIO_HOME/bin/xios_server.exe : -np 552 ./nemo
+mpiexec.hydra -print-rank-map -ppn 1 -np 96 $XIO_HOME/bin/xios_server.exe : -np 1326 ./nemo
 
 # Move log files
 mkdir -p LOGS/"$SLURM_JOB_ID"
