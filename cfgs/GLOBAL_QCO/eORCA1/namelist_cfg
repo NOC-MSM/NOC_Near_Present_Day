@@ -50,6 +50,7 @@
 /
 
 &namsbc_blk
+    ln_NCAR      = .false.,  ! "NCAR"      algorithm   (Large and Yeager 2008)
     ln_ECMWF     = .true.,   ! "ECMWF"     algorithm   (IFS cycle 45r1)
        rn_zqt       = 2.,    !  Air temperature & humidity reference height (m)
     ln_humi_sph  = .false.,  !  humidity "sn_humi" is specific humidity  [kg/kg]

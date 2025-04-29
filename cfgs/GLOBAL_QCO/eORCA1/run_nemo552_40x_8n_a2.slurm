@@ -267,7 +267,7 @@ echo "Commence srun.."
 
 srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
 --het-group=0 --nodes=2 --ntasks=40 --ntasks-per-core=1 --ntasks-per-node=20 --cpus-per-task=1 /tmp/xios_server.exe \
-: --het-group=1 --nodes=6 --ntasks=552 --ntasks-per-core=1 --ntasks-per-node=92 --cpus-per-task=1  /tmp/nemo.exe \
+: --het-group=1 --nodes=6 --ntasks=552 --ntasks-per-core=1 --ntasks-per-node=92 --cpus-per-task=1  /tmp/nemo \
 
 
 # Move log files
