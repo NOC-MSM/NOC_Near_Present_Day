@@ -16,6 +16,9 @@
     ·
     <a href="https://github.com/NOC-MSM/NOC_Near_Present_Day/issues"><strong>Report an Issue</strong></a>
     ·
+    <br />
+    <br />
+    <a href="https://doi.org/10.5281/zenodo.15310353"><img src="https://zenodo.org/badge/458888476.svg" alt="DOI"></a>
   </p>
 </p>
 
