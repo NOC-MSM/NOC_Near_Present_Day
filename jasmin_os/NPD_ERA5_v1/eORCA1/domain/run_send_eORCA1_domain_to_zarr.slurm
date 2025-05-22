@@ -8,10 +8,10 @@
 #SBATCH --nodes=1
 
 # ==============================================================
-# run_send_eORCA1_domain_to_jasmin_os.slurm
+# run_send_eORCA1_domain_to_zarr.slurm
 #
 # Description: SLURM script to send the eORCA1 model domain 
-# variables to the JASMIN object store.
+# variables to Zarr store in the Zarr.
 #
 # Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 # Created On: 2025-03-03
@@ -31,25 +31,20 @@ dask_config_json=..../dask_config.json
 # Bucket and object prefix:
 bucket=npd-eorca1-era5v1
 
-# Variables - save entire dataset to single zarr store - and chunks:
-variables=consolidated
-
 # -- Python Environment -- #
 # Activate miniconda environment:
 source /home/otooth/miniconda3/etc/profile.d/conda.sh
 conda activate env_jasmin_os
 
 # -- Send ancillary files to JASMIN OS -- #
-echo "In Progress: Sending eORCA1 ERA-5 v1 mesh mask file to JASMIN object store..."
+echo "In Progress: Sending eORCA1 ERA-5 v1 mesh mask file to Zarr..."
 object_prefix=domain/domain_cfg
-msm_os send_with_dask -f $filepath_mesh_mask -c $store_credentials_json -b $bucket -p $object_prefix \
-                      -v $variables -cs '{"x":360,"y":331}' -zv 3 \
-                      -dc $dask_config_json
+ods send_to_zarr -f $filepath_mesh_mask -c $store_credentials_json -b $bucket -p $object_prefix \
+                 -cs '{"x":360,"y":331}' -zv 3 -dc $dask_config_json \
 
-echo "In Progress: Sending eORCA1 ERA-5 v1 sub-basins mask file to JASMIN object store..."
+echo "In Progress: Sending eORCA1 ERA-5 v1 sub-basins mask file to Zarr..."
 object_prefix=domain/subbasins
-msm_os send_with_dask -f $filepath_subbasins -c $store_credentials_json -b $bucket -p $object_prefix \
-                      -v $variables -cs '{"x":360,"y":331}' -zv 3 \
-                      -dc $dask_config_json
+ods send_to_zarr -f $filepath_subbasins -c $store_credentials_json -b $bucket -p $object_prefix \
+                 -cs '{"x":360,"y":331}' -zv 3 -dc $dask_config_json \
 
-echo "Completed: Sent eORCA1 ERA-5 v1 ancillary files to JASMIN object store."
+echo "Completed: Sent eORCA1 ERA-5 v1 ancillary files to Zarr stores."
