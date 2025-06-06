@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=xfer_I1m_eORCA12
+#SBATCH --job-name=xfer_S1m_eORCA12
 #SBATCH --time=05:00:00
 #SBATCH --ntasks=30
 #SBATCH --mem=75GB
@@ -12,10 +12,10 @@
 # run_send_eORCA12_1m_scalar_to_jasmin_os.slurm
 #
 # Description: SLURM script to send the eORCA12 monthly mean 
-# scalar variables to the JASMIN object store.
+# 1-D scalar variables to the JASMIN object store.
 #
 # Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
-# Created On: 2025-04-04
+# Created On: 2025-04-10
 #
 # ==============================================================
 # -- Input arguments to msm-os -- #
@@ -26,10 +26,10 @@ filepath_domain=/work/n01/n01/atb299/NPD_eORCA12_v4.2/domain_cfg.nc
 filedir=/work/n01/n01/atb299/NOC_NPD/20250228/NOC_Near_Present_Day/nemo/cfgs/GLOBAL_QCO/eORCA12/TIDY
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=..../jasmin_os_credentials.json
+store_credentials_json=/work/n01/n01/otooth/NOC-NPD/credentials/jasmin_os_credentials.json
 
 # Filepath to Dask configuration:
-dask_config_json=..../dask_config.json
+dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca12-era5v1
