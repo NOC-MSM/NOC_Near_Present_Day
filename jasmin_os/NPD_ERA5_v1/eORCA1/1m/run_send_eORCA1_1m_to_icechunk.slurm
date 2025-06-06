@@ -7,7 +7,7 @@
 #SBATCH --ntasks-per-socket=32
 #SBATCH --nodes=1
 
-# ==============================================================
+# ===================================================================
 # run_send_eORCA1_1m_to_icechunk.slurm
 #
 # Description: SLURM script to send the eORCA1 ERA-5 v1 monthly-mean 
@@ -16,7 +16,7 @@
 # Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 # Created On: 2025-05-22
 #
-# ==============================================================
+# ===================================================================
 # -- Input arguments to ods -- #
 # Filepath to eORCA1 ancillary file:
 filepath_domain=/dssgfs01/scratch/npd/simulations/Domains/eORCA1/domain_cfg.nc
@@ -31,10 +31,10 @@ filepath_icemod=$filedir/eORCA1_ERA5_1m_icemod_*.nc
 filepath_scalar=$filedir/eORCA1_ERA5_1m_scalar_*.nc
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=..../jasmin_os_credentials.json
+store_credentials_json=/dssgfs01/working/otooth/AtlantiS/jasmin_os/credentials/jasmin_os_credentials.json
 
 # Filepath to Dask Configuration file:
-dask_config_json=..../dask_config.json
+dask_config_json=/dssgfs01/scratch/otooth/NOC_NPD/20250512_eORCA1_ERA5v1/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/eORCA1/1m/dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca1-era5v1
