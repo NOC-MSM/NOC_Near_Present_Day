@@ -70,15 +70,15 @@ ods send_to_icechunk -f $filepath_gridV -c $store_credentials_json -b $bucket -p
                      -cs '{"x":1440, "y":1206}' -v $variables_gridV  -dc $dask_config_json \
                      -br "main" -cm "Added eORCA025 ERA5v1 V1y 1976-2024" -vc || { echo "Error: ods update_icechunk failed."; exit 1; }
 
-# echo "In Progress: Sending eORCA025 I1y variables to Icechunk..."
-# ods send_to_icechunk -f $filepath_icemod -c $store_credentials_json -b $bucket -p I1y \
-#                      -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
-#                      -cs '{"x":1440, "y":1206}'  -dc $dask_config_json \
-#                      -br "main" -cm "Added eORCA025 ERA5v1 I1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
+echo "In Progress: Sending eORCA025 I1y variables to Icechunk..."
+ods send_to_icechunk -f $filepath_icemod -c $store_credentials_json -b $bucket -p I1y_3d \
+                     -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
+                     -cs '{"x":1440, "y":1206}'  -dc $dask_config_json \
+                     -br "main" -cm "Added eORCA025 ERA5v1 I1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
 
-# echo "In Progress: Sending eORCA025 S1y variables to Icechunk..."
-# ods send_to_icechunk -f $filepath_scalar -c $store_credentials_json -b $bucket -p S1y \
-#                      -dc $dask_config_json \
-#                      -br "main" -cm "Added eORCA025 ERA5v1 S1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
+echo "In Progress: Sending eORCA025 S1y variables to Icechunk..."
+ods send_to_icechunk -f $filepath_scalar -c $store_credentials_json -b $bucket -p S1y_1d \
+                     -dc $dask_config_json \
+                     -br "main" -cm "Added eORCA025 ERA5v1 S1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
 
-# echo "Completed: Sent eORCA025 ERA-5 v1 annual mean fields to Icechunk."
+echo "Completed: Sent eORCA025 ERA-5 v1 annual mean fields to Icechunk."

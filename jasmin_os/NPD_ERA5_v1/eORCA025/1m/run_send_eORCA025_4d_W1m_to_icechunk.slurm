@@ -32,7 +32,7 @@ dask_config_json=/dssgfs01/scratch/otooth/NOC_NPD/20250512_eORCA1_ERA5v1/NOC_Nea
 
 # Bucket and object prefix:
 bucket=npd-eorca025-era5v1
-prefix=W1m
+prefix=W1m_4d
 
 # Define 4-dimensional variables:
 variables="time_centered_bounds time_counter_bounds e3w wmo wo w2o obvfsq avt_evd difvho difvso difvmo diftrto"
@@ -43,21 +43,11 @@ source /home/otooth/miniconda3/etc/profile.d/conda.sh
 conda activate env_jasmin_os
 
 # -- Send eORCA025 monthly mean outputs to JASMIN OS -- #
-filepath_gridW=$filedir/eORCA025_ERA5_1m_grid_W_19*.nc
+filepath_gridW=$filedir/eORCA025_ERA5_1m_grid_W_*.nc
 echo "In Progress: Sending eORCA025 ERA-5 v1 4-D W1m variables to Icechunk..."
 ods send_to_icechunk -f $filepath_gridW -c $store_credentials_json -b $bucket -p $prefix \
                      -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                      -cs '{"x":720, "y":603, "depthw":25}' -dc $dask_config_json -v $variables \
-                     -br "main" -cm "Added eORCA025 ERA5v1 W1m 1976-1999" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
-
-echo "Completed: Sent eORCA025 ERA-5 v1 4-D W1m monthly mean fields to Icechunk."
-
-# -- Update eORCA025 monthly mean outputs to JASMIN OS -- #
-filepath_gridW=$filedir/eORCA025_ERA5_1m_grid_W_20*.nc
-echo "In Progress: Updating eORCA025 ERA-5 v1 4-D W1m variables to Icechunk..."
-ods update_icechunk -f $filepath_gridW -c $store_credentials_json -b $bucket -p $prefix \
-                     -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
-                     -cs '{"x":720, "y":603, "depthw":25}' -dc $dask_config_json -v $variables \
-                     -br "main" -cm "Added eORCA025 ERA5v1 W1m 2000-2024" || { echo "Error: ods update_icechunk failed."; exit 1; }
+                     -br "main" -cm "Added eORCA025 ERA5v1 W1m 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
 
 echo "Completed: Sent eORCA025 ERA-5 v1 4-D W1m monthly mean fields to Icechunk."

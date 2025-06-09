@@ -33,10 +33,10 @@ dask_config_json=/dssgfs01/scratch/otooth/NOC_NPD/20250512_eORCA1_ERA5v1/NOC_Nea
 
 # Bucket and object prefix:
 bucket=npd-eorca025-era5v1
-prefix=T5d
+prefix=T5d_4d
 
 # Define 4-dimensional variables:
-variables="e3t thetao_con so_abs rsdo vohflisf vohfcisf vowflisf"
+variables="time_centered_bounds time_counter_bounds e3t thetao_con so_abs rsdo vohflisf vohfcisf vowflisf"
 
 # -- Python Environment -- #
 # Activate miniconda environment:

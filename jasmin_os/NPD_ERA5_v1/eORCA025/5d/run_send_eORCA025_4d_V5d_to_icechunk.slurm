@@ -33,10 +33,10 @@ dask_config_json=/dssgfs01/scratch/otooth/NOC_NPD/20250512_eORCA1_ERA5v1/NOC_Nea
 
 # Bucket and object prefix:
 bucket=npd-eorca025-era5v1
-prefix=V5d
+prefix=V5d_4d
 
 # Define 4-dimensional variables:
-variables="e3v vo vo_eiv v2o vmo"
+variables="time_centered_bounds time_counter_bounds e3v vo vo_eiv v2o vmo"
 
 # -- Python Environment -- #
 # Activate miniconda environment:
@@ -47,7 +47,7 @@ conda activate env_jasmin_os
 echo "In Progress: Sending eORCA025 ERA-5 v1 4-D V5d variables to Icechunk..."
 ods send_to_icechunk -f $filepath_gridV -c $store_credentials_json -b $bucket -p $prefix \
                      -gf $filepath_domain -uc '{"nav_lon":"glamv", "nav_lat":"gphiv"}' \
-                     -cs '{"x":720, "y":603, "depthv:25}' -dc $dask_config_json -v $variables \
+                     -cs '{"x":720, "y":603, "depthv":25}' -dc $dask_config_json -v $variables \
                      -br "main" -cm "Added eORCA025 ERA5v1 V5d 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
 
 echo "Completed: Sent eORCA025 ERA-5 v1 4-D V5d 5-day mean fields to Icechunk."
