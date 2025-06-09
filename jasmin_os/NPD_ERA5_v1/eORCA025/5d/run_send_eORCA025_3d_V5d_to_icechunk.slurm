@@ -17,7 +17,7 @@
 # Created On: 2025-05-26
 #
 # ==============================================================
-# -- Input arguments to msm-os -- #
+# -- Input arguments to ods -- #
 # Filepath to eORCA025 ancillary file:
 filepath_domain=/dssgfs01/scratch/npd/simulations/Domains/eORCA025/domain_cfg.nc
 
@@ -33,7 +33,7 @@ dask_config_json=/dssgfs01/scratch/otooth/NOC_NPD/20250512_eORCA1_ERA5v1/NOC_Nea
 
 # Bucket and object prefix:
 bucket=npd-eorca025-era5v1
-prefix=V5d
+prefix=V5d_3d
 
 # Define 3-dimensional variables:
 variables="time_centered_bounds time_counter_bounds tauvo somesatr"
@@ -45,9 +45,9 @@ conda activate env_jasmin_os
 
 # -- Send eORCA025 5-day mean outputs to JASMIN OS -- #
 echo "In Progress: Sending eORCA025 ERA-5 v1 3-D V5d variables to Icechunk..."
-ods send_to_icechunk -f $filepath_gridU -c $store_credentials_json -b $bucket -p $prefix \
+ods send_to_icechunk -f $filepath_gridV -c $store_credentials_json -b $bucket -p $prefix \
                      -gf $filepath_domain -uc '{"nav_lon":"glamv", "nav_lat":"gphiv"}' \
                      -cs '{"x":1440, "y":1206}' -dc $dask_config_json -v $variables \
-                     -br "main" -cm "Added eORCA025 ERA5v1 V5d 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
+                     -br "main" -cm "Added eORCA025 ERA5v1 V5d 1976-2024" || { echo "Error: ods send_to_icechunk failed."; exit 1; }
 
 echo "Completed: Sent eORCA025 ERA-5 v1 3-D V5d 5-day mean fields to Icechunk."

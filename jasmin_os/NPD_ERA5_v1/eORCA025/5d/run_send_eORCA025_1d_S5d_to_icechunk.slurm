@@ -30,7 +30,7 @@ dask_config_json=/dssgfs01/scratch/otooth/NOC_NPD/20250512_eORCA1_ERA5v1/NOC_Nea
 
 # Bucket and object prefix:
 bucket=npd-eorca025-era5v1
-prefix=S5d
+prefix=S5d_1d
 
 # -- Python Environment -- #
 # Activate miniconda environment:

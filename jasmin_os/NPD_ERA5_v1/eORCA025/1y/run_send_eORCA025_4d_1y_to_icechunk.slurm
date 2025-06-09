@@ -43,31 +43,31 @@ source /home/otooth/miniconda3/etc/profile.d/conda.sh
 conda activate env_jasmin_os
 
 # -- Send eORCA025 annual mean outputs to JASMIN OS -- #
-# variables_gridT="time_centered_bounds time_counter_bounds e3t thetao_con so_abs rsdo vohflisf vohfcisf vowflisf ocontempadvect ocontemppmdiff ocontempdiff ttrd_evd_li rsdoabsorb ttrd_bbl_li ttrd_atf_li ocontemptend osaltadvect osaltpmdiff osaltdiff strd_evd_li osalttend strd_bbl_li strd_atf_li"
+variables_gridT="time_centered_bounds time_counter_bounds e3t thetao_con so_abs rsdo vohflisf vohfcisf vowflisf ocontempadvect ocontemppmdiff ocontempdiff ttrd_evd_li rsdoabsorb ttrd_bbl_li ttrd_atf_li ocontemptend osaltadvect osaltpmdiff osaltdiff strd_evd_li osalttend strd_bbl_li strd_atf_li"
 
-# echo "In Progress: Sending eORCA025 4-D T1y variables to Icechunk..."
-# ods send_to_icechunk -f $filepath_gridT -c $store_credentials_json -b $bucket -p T1y_4d \
-#                      -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
-#                      -cs '{"x":720, "y":603, "deptht":25}' -v $variables_gridT  -dc $dask_config_json \
-#                      -br "main" -cm "Added eORCA025 ERA5v1 T1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
+echo "In Progress: Sending eORCA025 4-D T1y variables to Icechunk..."
+ods send_to_icechunk -f $filepath_gridT -c $store_credentials_json -b $bucket -p T1y_4d \
+                     -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
+                     -cs '{"x":720, "y":603, "deptht":25}' -v $variables_gridT  -dc $dask_config_json \
+                     -br "main" -cm "Added eORCA025 ERA5v1 T1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
                     
 
-# variables_gridU="time_centered_bounds time_counter_bounds e3u uo uo_eiv u2o umo"
-# echo "In Progress: Sending eORCA025 4-D U1y variables to Icechunk..."
-# ods send_to_icechunk -f $filepath_gridU -c $store_credentials_json -b $bucket -p U1y_4d \
-#                      -gf $filepath_grid -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
-#                      -cs '{"x":720, "y":603, "depthu":25}' -v $variables_gridU  -dc $dask_config_json \
-#                      -br "main" -cm "Added eORCA025 ERA5v1 U1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
+variables_gridU="time_centered_bounds time_counter_bounds e3u uo uo_eiv u2o umo"
+echo "In Progress: Sending eORCA025 4-D U1y variables to Icechunk..."
+ods send_to_icechunk -f $filepath_gridU -c $store_credentials_json -b $bucket -p U1y_4d \
+                     -gf $filepath_grid -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
+                     -cs '{"x":720, "y":603, "depthu":25}' -v $variables_gridU  -dc $dask_config_json \
+                     -br "main" -cm "Added eORCA025 ERA5v1 U1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
 
-# variables_gridV="time_centered_bounds time_counter_bounds e3v vo vo_eiv v2o vmo"
-# echo "In Progress: Sending eORCA025 4-D V1y variables to Icechunk..."
-# ods send_to_icechunk -f $filepath_gridV -c $store_credentials_json -b $bucket -p V1y_4d \
-#                      -gf $filepath_grid -uc '{"nav_lon":"glamv", "nav_lat":"gphiv"}' \
-#                      -cs '{"x":720, "y":603, "depthv":25}' -v $variables_gridV  -dc $dask_config_json \
-#                      -br "main" -cm "Added eORCA025 ERA5v1 V1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
+variables_gridV="time_centered_bounds time_counter_bounds e3v vo vo_eiv v2o vmo"
+echo "In Progress: Sending eORCA025 4-D V1y variables to Icechunk..."
+ods send_to_icechunk -f $filepath_gridV -c $store_credentials_json -b $bucket -p V1y_4d \
+                     -gf $filepath_grid -uc '{"nav_lon":"glamv", "nav_lat":"gphiv"}' \
+                     -cs '{"x":720, "y":603, "depthv":25}' -v $variables_gridV  -dc $dask_config_json \
+                     -br "main" -cm "Added eORCA025 ERA5v1 V1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
 
 echo "In Progress: Sending eORCA025 4-D W1y variables to Icechunk..."
-ods send_to_icechunk -f $filepath_gridW -c $store_credentials_json -b $bucket -p W1y \
+ods send_to_icechunk -f $filepath_gridW -c $store_credentials_json -b $bucket -p W1y_4d \
                      -gf $filepath_grid -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                      -cs '{"x":720, "y":603, "depthw":25}'  -dc $dask_config_json \
                      -br "main" -cm "Added eORCA025 ERA5v1 W1y 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
