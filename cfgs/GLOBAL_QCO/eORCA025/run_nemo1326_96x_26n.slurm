@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=NPD_025
 #SBATCH --partition=compute
-#SBATCH --time=02:00:00
+#SBATCH --time=03:00:00
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
 #SBATCH --nodes=26
-##SBATCH --exclude=compute[001-025]
+##SBATCH --exclude=compute[005,054,058]
 
 # ========================================================
 # PARAMETERS TO SET
@@ -21,7 +21,7 @@
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=3   
+  LENGTH=51
 # Name of this script (to resubmit)
   SCRIPTNAME=run_nemo1326_96x_26n.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0

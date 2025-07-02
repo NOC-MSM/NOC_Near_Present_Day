@@ -1,15 +1,21 @@
 &nammsa_ctl
    ln_msa_carbchem     = .true.    !! activates Carbone cycle
    ln_msa_avgqsr       = .true.    !! biology sees daily avg light
-   ln_msa_ccd          = .false.   !! ?? - check
+   ln_msa_ccd          = .false.   !! reads ccd file to init ccd field.
    ln_msa_preico2      = .false.    !! atm co2 forced at pre-ind level
+   ln_msa_ukesm_cpl    = .false.   !! activate coupling in MEDUSA with UKESM.
    ln_msa_omipdic      = .false.   !! 2 dic pre-ind and date-related
    ln_msa_zmp          = .false.   !! switch to Tom's Oithona + 2 very fast detritus 
    ln_msa_noco2flux    = .false.   !! debug - cut sea-air co2 fluxes
    ln_msa_debug        = .false.   !! add lots of debug print statements
    ln_msa_nancheck     = .false.   !! checks if any nans in bio 3D fields
+   ln_msa_check_n_fix  = .false.   !! check and exceptionally fix crazy 
+                                   !!        values for DIC, ALK, T, and S. 
+                                   !!        avoids carb chem crashes   
    ln_msa_kill_medusa  = .false.   !! debug - no bio sources and sinks
    ln_msa_no_detsink   = .false.   !! debug - poc don't sink
+   ln_msa_nemo_qsr     = .false.   !! use 3D light field attenuated
+                                   !!     from NEMO if TRUE
 /
 &nammsa_bio
 !! min and max warning values  

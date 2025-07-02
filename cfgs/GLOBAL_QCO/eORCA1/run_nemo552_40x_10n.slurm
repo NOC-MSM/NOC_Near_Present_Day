@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
 #SBATCH --nodes=10
-##SBATCH --exclude=compute[001-059]
+#SBATCH --exclude=compute[005,054,058]
 
 # ========================================================
 # PARAMETERS TO SET
@@ -21,7 +21,7 @@
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=10
+  LENGTH=51
 # Name of this script (to resubmit)
   SCRIPTNAME=run_nemo552_40x_10n.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0

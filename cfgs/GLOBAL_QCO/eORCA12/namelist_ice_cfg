@@ -1,7 +1,7 @@
 &nampar
    nlay_i           =   4             !  number of ice  layers
    nlay_s           =   1             !  number of snow layers
-   cn_icerst_in     = 'dummy' 
+   cn_icerst_in     = 'eORCA12_restart_ice.nc' 
    cn_icerst_out    = "restart_ice"   !  suffix of ice restart name (output)
    cn_icerst_indir  = "./RESTARTS"
    cn_icerst_outdir = "./RESTARTS"    !  directory to write output ice restarts
