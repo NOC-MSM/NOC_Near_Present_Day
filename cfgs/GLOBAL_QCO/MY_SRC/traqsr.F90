@@ -439,6 +439,8 @@ CONTAINS
          IF(lwp) WRITE(numout,*) '        level of light extinction = ', nksr, ' ref depth = ', gdepw_1d(nksr+1), ' m'
          !
       END SELECT
+      !jth this needs to be the the maximum across all procs
+>     call mpp_max('traqsr',nksr)
       !
       qsr_hc(:,:,:) = 0._wp     ! now qsr heat content set to zero where it will not be computed
       !
