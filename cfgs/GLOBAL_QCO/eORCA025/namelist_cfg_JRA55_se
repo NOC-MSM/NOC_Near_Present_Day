@@ -42,9 +42,9 @@
              '', '', '',   ,  ''
     sn_sal = 'woa23_decav71A0_TS_TEOS10_eORCA025.nc', -1, 'salinity', .true., .true., 'yearly',
              '', '', '',   ,  ''
-    sn_dep  = 'TBD' ,                                -12, 'depth_4D',   .false.   , .true.  , 'yearly',
+    sn_dep  = 'woa23_depth_mask.nc' ,                                -12, 'depth_4D',   .false.   , .true.  , 'yearly',
              '' ,    ''    ,  ''
-    sn_msk  = 'TBD' ,                                -12, 'mask'    ,   .false.   , .true.  , 'yearly',
+    sn_msk  = 'woa23_depth_mask.nc' ,                                -12, 'mask'    ,   .false.   , .true.  , 'yearly',
              '' ,    ''    ,  ''
 /
 
