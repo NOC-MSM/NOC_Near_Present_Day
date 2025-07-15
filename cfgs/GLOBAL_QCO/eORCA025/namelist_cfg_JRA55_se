@@ -126,7 +126,7 @@
 /
 
 &nam_tide
-   ln_tide     = .true.,
+    ln_tide     = .true.,
       nn_tide_var   = 1
       ln_tide_dia   = .true.,
       ln_tide_pot   = .true.,
@@ -135,12 +135,15 @@
             rn_scal_load = 0.12
       ln_tide_ramp  = .true.,
          rn_tide_ramp_dt = 28.
-!     ln_calc_tdiss = .false. ,
-!        cn_h_rough = 'INPUTS/h_RMS_topog_anom.nc',
-!        rn_kappa_tdiss = 0.00075398
-!        tdiss_mindepth = 200.0
-!     rn_SO_enhance  = 250.0
-!     rn_lat_SO_enhance = -69.7,
+
+!     ln_int_wave_drag = .true.,
+!     ln_calc_tdiss = .false.,   ! calculate tdiss rather than reading in
+!        cn_int_wave_drag = 'INPUTS/tdiss_R025_fac2.nc',
+!        cn_h_rough = 'INPUTS/h_RMS_topog_anom.nc', ! roughness file
+!        rn_kappa_tdiss = 0.00075398 ! x12 value  0.00006283,  ! wave number Jayne and Laurence 2004 value !282.74333! increasedwith x1500^2 x2
+!        tdiss_mindepth = 500.0 ! minimum depth to apply tdiss parameterisation 
+!!       rn_SO_enhance  = 250.0
+!!       rn_lat_SO_enhance = -69.7,
 
       sn_tide_cnames(1) = 'Sa',
       sn_tide_cnames(2) = 'Ssa',
