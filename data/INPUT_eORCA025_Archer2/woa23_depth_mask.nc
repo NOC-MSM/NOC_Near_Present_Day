@@ -1,0 +1,1 @@
+/work/n01/shared/se-eORCA025/4.2.2/woa23_depth_mask.nc
