@@ -23,70 +23,7 @@ MODULE dtatsd
    USE in_out_manager  ! I/O manager
    USE lib_mpp         ! MPP library
    USE iom
-
-   IMPLICIT NONE
-   PRIVATE
-
-   PUBLIC   dta_tsd_init   ! called by opa.F90
-   PUBLIC   dta_tsd        ! called by istate.F90 and tradmp.90
-
-   !                                  !!* namtsd  namelist : Temperature & Salinity Data *
-   LOGICAL , PUBLIC ::   ln_tsd_init   !: T & S data flag
-   LOGICAL , PUBLIC ::   ln_tsd_interp !: vertical interpolation flag
-   LOGICAL , PUBLIC ::   ln_tsd_dmp    !: internal damping toward input data flag
-   INTEGER, PARAMETER ::   jp_dep = 3    !: indice for depth
-   INTEGER, PARAMETER ::   jp_msk = 4    !: indice for mask
-
-   TYPE(FLD), ALLOCATABLE, DIMENSION(:) ::   sf_tsd   ! structure of input SST (file informations, fields read)
-   INTEGER                                 ::   jpk_init , inum_dta
-   INTEGER                                 ::   id ,linum   ! local integers
-   INTEGER                                 ::   zdim(4)
-
-   !! * Substitutions
-#  include "do_loop_substitute.h90"
-   !!----------------------------------------------------------------------
-   !! NEMO/OCE 4.0 , NEMO Consortium (2018)
-   !! $Id: dtatsd.F90 14834 2021-05-11 09:24:44Z hadcv $
-   !! Software governed by the CeCILL license (see ./LICENSE)
-   !!----------------------------------------------------------------------
-CONTAINS
-
-   SUBROUTINE dta_tsd_init( ld_tradmp )
-      !!----------------------------------------------------------------------
-      !!                   ***  ROUTINE dta_tsd_init  ***
-      !!
-      !! ** Purpose :   initialisation of T & S input data
-      !!
-      !! ** Method  : - Read namtsd namelist
-      !!              - allocates T & S data structure
-      !!----------------------------------------------------------------------
-NOCS05688M:MY_SRC jdha$ more dtatsd.F90
-MODULE dtatsd
-   !!======================================================================
-   !!                     ***  MODULE  dtatsd  ***
-   !! Ocean data  :  read ocean Temperature & Salinity Data from gridded data
-   !!======================================================================
-   !! History :  OPA  ! 1991-03  ()  Original code
-   !!             -   ! 1992-07  (M. Imbard)
-   !!            8.0  ! 1999-10  (M.A. Foujols, M. Imbard)  NetCDF FORMAT
-   !!   NEMO     1.0  ! 2002-06  (G. Madec)  F90: Free form and module
-   !!            3.3  ! 2010-10  (C. Bricaud, S. Masson)  use of fldread
-   !!            3.4  ! 2010-11  (G. Madec, C. Ethe) Merge of dtatem and dtasal + remove CPP keys
-   !!----------------------------------------------------------------------
-
-   !!----------------------------------------------------------------------
-   !!   dta_tsd      : read and time interpolated ocean Temperature & Salinity Data
-   !!----------------------------------------------------------------------
-   USE oce             ! ocean dynamics and tracers
-   USE phycst          ! physical constants
-   USE dom_oce         ! ocean space and time domain
-   USE domtile
-   USE fldread         ! read input fields
-   !
-   USE in_out_manager  ! I/O manager
-   USE lib_mpp         ! MPP library
-   USE iom
-
+   
    IMPLICIT NONE
    PRIVATE
 
@@ -130,13 +67,13 @@ CONTAINS
       CHARACTER(len=100)            ::   cn_dir          ! Root directory for location of ssr files
       TYPE(FLD_N), DIMENSION( jpts +2 )::   slf_i           ! array of namelist informations on the fields to read
       TYPE(FLD_N)                   ::   sn_tem, sn_sal, sn_dep, sn_msk
-
+      
       !!
       NAMELIST/namtsd/   ln_tsd_init, ln_tsd_interp, ln_tsd_dmp, cn_dir, sn_tem, sn_sal, sn_dep, sn_msk
       !!----------------------------------------------------------------------
       !
       !  Initialisation
-      ierr0 = 0  ;  ierr1 = 0  ;  ierr2 = 0  ;  ierr3 = 0  ; ierr4 = 0  ;  ierr5 = 0
+      ierr0 = 0  ;  ierr1 = 0  ;  ierr2 = 0  ;  ierr3 = 0  ; ierr4 = 0  ;  ierr5 = 0 
       !
       READ  ( numnam_ref, namtsd, IOSTAT = ios, ERR = 901)
 901   IF( ios /= 0 )   CALL ctl_nam ( ios , 'namtsd in reference namelist' )
@@ -179,8 +116,8 @@ CONTAINS
          IF( ln_tsd_interp ) THEN
            ALLOCATE( sf_tsd(jpts+2), STAT=ierr0 ) ! to carry the addtional depth information
          ELSE
-           ALLOCATE( sf_tsd(jpts  ), STAT=ierr0 )
-         ENDIF
+           ALLOCATE( sf_tsd(jpts  ), STAT=ierr0 ) 
+         ENDIF 
          IF( ierr0 > 0 ) THEN
             CALL ctl_stop( 'dta_tsd_init: unable to allocate sf_tsd structure' )   ;   RETURN
          ENDIF
@@ -191,7 +128,7 @@ CONTAINS
 
          IF( ln_tsd_interp ) THEN
             CALL fld_def ( sf_tsd(jp_dep) )
-            CALL fld_clopn ( sf_tsd(jp_dep) )
+            CALL fld_clopn ( sf_tsd(jp_dep) ) 
             IF(lwp) WRITE(numout,*) 'INFO: ', sf_tsd(jp_dep)%num, sn_dep%clvar
             id = iom_varid( sf_tsd(jp_dep)%num, sn_dep%clvar, zdim )
             jpk_init = zdim(3)
@@ -200,14 +137,14 @@ CONTAINS
                                  ALLOCATE( sf_tsd(jp_tem)%fnow(jpi,jpj,jpk_init  ) , STAT=ierr0 )
             IF( sn_tem%ln_tint ) ALLOCATE( sf_tsd(jp_tem)%fdta(jpi,jpj,jpk_init,2) , STAT=ierr1 )
                                  ALLOCATE( sf_tsd(jp_sal)%fnow(jpi,jpj,jpk_init  ) , STAT=ierr2 )
-            IF( sn_sal%ln_tint ) ALLOCATE( sf_tsd(jp_sal)%fdta(jpi,jpj,jpk_init,2) , STAT=ierr3 )
+            IF( sn_sal%ln_tint ) ALLOCATE( sf_tsd(jp_sal)%fdta(jpi,jpj,jpk_init,2) , STAT=ierr3 )  
                                  ALLOCATE( sf_tsd(jp_dep)%fnow(jpi,jpj,jpk_init  ) , STAT=ierr4 )
                                  ALLOCATE( sf_tsd(jp_msk)%fnow(jpi,jpj,jpk_init  ) , STAT=ierr5 )
          ELSE
                                  ALLOCATE( sf_tsd(jp_tem)%fnow(jpi,jpj,jpk)   , STAT=ierr0 )
             IF( sn_tem%ln_tint ) ALLOCATE( sf_tsd(jp_tem)%fdta(jpi,jpj,jpk,2) , STAT=ierr1 )
                                  ALLOCATE( sf_tsd(jp_sal)%fnow(jpi,jpj,jpk)   , STAT=ierr2 )
-            IF( sn_sal%ln_tint ) ALLOCATE( sf_tsd(jp_sal)%fdta(jpi,jpj,jpk,2) , STAT=ierr3 )
+            IF( sn_sal%ln_tint ) ALLOCATE( sf_tsd(jp_sal)%fdta(jpi,jpj,jpk,2) , STAT=ierr3 )  
          ENDIF ! ln_tsd_interp
 
          !
@@ -310,7 +247,7 @@ CONTAINS
             DO jk = 1, jpk                        ! determines the intepolated T-S profiles at each (i,j) points
                zl = gdept_0(ji,jj,jk)
                IF( zl < sf_tsd(jp_dep)%fnow(ji,jj,1) ) THEN                     ! above the first level of data
-                  ptsd(ji,jj,jk,jp_tem) = sf_tsd(jp_tem)%fnow(ji,jj,1)
+                  ptsd(ji,jj,jk,jp_tem) = sf_tsd(jp_tem)%fnow(ji,jj,1) 
                   ptsd(ji,jj,jk,jp_sal) = sf_tsd(jp_sal)%fnow(ji,jj,1)
                ELSEIF( zl > sf_tsd(jp_dep)%fnow(ji,jj,jpk_init) ) THEN          ! below the last level of data
                   ptsd(ji,jj,jk,jp_tem) = sf_tsd(jp_tem)%fnow(ji,jj,jpk_init)
@@ -379,6 +316,8 @@ CONTAINS
          IF( sf_tsd(jp_tem)%ln_tint )   DEALLOCATE( sf_tsd(jp_tem)%fdta )
                                         DEALLOCATE( sf_tsd(jp_sal)%fnow )     ! S arrays in the structure
          IF( sf_tsd(jp_sal)%ln_tint )   DEALLOCATE( sf_tsd(jp_sal)%fdta )
+         IF( ln_tsd_interp )            DEALLOCATE( sf_tsd(jp_dep)%fnow )     ! T arrays in the structure
+         IF( ln_tsd_interp )            DEALLOCATE( sf_tsd(jp_msk)%fnow )     ! T arrays in the structure
                                         DEALLOCATE( sf_tsd              )     ! the structure itself
       ENDIF
       !
