@@ -440,7 +440,7 @@ CONTAINS
          !
       END SELECT
       !jth this needs to be the the maximum across all procs
->     call mpp_max('traqsr',nksr)
+      call mpp_max('traqsr',nksr)
       !
       qsr_hc(:,:,:) = 0._wp     ! now qsr heat content set to zero where it will not be computed
       !

@@ -107,12 +107,12 @@ CONTAINS
             CALL rst_read( Kbb, Kmm )            ! Read the restart file
             CALL day_init                        ! model calendar (using both namelist and restart infos)
             !
-         IF( ln_reset_ts ) THEN
-         ! Modifications to overwrite the T &S from the restart files with the
-         ! initial conditions.
-            CALL dta_tsd( nit000, ts(:,:,:,:,Kbb) )          ! read 3D T and S data from the specified initial fields.
-            ts (:,:,:,:,Kmm) = ts (:,:,:,:,Kbb)       ! set now values from to before ones for T & S.
-         ENDIF
+            IF( ln_reset_ts ) THEN
+            ! Modifications to overwrite the T &S from the restart files with the
+            ! initial conditions.
+               CALL dta_tsd( nit000, ts(:,:,:,:,Kbb) )          ! read 3D T and S data from the specified initial fields.
+               ts (:,:,:,:,Kmm) = ts (:,:,:,:,Kbb)       ! set now values from to before ones for T & S.
+            ENDIF
          ELSE                                    ! Start from rest
             !                                    ! ---------------
             numror = 0                           ! define numror = 0 -> no restart file to read
