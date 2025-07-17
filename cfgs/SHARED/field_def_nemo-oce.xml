@@ -385,10 +385,17 @@ that are available in the tidal-forcing implementation (see
     <field id="tide_pot_Msqm" long_name="Msqm tidal potential"  unit="m" />
     <field id="tide_pot_Mtm"  long_name="Mtm tidal potential"   unit="m" />
     <field id="tide_pot_S1"   long_name="S1 tidal potential"    unit="m" />
-    <field id="tide_pot_MU2"  long_name="MU2 tidal potential"   unit="m" />
-    <field id="tide_pot_NU2"  long_name="NU2 tidal potential"   unit="m" />
+    <field id="tide_pot_mu2"  long_name="mu2 tidal potential"   unit="m" />
+    <field id="tide_pot_nu2"  long_name="nu2 tidal potential"   unit="m" />
     <field id="tide_pot_L2"   long_name="L2 tidal potential"    unit="m" />
     <field id="tide_pot_T2"   long_name="T2 tidal potential"    unit="m" />
+    <field id="tide_pot_Sa"   long_name="Sa tidal potential"    unit="m" />
+    <field id="tide_pot_Ssa"  long_name="Ssa tidal potential"   unit="m" />
+    <field id="tide_pot_Msf"  long_name="Msf tidal potential"   unit="m" />
+    <field id="tide_pot_J1"   long_name="J1 tidal potential"    unit="m" />
+    <field id="tide_pot_MKS2" long_name="MKS2 tidal potential"  unit="m" />
+    <field id="tide_pot_lam2" long_name="lam2 tidal potential"  unit="m" />
+    <field id="tide_pot_R2"   long_name="R2 tidal potential"    unit="m" />
   </field_group>
 
   <!-- OSMOSIS variables (available with ln_zdfosm=.true.) -->
