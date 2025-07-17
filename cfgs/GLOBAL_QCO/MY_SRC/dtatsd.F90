@@ -286,8 +286,8 @@ CONTAINS
          ! masked temp and sal (read for example in a restart or in output.init)
          !
          DO_3D( nn_hls, nn_hls, nn_hls, nn_hls, 1, jpk )
-            ptsd(ji,jj,jk,jp_tem) = ptsd(ji,jj,jk,jp_tem) * tmask(ji,jj,jk)    ! Mask
-            ptsd(ji,jj,jk,jp_sal) = ptsd(ji,jj,jk,jp_sal) * tmask(ji,jj,jk)
+            ptsd(ji,jj,jk,jp_tem) = sf_tsd(jp_tem)%fnow(ji,jj,jk) * tmask(ji,jj,jk)    ! Mask
+            ptsd(ji,jj,jk,jp_sal) = sf_tsd(jp_sal)%fnow(ji,jj,jk) * tmask(ji,jj,jk)
          END_3D
          !
          IF( ln_zps ) THEN                      ! zps-coordinate (partial steps) interpolation at the last ocean level
