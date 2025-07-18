@@ -1,12 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=xfer_domain_eORCA12
-#SBATCH --time=00:30:00
-#SBATCH --ntasks=12
-#SBATCH --mem=30GB
-
-#SBATCH --account=n01-CLASS
-#SBATCH --partition=serial
-#SBATCH --qos=serial
+#SBATCH --job-name=xfer_domain_cfg_eORCA12
+#SBATCH --time=01:00:00
+#SBATCH --mem=8G
+#SBATCH --account=noc_msm
+#SBATCH --partition=standard
+#SBATCH --qos=standard
 
 # ==============================================================
 # run_send_eORCA12_domain_to_jasmin_os.slurm
@@ -15,44 +13,32 @@
 # variables to the JASMIN object store.
 #
 # Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
-# Created On: 2025-03-12
+# Created On: 2025-07-08
 #
 # ==============================================================
-# -- Input arguments to msm-os -- #
+# -- Input arguments to ods -- #
 # Filepath to eORCA12 ancillary file:
-filepath_mesh_mask=/work/n01/n01/atb299/NPD_eORCA12_v4.2/domain_cfg.nc
-# filepath_subbasins=/dssgfs01/scratch/npd/simulations/Domains/subbasins.nc
+filepath_domain_cfg=/gws/nopw/j04/atlantis/otooth/NPD/eORCA12/domain_cfg_era5v1.nc
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=..../jasmin_os_credentials.json
-
-# Filepath to Dask configuration:
-dask_config_json=..../dask_config.json
+store_credentials_json=/home/users/o_tooth/NOC/jasmin_os/credentials/jasmin_object_store_credentials.json
 
 # Bucket and object prefix:
 bucket=npd-eorca12-era5v1
-
-# Variables - save entire dataset to single zarr store - and chunks:
-variables=consolidated
+# Define the object prefix for the Icechunk store:
+object_prefix=domain/domain_cfg
 
 # -- Python Environment -- #
 # Activate Python virtual environment:
-source /home2/home/n01/n01/otooth/miniforge3/bin/activate
+module unload jaspy
+source ~/miniforge3/bin/activate
 conda activate env_jasmin_os
 
 # -- Send ancillary files to JASMIN OS -- #
-echo "In Progress: Sending eORCA12 ERA-5 v1 mesh mask file to JASMIN object store..."
-object_prefix=domain/mesh_mask
-msm_os send_with_dask -f $filepath_mesh_mask -c $store_credentials_json -b $bucket \
-                      -p $object_prefix -v $variables \
-                      -cs '{"x":540,"y":721,"nav_lev":25}' \
-                      -dc $dask_config_json -zv 3 || { echo "Error: msm_os send_with_dask failed."; exit 1; }
+echo "In Progress: Sending eORCA12 ERA-5 v1 domain_cfg file to Icechunk..."
 
-echo "In Progress: Sending eORCA12 ERA-5 v1 mesh mask file to JASMIN object store..."
-object_prefix=domain/subbasins
-msm_os send_with_dask -f $filepath_subbasins -c $store_credentials_json -b $bucket \
-                      -p $object_prefix -v $variables \
-                      -cs '{"x":540,"y":721}' \
-                      -dc $dask_config_json -zv 3 || { echo "Error: msm_os send_with_dask failed."; exit 1; }
+ods send_to_icechunk -f $filepath_domain_cfg -c $store_credentials_json -b $bucket -p $object_prefix \
+                     -cs '{"x":540, "y":721, "nav_lev":25}' \
+                     -br "main" -cm "Added eORCA12 ERA5v1 domain_cfg" || { echo "Error: ods send_to_icechunk failed."; exit 1; }
 
-echo "Completed: Sent eORCA12 ERA-5 v1 ancillary files to JASMIN object store."
+echo "Completed: Sent eORCA12 ERA-5 v1 ancillary files to Icechunk."

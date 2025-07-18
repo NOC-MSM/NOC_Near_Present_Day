@@ -18,7 +18,7 @@
 # Created On: 2025-04-04
 #
 # ==============================================================
-# -- Input arguments to msm-os -- #
+# -- Input arguments to ods -- #
 # Filepath to eORCA12 ancillary file:
 filedir=....
 filepath_rapid=$filedir/eORCA12_ERA5_1976-01-2024-09_natl_meridional_transports_at_26N.nc

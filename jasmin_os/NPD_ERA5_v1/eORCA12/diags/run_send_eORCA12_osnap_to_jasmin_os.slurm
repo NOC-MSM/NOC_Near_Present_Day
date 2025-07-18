@@ -17,7 +17,7 @@
 # Created On: 2025-03-03
 #
 # ==============================================================
-# -- Input arguments to msm-os -- #
+# -- Input arguments to ods -- #
 # Filepath to eORCA025 OSNAP .nc file:
 filedir=/dssgfs01/scratch/npd/simulations/eORCA025_ERA5_v1/osnap_ERA5_v1
 filepath_osnap=eORCA025_ERA5_1976_2024_OSNAP_section.nc
