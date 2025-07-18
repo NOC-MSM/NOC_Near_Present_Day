@@ -10,7 +10,7 @@
 # run_send_eORCA12_4d_1y_to_zarr.slurm
 #
 # Description: SLURM script to send the eORCA12 monthly-mean 
-# output variables to the Icechunk.
+# output variables to Icechunk.
 #
 # Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 # Created On: 2025-04-10

@@ -10,7 +10,7 @@
 # run_send_eORCA12_3d_V5d_to_icechunk.slurm
 #
 # Description: SLURM script to send the eORCA12 5-day mean
-# 3-D V-point variables to the Icechunk.
+# 3-D V-point variables to Icechunk.
 #
 # Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 # Created On: 2025-07-18

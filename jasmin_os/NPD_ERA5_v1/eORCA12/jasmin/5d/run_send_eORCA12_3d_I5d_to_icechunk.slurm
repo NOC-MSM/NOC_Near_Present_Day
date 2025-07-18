@@ -10,7 +10,7 @@
 # run_send_eORCA12_3d_I5d_to_Icechunk.slurm
 #
 # Description: SLURM script to send the eORCA12 5-day mean 
-# icemod variables to the Icechunk store.
+# icemod variables to Icechunk.
 #
 # Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 # Created On: 2025-07-18
