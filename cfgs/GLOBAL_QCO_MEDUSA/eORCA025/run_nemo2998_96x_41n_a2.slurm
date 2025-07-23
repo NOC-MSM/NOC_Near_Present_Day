@@ -2,11 +2,14 @@
 #SBATCH --job-name=NPD_025
 #SBATCH --output=./job.out
 #SBATCH --error=./job.err
+#SBATCH --account=n01-CLASS
+#SBATCH --time=05:00:00
+#SBATCH --nodes=45
 #SBATCH --partition=standard
 #SBATCH --qos=standard
-#SBATCH --time=05:00:00
-#SBATCH --account=n01-CLASS
-#SBATCH --nodes=37
+#SBATCH --exclusive
+#SBATCH --hint=nomultithread
+#SBATCH --distribution=block:cyclic
 
 set -u
 set -e
@@ -28,21 +31,11 @@ set -o pipefail
 # Simulation length (in TIME_UNITS)
   LENGTH=57
 # Name of this script (to resubmit)
-  SCRIPTNAME=run_het_nemo2998_96x_37n_a2.slurm
+  SCRIPTNAME=run_nemo2998_96x_41n_a2.slurm
 # Move OUTPUTS to a store-place : 
-  ISTORE=.true.
+  ISTORE=true
 export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/eORCA025_river"
-#
-echo "PWD = " $PWD
-#export NEMO_EXP_DIR="/work/n01/n01/atb299/NOC_NPD/20240321/NOC_Near_Present_Day/nemo/cfgs/GLOBAL_QCO/eORCA025"
-export NEMO_EXP_DIR="$PWD"
-echo "NEMO_EXP_DIR = " $NEMO_EXP_DIR
-export XIO_HOME="/work/n01/shared/nemo/XIOS3H_Cray"
-#
-export OMP_NUM_THREADS="1"
-export I_MPI_SHM="off"
-export FI_OFI_RXM_SAR_LIMIT=64K
-#export MPICH_MPIIO_HINTS="*:cray_cb_write_lock_mode=2,*:cray_cb_nodes_multiplier=4"
+#--------------------------------------------------------------
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -51,13 +44,33 @@ export FI_OFI_RXM_SAR_LIMIT=64K
 if [ "$TIME_UNITS" -eq 0 ] ; then
     if [ "$FREQRST" -gt 10 ] ; then FREQRST=10 ; fi
 fi
-
 # ========================================================
-## module loads
-module load cray-mpich/8.1.23 
-module load cray-hdf5-parallel/1.12.2.1 
+## modules load
+module load cray-mpich/8.1.23
+module swap craype-network-ofi craype-network-ucx
+module swap cray-mpich cray-mpich-ucx
+module load cray-hdf5-parallel/1.12.2.1
 module load cray-netcdf-hdf5parallel/4.9.0.1
+module load libfabric
 
+export NEMO_EXP_DIR=$PWD
+echo $NEMO_EXP_DIR
+export OMP_NUM_THREADS="1"
+export I_MPI_SHM="off"
+unset I_MPI_PMI_LIBRARY
+export FI_CXI_OPTIMIZED_MRS=false
+# UD transport layer is "unreliable", so disable it by setting...
+export UCX_TLS=rc,dc,self,sm
+
+cd "$NEMO_EXP_DIR"
+
+# Link nemo and xios -> Check consistency with arch file
+ln -s /work/n01/shared/nemo/XIOS3_r2700/bin/xios_server.exe .
+ln -s ../BLD/bin/nemo.exe .
+
+# Broadcast executables
+sbcast --compress=none "$NEMO_EXP_DIR"/nemo.exe /tmp/nemo
+sbcast --compress=none "$NEMO_EXP_DIR"/xios_server.exe /tmp/xios_server.exe
 
 # ========================================================
 # Define useful functions
@@ -337,7 +350,7 @@ edit_var nn_itend "$ITEND" ./namelist_cfg
 # Submit next job
 if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
     sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
-    if [ "$ISTORE" ]; then
+    if ${ISTORE}; then
       sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm" ${STORE_OUT}
     fi
 fi
@@ -346,25 +359,55 @@ fi
 mkdir -p {RESTARTS,OUTPUT}
 
 
+# Run checker to trap hanging jobs
+./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
 
-cd "$NEMO_EXP_DIR"
-
-# Link nemo
-echo ln -fs "$NEMO_EXP_DIR"/../BLD/bin/nemo.exe nemo
-ln -fs "$NEMO_EXP_DIR"/../BLD/bin/nemo.exe nemo
-cp -p "$XIO_HOME"/bin/xios_server.exe xios_server.exe
-# Run NEMO
-sbcast --compress=none ./nemo /tmp/nemo
-sbcast --compress=none ./xios_server.exe /tmp/xios_server.exe
-
-#
 srun --overlap --oversubscribe --mem=1GB --ntasks=$SLURM_NNODES --ntasks-per-node=1 ./run_check_mem.sh &
 export SLURM_OVERLAP=1
 
-srun --mem-bind=local \
---overlap --oversubscribe --mem=220GB --unbuffered \
---het-group=0 --nodes=10 --ntasks=160 --ntasks-per-node=16 /tmp/xios_server.exe \
-: --het-group=1 --nodes=26 --ntasks=2912 --ntasks-per-node=112  /tmp/nemo \
-: --het-group=2 --nodes=1 --ntasks=76 --ntasks-per-node=76 /tmp/nemo &
+# Run NEMO
+echo "Commence srun.."
 
-wait %2
+srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
+--het-group=0 --nodes=10 --ntasks=163 --ntasks-per-core=1 --ntasks-per-node=17 --cpus-per-task=1 /tmp/xios_server.exe \
+: --het-group=1 --nodes=34 --ntasks=2924 --ntasks-per-core=1 --ntasks-per-node=86 --cpus-per-task=1  /tmp/nemo \
+: --het-group=2 --nodes=1 --ntasks=74 --ntasks-per-core=1 --ntasks-per-node=74 --cpus-per-task=1  /tmp/nemo
+
+
+# Move log files
+mkdir -p LOGS/"$SLURM_JOB_ID"
+mv {*.dat,*output*,*.stat*,communication_report.txt} LOGS/"$SLURM_JOB_ID"
+
+# Check time.step and ocean.output
+for NAMELIST in *namelist_cfg; do
+
+    # Check that ocean.output exist
+    OUTNAME=${NAMELIST//namelist_cfg/ocean.output}
+    OUTNAME=LOGS/"$SLURM_JOB_ID"/"$OUTNAME"
+    if [ ! -f  "$OUTNAME" ]; then
+        echo "E R R O R : $OUTNAME is missing."
+        exit 1
+    fi
+
+    # Check for errors
+    ERROR=$(grep "E R R O R" "$OUTNAME" | wc -l)
+    if [ "$ERROR" -gt 0 ]; then
+        echo "E R R O R : errors found in $OUTNAME"
+        exit 1
+    fi
+
+    # Check that time.step exist
+    TIMENAME=${NAMELIST//namelist_cfg/time.step}
+    if [ ! -f  "$TIMENAME" ]; then
+        echo "E R R O R : $TIMENAME is missing."
+        exit 1
+    fi
+
+    # Check nn_itend vs time.step
+    EXPECTED=$(get_var nn_itend "$NAMELIST")
+    ACTUAL=$(get_timestep "$TIMENAME")
+    if [ "$ACTUAL" -lt "$EXPECTED" ]; then
+        echo "E R R O R : $TIMENAME is $ACTUAL (expecting $EXPECTED)"
+        exit 1
+    fi
+done

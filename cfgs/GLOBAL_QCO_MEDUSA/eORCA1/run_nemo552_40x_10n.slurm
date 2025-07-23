@@ -28,7 +28,7 @@
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
   SPIN=0 
 # Move OUTPUTS to a store-place :                            
-  ISTORE=.false.                                               
+  ISTORE=false                                               
 export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/eORCA025_river"  
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
@@ -300,7 +300,7 @@ edit_var nn_itend "$ITEND" ./namelist_cfg
 # Submit next job
 if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
     sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
-    if [ "$ISTORE" ]; then
+    if ${ISTORE}; then
       sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm" ${STORE_OUT}
     fi
 fi
@@ -320,7 +320,7 @@ unset I_MPI_PMI_LIBRARY
 # Run checker to trap hanging jobs
 ./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
 
-mpiexec.hydra -print-rank-map -ppn 1 -np 57 $XIO_HOME/bin/xios_server.exe : -np 552 ./nemo
+mpiexec.hydra -print-rank-map -ppn 1 -np 67 $XIO_HOME/bin/xios_server.exe : -np 552 ./nemo
 
 # Move log files
 mkdir -p LOGS/"$SLURM_JOB_ID"

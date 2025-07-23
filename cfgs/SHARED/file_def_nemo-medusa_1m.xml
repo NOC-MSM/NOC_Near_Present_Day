@@ -19,7 +19,7 @@
 
         </file>
 
-        <file id="file35" mode="write" writer="d1mwriter" gatherer="pgatherer" using_server2="true" name_suffix="_diad_T" description="Medusa diagnostic variables" enabled=".TRUE.">
+        <file id="file35" mode="write" writer="d1mwriter" gatherer="dgatherer" using_server2="true" name_suffix="_diad_T" description="Medusa diagnostic variables" enabled=".TRUE.">
           <field_group group_ref="groupMEDUSA_dia"      enabled=".TRUE."  />  <!-- key_medusa -->
           <field_group group_ref="groupMEDUSA_riv"      enabled=".TRUE."  />  <!-- key_medusa -->
           <field_group group_ref="groupMEDUSA_zmp"      enabled=".FALSE."  />  <!-- key_medusa -->          
