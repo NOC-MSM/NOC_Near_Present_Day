@@ -350,7 +350,7 @@ edit_var nn_itend "$ITEND" ./namelist_cfg
 # Submit next job
 if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
     sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
-    if [ ${ISTORE} ]; then
+    if ${ISTORE}; then
       sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm" ${STORE_OUT}
     fi
 fi
