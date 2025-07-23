@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --ntasks-per-socket=32
-#SBATCH --nodes=11
+#SBATCH --nodes=10
 ##SBATCH --exclude=compute[001-059]
 #SBATCH --exclude=compute[001]
 
@@ -320,7 +320,7 @@ unset I_MPI_PMI_LIBRARY
 # Run checker to trap hanging jobs
 ./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
 
-mpiexec.hydra -print-rank-map -ppn 1 -np 77 $XIO_HOME/bin/xios_server.exe : -np 552 ./nemo
+mpiexec.hydra -print-rank-map -ppn 1 -np 67 $XIO_HOME/bin/xios_server.exe : -np 552 ./nemo
 
 # Move log files
 mkdir -p LOGS/"$SLURM_JOB_ID"
