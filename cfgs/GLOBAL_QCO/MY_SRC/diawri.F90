@@ -46,15 +46,15 @@ MODULE diawri
    USE zdf_oce        ! ocean vertical physics
    USE zdfdrg         ! ocean vertical physics: top/bottom friction
    USE zdfmxl         ! mixed layer
-   USE zdftke  , ONLY: htau
    USE zdfosm         ! mixed layer
+   USE zdftke  , ONLY: htau
    !
    USE lbclnk         ! ocean lateral boundary conditions (or mpp link)
    USE in_out_manager ! I/O manager
    USE dia25h         ! 25h Mean output
+   USE diapea         ! Potential Energy Anomaly
    USE iom            ! 
    USE ioipsl         ! 
-   USE eosbn2
 
 #if defined key_si3
    USE ice 
@@ -64,6 +64,7 @@ MODULE diawri
    USE timing          ! preformance summary
    USE diu_bulk        ! diurnal warm layer
    USE diu_coolskin    ! Cool skin
+   USE eosbn2
 
    IMPLICIT NONE
    PRIVATE
@@ -129,8 +130,6 @@ CONTAINS
       CHARACTER(len=4),SAVE :: ttype , stype           ! temperature and salinity type
       !!----------------------------------------------------------------------
       ! 
-      IF( ln_timing )   CALL timing_start('dia_wri')
-      !
       IF( kt == nit000 ) THEN
          IF( ln_TEOS10 ) THEN
             IF ( iom_use("toce_pot") .OR. iom_use("soce_pra") .OR. iom_use("sst_pot") .OR. iom_use("sss_pra") &
@@ -153,6 +152,7 @@ CONTAINS
          ENDIF
       ENDIF
 
+      IF( ln_timing )   CALL timing_start('dia_wri')
       ! 
       ! Output the initial state and forcings
       IF( ninist == 1 ) THEN                       
@@ -326,7 +326,7 @@ CONTAINS
       IF( iom_use('logavt') )   CALL iom_put( "logavt", LOG( MAX( 1.e-20_wp, avt(:,:,:) ) ) )
       IF( iom_use('logavs') )   CALL iom_put( "logavs", LOG( MAX( 1.e-20_wp, avs(:,:,:) ) ) )
 
-      IF ( iom_use("sssgrad") .OR. iom_use("sssgrad2") ) THEN
+      IF ( iom_use("sssgrad_"//stype) .OR. iom_use("sssgrad2_"//stype) ) THEN
          DO_2D( 0, 0, 0, 0 )                       ! sss gradient
             zztmp  = ts(ji,jj,1,jp_sal,Kmm)
             zztmpx = (ts(ji+1,jj,1,jp_sal,Kmm) - zztmp) * r1_e1u(ji,jj) + (zztmp - ts(ji-1,jj  ,1,jp_sal,Kmm)) * r1_e1u(ji-1,jj)
@@ -334,12 +334,12 @@ CONTAINS
             z2d(ji,jj) = 0.25_wp * ( zztmpx * zztmpx + zztmpy * zztmpy )   &
                &                 * umask(ji,jj,1) * umask(ji-1,jj,1) * vmask(ji,jj,1) * vmask(ji,jj-1,1)
          END_2D
-         CALL iom_put( "sssgrad2",  z2d )          ! square of module of sss gradient
-         IF ( iom_use("sssgrad") ) THEN
+         CALL iom_put( "sssgrad2_"//stype,  z2d )          ! square of module of sss gradient
+         IF ( iom_use("sssgrad_"//stype) ) THEN
             DO_2D( 0, 0, 0, 0 )
                z2d(ji,jj) = SQRT( z2d(ji,jj) )
             END_2D
-            CALL iom_put( "sssgrad",  z2d )        ! module of sss gradient
+            CALL iom_put( "sssgrad_"//stype,  z2d )        ! module of sss gradient
          ENDIF
       ENDIF
          
@@ -486,11 +486,10 @@ CONTAINS
       IF( (.NOT.l_ldfeiv_time) .AND. ( iom_use('RossRad')  .OR. iom_use('RossRadlim') &
             &                     .OR. iom_use('Tclinic_recip') .OR. iom_use('RR_GS')      &
             &                     .OR. iom_use('aeiu_2d')  .OR. iom_use('aeiv_2d') ) ) THEN
-         CALL ldf_eiv(kt, 75.0, z2d, z3d(:,:,1), Kmm)
+         CALL ldf_eiv(kt, 75.0, z2d, z3d(:,:,1),Kmm)
          CALL iom_put('aeiu_2d', z2d)
          CALL iom_put('aeiv_2d', z3d(:,:,1))
       ENDIF
-
 
       IF( iom_use("tosmint_"//ttype) ) THEN
          z2d(:,:) = 0._wp
@@ -510,6 +509,7 @@ CONTAINS
       CALL iom_put( "bn2", rn2 )                   ! Brunt-Vaisala buoyancy frequency (N^2)
       
       IF (ln_dia25h)   CALL dia_25h( kt, Kmm )     ! 25h averaging
+      IF (ln_pea   )   CALL dia_pea( kt, Kmm )     ! pea stats   !slwa
       
       ! Output of surface vorticity terms
       !

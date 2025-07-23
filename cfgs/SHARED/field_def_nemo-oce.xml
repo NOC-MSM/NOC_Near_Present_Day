@@ -149,6 +149,10 @@ that are available in the tidal-forcing implementation (see
     <field id="ke_int"      long_name="vertical integration of kinetic energy"   unit="m3/s2"  grid_ref="grid_T_2D_inner" />
     <field id="salt2c"      long_name="Salt content vertically integrated"       unit="1e-3*kg/m2" />
 
+    <field id="pea"        long_name="Potential Energy Anomaly"   standard_name="PEA"   unit="J/m3" grid_ref="grid_T_2D" />
+    <field id="peat"       long_name="Potential Energy Anomaly - Temperature Component"   standard_name="PEAT"   unit="J/m3" grid_ref="grid_T_2D" />
+    <field id="peas"       long_name="Potential Energy Anomaly - Salinity Component"   standard_name="PEAS"   unit="J/m3" grid_ref="grid_T_2D" />
+
     <!-- t-eddy viscosity coefficients (ldfdyn) -->
     <field id="ahmt_2d"      long_name=" surface t-eddy viscosity coefficient"   unit="m2/s or m4/s"                      />
     <field id="ahmt_3d"      long_name=" 3D      t-eddy viscosity coefficient"   unit="m2/s or m4/s"  grid_ref="grid_T_3D"/>
@@ -191,6 +195,8 @@ that are available in the tidal-forcing implementation (see
         <field id="sss2_abs"         long_name="square of sea surface absolute salinity"                                                                         unit="1e-6"      > sss_abs * sss_abs </field >
         <field id="sssmax_abs"       long_name="max of sea surface absolute salinity"      field_ref="sss_abs"   operation="maximum"                                                 />
         <field id="sssmin_abs"       long_name="min of sea surface absolute salinity"      field_ref="sss_abs"   operation="minimum"                                                 />
+        <field id="sssgrad_abs"      long_name="module of absolute sss gradient"                                                                                 unit="1e-3/m"  grid_ref="grid_T_2D_inner" />
+        <field id="sssgrad2_abs"     long_name="square of module of absolute sss gradient"                                                                       unit="1e-6/m2" grid_ref="grid_T_2D_inner"/>
         <field id="sbs_abs"          long_name="sea bottom absolute salinity"                                                                                    unit="g/kg"   grid_ref="grid_T_2D_inner" />
         <field id="somint_abs"       long_name="vertical integral of absolute salinity times density"        standard_name="integral_wrt_depth_of_product_of_density_and_absolute_salinity"  unit="(kg m2) x (1e-3)" grid_ref="grid_T_2D_inner" />
 
@@ -379,10 +385,17 @@ that are available in the tidal-forcing implementation (see
     <field id="tide_pot_Msqm" long_name="Msqm tidal potential"  unit="m" />
     <field id="tide_pot_Mtm"  long_name="Mtm tidal potential"   unit="m" />
     <field id="tide_pot_S1"   long_name="S1 tidal potential"    unit="m" />
-    <field id="tide_pot_MU2"  long_name="MU2 tidal potential"   unit="m" />
-    <field id="tide_pot_NU2"  long_name="NU2 tidal potential"   unit="m" />
+    <field id="tide_pot_mu2"  long_name="mu2 tidal potential"   unit="m" />
+    <field id="tide_pot_nu2"  long_name="nu2 tidal potential"   unit="m" />
     <field id="tide_pot_L2"   long_name="L2 tidal potential"    unit="m" />
     <field id="tide_pot_T2"   long_name="T2 tidal potential"    unit="m" />
+    <field id="tide_pot_Sa"   long_name="Sa tidal potential"    unit="m" />
+    <field id="tide_pot_Ssa"  long_name="Ssa tidal potential"   unit="m" />
+    <field id="tide_pot_Msf"  long_name="Msf tidal potential"   unit="m" />
+    <field id="tide_pot_J1"   long_name="J1 tidal potential"    unit="m" />
+    <field id="tide_pot_MKS2" long_name="MKS2 tidal potential"  unit="m" />
+    <field id="tide_pot_lam2" long_name="lam2 tidal potential"  unit="m" />
+    <field id="tide_pot_R2"   long_name="R2 tidal potential"    unit="m" />
   </field_group>
 
   <!-- OSMOSIS variables (available with ln_zdfosm=.true.) -->
