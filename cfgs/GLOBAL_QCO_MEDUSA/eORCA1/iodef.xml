@@ -23,7 +23,7 @@
       </variable_group>
     </variable_definition>
     <pool_definition>
-     <pool name="Opool" nprocs="77">
+     <pool name="Opool" nprocs="67">
       <service name="t1dwriter" nprocs="1"  type="writer"/>
       <service name="u1dwriter" nprocs="1"  type="writer"/>
       <service name="v1dwriter" nprocs="1"  type="writer"/>
@@ -44,7 +44,6 @@
       <service name="d1ywriter" nprocs="4"  type="writer"/>
       <service name="p1ywriter" nprocs="2"  type="writer"/>
       <service name="t1ywriter" nprocs="2"  type="writer"/>
-      <service name="r1ywriter" nprocs="2"  type="writer"/>
       <service name="u1ywriter" nprocs="1"  type="writer"/>
       <service name="v1ywriter" nprocs="1"  type="writer"/>
       <service name="w1ywriter" nprocs="2"  type="writer"/>
@@ -53,7 +52,6 @@
       <service name="pgatherer" nprocs="8"  type="gatherer"/>
       <service name="dgatherer" nprocs="8"  type="gatherer"/>
       <service name="tgatherer" nprocs="8"  type="gatherer"/>
-      <service name="rgatherer" nprocs="8"  type="gatherer"/>
       <service name="igatherer" nprocs="4"  type="gatherer"/>
       <service name="ugatherer" nprocs="4"  type="gatherer"/>
      </pool>
