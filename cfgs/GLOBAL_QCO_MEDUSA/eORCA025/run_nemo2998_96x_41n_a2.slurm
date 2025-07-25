@@ -1,19 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=NPD_025
-#SBATCH --output=./job.out
-#SBATCH --error=./job.err
 #SBATCH --account=n01-CLASS
-#SBATCH --time=05:00:00
+#SBATCH --time=10:00:00
 #SBATCH --nodes=45
 #SBATCH --partition=standard
 #SBATCH --qos=standard
 #SBATCH --exclusive
 #SBATCH --hint=nomultithread
 #SBATCH --distribution=block:cyclic
-
-set -u
-set -e
-set -o pipefail
 
 
 # ========================================================
@@ -369,7 +363,7 @@ export SLURM_OVERLAP=1
 echo "Commence srun.."
 
 srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
---het-group=0 --nodes=10 --ntasks=163 --ntasks-per-core=1 --ntasks-per-node=17 --cpus-per-task=1 /tmp/xios_server.exe \
+--het-group=0 --nodes=10 --ntasks=160 --ntasks-per-core=1 --ntasks-per-node=16 --cpus-per-task=1 /tmp/xios_server.exe \
 : --het-group=1 --nodes=34 --ntasks=2924 --ntasks-per-core=1 --ntasks-per-node=86 --cpus-per-task=1  /tmp/nemo \
 : --het-group=2 --nodes=1 --ntasks=74 --ntasks-per-core=1 --ntasks-per-node=74 --cpus-per-task=1  /tmp/nemo
 
