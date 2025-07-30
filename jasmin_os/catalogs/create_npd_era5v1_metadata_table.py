@@ -1,9 +1,9 @@
 """
-create_npd_era5_v1_catalog.py
+create_npd_era5v1_metadata_tables.py
 
-Description: This script creates a catalog for the National
+Description: This script creates metadata tables for the National
 Oceanography Centre's Near-Present-Day (NPD) ERA-5 version 1
-outputs. The catalog is saved as a CSV file.
+outputs. The tables are saved as separate CSV files.
 
 Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 Creation Date: 2025-03-03
@@ -14,7 +14,7 @@ import glob
 import pandas as pd
 import xarray as xr
 
-arch = 'Anemone'
+arch = 'Archer2'  # Set architecture type: 'Anemone' or 'Archer2'
 
 # -- Anemone Metadata DataFrames -- #
 if arch == 'Anemone':
@@ -57,7 +57,7 @@ if arch == 'Anemone':
         df_inv.to_csv(f'/dssgfs01/scratch/otooth/NOC_NPD/20250512_eORCA1_ERA5v1/NOC_Near_Present_Day/jasmin_os/catalogs/npd_{model.lower()}_era5v1_catalog.csv', index=False)
 
 # -- Archer2 Metadata DataFrame -- #
-if arch == 'Archer2':
+elif arch == 'Archer2':
     # eORCA12 NPD model:
     model = 'eORCA12'
     # Define empty dataframe:
@@ -66,7 +66,7 @@ if arch == 'Archer2':
     for grid in ['T', 'U', 'V', 'W']:
         for freq in ['5d', '1m', '1y']:
             # Open example dataset to get variable metadata:
-            filepaths = glob.glob(f'/dssgfs01/scratch/npd/simulations/{model}_ERA5_v1/{model}_ERA5_{freq}_grid_{grid}*.nc')
+            filepaths = glob.glob(f'/work/n01/n01/atb299/NOC_NPD/20250228/NOC_Near_Present_Day/nemo/cfgs/GLOBAL_QCO/{model}/TIDY/????/{model}_{freq}_grid_{grid}*.nc')
             filepaths.sort()
             ds = xr.open_dataset(filepaths[0])
             # Iterate over available variables:
@@ -87,4 +87,4 @@ if arch == 'Archer2':
                     df_inv.loc[len(df_inv)] = [var, attrs['standard_name'].lower(), attrs['long_name'].lower(), attrs['units'], ds[var].dims, model, grid, freq, url]
 
     # Save model catalog DataFrame to CSV file:
-    df_inv.to_csv(f'/dssgfs01/scratch/otooth/NOC_NPD/20250512_eORCA1_ERA5v1/NOC_Near_Present_Day/jasmin_os/catalogs/npd_{model.lower()}_era5v1_catalog.csv', index=False)
+    df_inv.to_csv(f'/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/catalogs/npd_{model.lower()}_era5v1_catalog.csv', index=False)

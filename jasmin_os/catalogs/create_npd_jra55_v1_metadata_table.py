@@ -1,9 +1,9 @@
 """
-create_npd_jra55_v1_catalog.py
+create_npd_jra55v1_metadata_table.py
 
-Description: This script creates a catalog for the National
+Description: This script creates a metadata table for the National
 Oceanography Centre's Near-Present-Day (NPD) JRA55-do version 1
-outputs. The catalog is saved as a CSV file.
+outputs. The metadata table is saved in a single CSV file.
 
 Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 Creation Date: 2025-03-03
