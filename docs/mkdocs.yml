@@ -76,7 +76,9 @@ nav:
   - Validation: validation.md
   - Analysis: 
     - analysis.md
-    - Notebooks: tutorial_1_exploring_sst.ipynb
+    - Notebooks: 
+      - tutorial_1_exploring_sst_zarr.ipynb
+      - tutorial_2_exploring_sst_icechunk.ipynb
 
 plugins:
   - search

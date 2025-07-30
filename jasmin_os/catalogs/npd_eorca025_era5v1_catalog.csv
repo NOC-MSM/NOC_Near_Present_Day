@@ -1,0 +1,233 @@
+variable,standard_name,long_name,units,dims,model,grid,freq,url
+e3t,cell_thickness,t-cell thickness,m,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_4d
+thetao_con,sea_water_conservative_temperature,sea_water_conservative_temperature,degC,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_4d
+so_abs,sea_water_absolute_salinity,sea_water_absolute_salinity,g/kg,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_4d
+zos,sea_surface_height_above_geoid,sea surface height above geoid,m,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+zossq,square_of_sea_surface_height_above_geoid,square of sea surface height above geoid,m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+friver,water_flux_into_sea_water_from_rivers,river runoffs,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hfto,surface_net_downward_total_heat_flux,net downward heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hfsr,surface_net_downward_solar_heat_flux,shortwave radiation,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hfns,surface_net_downward_non_solar_heat_flux,non solar downward heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+rsdo,downwelling_shortwave_flux_in_sea_water,shortwave radiation 3d distribution,W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_4d
+hfds,ocean_surface_downward_total_heat_flux,total flux at ocean surface,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+rlntds,ocean_surface_net_downward_longwave_heat_flux,longwave downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hfss,ocean_surface_downward_sensible_heat_flux,sensible downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hfls,ocean_surface_downward_latent_heat_flux,latent downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hfempds,ocean_surface_downward_heat_flux_from_e-p,downward heat flux from e-p over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+rsntds,ocean_surface_net_downward_shortwave_heat_flux,solar heat flux at ocean surface,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+mlotst,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+mlotstsq,square_of_ocean_mixed_layer_thickness_defined_by_sigma_theta,square of ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+mlotstmax,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+mlotstmin,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+ficeberg,water_flux_into_sea_water_from_icebergs,icb melt rate of icebergs,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+berg_latent_heat_flux,latent_heat_flux_from_icebergs,icb heat flux to ocean due to melting latent heat,J/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+pbo,sea_water_pressure_at_sea_floor,sea water pressure at sea floor,dbar,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+tos_con,sea_surface_temperature,sea_surface_conservative_temperature,degC,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+tossq_con,square_of_sea_surface_temperature,square_of_sea_surface_conservative_temperature,degC2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+sos_abs,sea_surface_salinity,sea_surface_absolute_salinity,g/kg,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+sossq_abs,square_of_sea_surface_salinity,square of sea surface salinity,1e-6,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+evs,water_evaporation_flux,water evaporation flux where ice free ocean over sea,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+prsn,snowfall_flux,snowfall flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hfrainds,temperature_flux_due_to_rain_expressed_as_heat_flux_into_sea_water,temperature flux due to rain expressed as heat flux in to sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hfevapds,temperature_flux_due_to_evaporation_expressed_as_heat_flux_out_of_sea_water,temperature flux due to evaporation expressed as heat flux out of sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+hflx_rnf,temperature_flux_due_to_runoff_expressed_as_heat_flux_into_sea_water,temperature flux due to runoff expressed as heat flux into  sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+sfdsi,downward_sea_ice_basal_salt_flux,downward salt flux,g/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+empmr,water_flux_out_of_sea_ice_and_sea_water,net upward water flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+snowpre,snowfall_flux,snow precipitation,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+snow_ai_cea,snowfall_flux,snow over sea-ice (cell average),kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+sowaflup,water_flux_out_of_sea_ice_and_sea_water,net upward water flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+sosafldo,salt_flux_into_sea_water,downward salt flux,g/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+somixhgt,ocean_mixed_layer_thickness_defined_by_vertical_tracer_diffusivity,turbocline depth (kz = 5e-4),m,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+somxl010,ocean_mixed_layer_thickness_defined_by_sigma_theta,mixed layer depth (dsigma = 0.01 wrt 10m),m,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+somxzint1,ocean_mixed_layer_thickness_defined_by_sigma_theta,mixed layer depth interpolated,m,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+soicecov,sea_ice_area_fraction,ice fraction,1,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+sowindsp,wind_speed,wind speed module,m/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+sohflisf,,ice shelf latent heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+vohflisf,,ice shelf latent heat flux ( from isf to oce ),W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_4d
+sohfcisf,,ice shelf heat content flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+vohfcisf,,ice shelf heat content flux of injected water ( from isf to oce ),W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_4d
+sowflisf,,ice shelf melting,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+vowflisf,,3d ice shelf fresh water flux ( from isf to oce ),kg/m2/s,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_4d
+ocontempmint,integral_wrt_depth_of_product_of_density_and_conservative_temperature,vertical integral of conservative temperature times density,(kg m2) degree_C,"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+somint_abs,integral_wrt_depth_of_product_of_density_and_absolute_salinity,vertical integral of absolute salinity times density,(kg m2) x (1e-3),"('time_counter', 'y', 'x')",eORCA025,T,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T5d_3d
+e3t,cell_thickness,t-cell thickness,m,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_4d
+thetao_con,sea_water_conservative_temperature,sea_water_conservative_temperature,degC,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_4d
+so_abs,sea_water_absolute_salinity,sea_water_absolute_salinity,g/kg,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_4d
+zos,sea_surface_height_above_geoid,sea surface height above geoid,m,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+zossq,square_of_sea_surface_height_above_geoid,square of sea surface height above geoid,m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+friver,water_flux_into_sea_water_from_rivers,river runoffs,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hfto,surface_net_downward_total_heat_flux,net downward heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hfsr,surface_net_downward_solar_heat_flux,shortwave radiation,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hfns,surface_net_downward_non_solar_heat_flux,non solar downward heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+rsdo,downwelling_shortwave_flux_in_sea_water,shortwave radiation 3d distribution,W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_4d
+hfds,ocean_surface_downward_total_heat_flux,total flux at ocean surface,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+rlntds,ocean_surface_net_downward_longwave_heat_flux,longwave downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hfss,ocean_surface_downward_sensible_heat_flux,sensible downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hfls,ocean_surface_downward_latent_heat_flux,latent downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hfempds,ocean_surface_downward_heat_flux_from_e-p,downward heat flux from e-p over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+rsntds,ocean_surface_net_downward_shortwave_heat_flux,solar heat flux at ocean surface,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+mlotst,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+mlotstsq,square_of_ocean_mixed_layer_thickness_defined_by_sigma_theta,square of ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+mlotstmax,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+mlotstmin,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+ficeberg,water_flux_into_sea_water_from_icebergs,icb melt rate of icebergs,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+berg_latent_heat_flux,latent_heat_flux_from_icebergs,icb heat flux to ocean due to melting latent heat,J/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+pbo,sea_water_pressure_at_sea_floor,sea water pressure at sea floor,dbar,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+tos_con,sea_surface_temperature,sea_surface_conservative_temperature,degC,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+tossq_con,square_of_sea_surface_temperature,square_of_sea_surface_conservative_temperature,degC2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+sos_abs,sea_surface_salinity,sea_surface_absolute_salinity,g/kg,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+sossq_abs,square_of_sea_surface_salinity,square of sea surface salinity,1e-6,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+evs,water_evaporation_flux,water evaporation flux where ice free ocean over sea,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+prsn,snowfall_flux,snowfall flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hfrainds,temperature_flux_due_to_rain_expressed_as_heat_flux_into_sea_water,temperature flux due to rain expressed as heat flux in to sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hfevapds,temperature_flux_due_to_evaporation_expressed_as_heat_flux_out_of_sea_water,temperature flux due to evaporation expressed as heat flux out of sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+hflx_rnf,temperature_flux_due_to_runoff_expressed_as_heat_flux_into_sea_water,temperature flux due to runoff expressed as heat flux into  sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+sfdsi,downward_sea_ice_basal_salt_flux,downward salt flux,g/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+empmr,water_flux_out_of_sea_ice_and_sea_water,net upward water flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+snowpre,snowfall_flux,snow precipitation,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+snow_ai_cea,snowfall_flux,snow over sea-ice (cell average),kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+sowaflup,water_flux_out_of_sea_ice_and_sea_water,net upward water flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+sosafldo,salt_flux_into_sea_water,downward salt flux,g/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+somixhgt,ocean_mixed_layer_thickness_defined_by_vertical_tracer_diffusivity,turbocline depth (kz = 5e-4),m,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+somxl010,ocean_mixed_layer_thickness_defined_by_sigma_theta,mixed layer depth (dsigma = 0.01 wrt 10m),m,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+somxzint1,ocean_mixed_layer_thickness_defined_by_sigma_theta,mixed layer depth interpolated,m,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+soicecov,sea_ice_area_fraction,ice fraction,1,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+sowindsp,wind_speed,wind speed module,m/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+sohflisf,,ice shelf latent heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+vohflisf,,ice shelf latent heat flux ( from isf to oce ),W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_4d
+sohfcisf,,ice shelf heat content flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+vohfcisf,,ice shelf heat content flux of injected water ( from isf to oce ),W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_4d
+sowflisf,,ice shelf melting,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+vowflisf,,3d ice shelf fresh water flux ( from isf to oce ),kg/m2/s,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_4d
+ocontempmint,integral_wrt_depth_of_product_of_density_and_conservative_temperature,vertical integral of conservative temperature times density,(kg m2) degree_C,"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+somint_abs,integral_wrt_depth_of_product_of_density_and_absolute_salinity,vertical integral of absolute salinity times density,(kg m2) x (1e-3),"('time_counter', 'y', 'x')",eORCA025,T,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1m_3d
+e3t,cell_thickness,t-cell thickness,m,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_4d
+thetao_con,sea_water_conservative_temperature,sea_water_conservative_temperature,degC,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_4d
+so_abs,sea_water_absolute_salinity,sea_water_absolute_salinity,g/kg,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_4d
+zos,sea_surface_height_above_geoid,sea surface height above geoid,m,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+zossq,square_of_sea_surface_height_above_geoid,square of sea surface height above geoid,m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+friver,water_flux_into_sea_water_from_rivers,river runoffs,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hfto,surface_net_downward_total_heat_flux,net downward heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hfsr,surface_net_downward_solar_heat_flux,shortwave radiation,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hfns,surface_net_downward_non_solar_heat_flux,non solar downward heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+rsdo,downwelling_shortwave_flux_in_sea_water,shortwave radiation 3d distribution,W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_4d
+hfds,ocean_surface_downward_total_heat_flux,total flux at ocean surface,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+rlntds,ocean_surface_net_downward_longwave_heat_flux,longwave downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hfss,ocean_surface_downward_sensible_heat_flux,sensible downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hfls,ocean_surface_downward_latent_heat_flux,latent downward heat flux over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hfempds,ocean_surface_downward_heat_flux_from_e-p,downward heat flux from e-p over open ocean,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+rsntds,ocean_surface_net_downward_shortwave_heat_flux,solar heat flux at ocean surface,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+mlotst,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+mlotstsq,square_of_ocean_mixed_layer_thickness_defined_by_sigma_theta,square of ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+mlotstmax,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+mlotstmin,ocean_mixed_layer_thickness_defined_by_sigma_theta,ocean mixed layer thickness defined by sigma t,m,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+ficeberg,water_flux_into_sea_water_from_icebergs,icb melt rate of icebergs,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+berg_latent_heat_flux,latent_heat_flux_from_icebergs,icb heat flux to ocean due to melting latent heat,J/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+pbo,sea_water_pressure_at_sea_floor,sea water pressure at sea floor,dbar,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+tos_con,sea_surface_temperature,sea_surface_conservative_temperature,degC,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+tossq_con,square_of_sea_surface_temperature,square_of_sea_surface_conservative_temperature,degC2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+sos_abs,sea_surface_salinity,sea_surface_absolute_salinity,g/kg,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+sossq_abs,square_of_sea_surface_salinity,square of sea surface salinity,1e-6,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+evs,water_evaporation_flux,water evaporation flux where ice free ocean over sea,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+prsn,snowfall_flux,snowfall flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hfrainds,temperature_flux_due_to_rain_expressed_as_heat_flux_into_sea_water,temperature flux due to rain expressed as heat flux in to sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hfevapds,temperature_flux_due_to_evaporation_expressed_as_heat_flux_out_of_sea_water,temperature flux due to evaporation expressed as heat flux out of sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+hflx_rnf,temperature_flux_due_to_runoff_expressed_as_heat_flux_into_sea_water,temperature flux due to runoff expressed as heat flux into  sea water,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+sfdsi,downward_sea_ice_basal_salt_flux,downward salt flux,g/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+empmr,water_flux_out_of_sea_ice_and_sea_water,net upward water flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+snowpre,snowfall_flux,snow precipitation,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+snow_ai_cea,snowfall_flux,snow over sea-ice (cell average),kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+sowaflup,water_flux_out_of_sea_ice_and_sea_water,net upward water flux,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+sosafldo,salt_flux_into_sea_water,downward salt flux,g/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+somixhgt,ocean_mixed_layer_thickness_defined_by_vertical_tracer_diffusivity,turbocline depth (kz = 5e-4),m,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+somxl010,ocean_mixed_layer_thickness_defined_by_sigma_theta,mixed layer depth (dsigma = 0.01 wrt 10m),m,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+somxzint1,ocean_mixed_layer_thickness_defined_by_sigma_theta,mixed layer depth interpolated,m,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+soicecov,sea_ice_area_fraction,ice fraction,1,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+sowindsp,wind_speed,wind speed module,m/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+sohflisf,,ice shelf latent heat flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+vohflisf,,ice shelf latent heat flux ( from isf to oce ),W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_4d
+sohfcisf,,ice shelf heat content flux,W/m2,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+vohfcisf,,ice shelf heat content flux of injected water ( from isf to oce ),W/m2,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_4d
+sowflisf,,ice shelf melting,kg/m2/s,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+vowflisf,,3d ice shelf fresh water flux ( from isf to oce ),kg/m2/s,"('time_counter', 'deptht', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_4d
+ocontempmint,integral_wrt_depth_of_product_of_density_and_conservative_temperature,vertical integral of conservative temperature times density,(kg m2) degree_C,"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+somint_abs,integral_wrt_depth_of_product_of_density_and_absolute_salinity,vertical integral of absolute salinity times density,(kg m2) x (1e-3),"('time_counter', 'y', 'x')",eORCA025,T,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/T1y_3d
+e3u,cell_thickness,u-cell thickness,m,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U5d_4d
+uo,sea_water_x_velocity,ocean current along i-axis,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U5d_4d
+uo_eiv,bolus_sea_water_x_velocity,eiv ocean current along i-axis,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U5d_4d
+tauuo,surface_downward_x_stress,wind stress along i-axis,N/m2,"('time_counter', 'y', 'x')",eORCA025,U,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U5d_3d
+u2o,square_of_sea_water_x_velocity,uu,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U5d_4d
+umo,ocean_mass_x_transport,ocean mass x transport,kg/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U5d_4d
+umo_vint,vertical_integral_of_ocean_mass_x_transport,vertical integral of ocean eulerian mass transport along i-axis,kg/s,"('time_counter', 'y', 'x')",eORCA025,U,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U5d_3d
+sozosatr,ocean_salt_x_transport,ocean eulerian salt transport along i-axis,1e-3*kg/s,"('time_counter', 'y', 'x')",eORCA025,U,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U5d_3d
+e3u,cell_thickness,u-cell thickness,m,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_4d
+uo,sea_water_x_velocity,ocean current along i-axis,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_4d
+uo_eiv,bolus_sea_water_x_velocity,eiv ocean current along i-axis,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_4d
+tauuo,surface_downward_x_stress,wind stress along i-axis,N/m2,"('time_counter', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_3d
+u2o,square_of_sea_water_x_velocity,uu,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_4d
+umo,ocean_mass_x_transport,ocean mass x transport,kg/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_4d
+umo_vint,vertical_integral_of_ocean_mass_x_transport,vertical integral of ocean eulerian mass transport along i-axis,kg/s,"('time_counter', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_3d
+hfx,ocean_heat_x_transport,ocean eulerian heat transport along i-axis,W,"('time_counter', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_3d
+hfx_adv,advectice_ocean_heat_x_transport,ocean advective heat transport along i-axis,W,"('time_counter', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_3d
+hfx_diff,ocean_heat_x_transport_due_to_diffusion,ocean diffusion heat transport along i-axis,W,"('time_counter', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_3d
+sozosatr,ocean_salt_x_transport,ocean eulerian salt transport along i-axis,1e-3*kg/s,"('time_counter', 'y', 'x')",eORCA025,U,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1m_3d
+e3u,cell_thickness,u-cell thickness,m,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_4d
+uo,sea_water_x_velocity,ocean current along i-axis,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_4d
+uo_eiv,bolus_sea_water_x_velocity,eiv ocean current along i-axis,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_4d
+tauuo,surface_downward_x_stress,wind stress along i-axis,N/m2,"('time_counter', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_3d
+u2o,square_of_sea_water_x_velocity,uu,m/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_4d
+umo,ocean_mass_x_transport,ocean mass x transport,kg/s,"('time_counter', 'depthu', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_4d
+umo_vint,vertical_integral_of_ocean_mass_x_transport,vertical integral of ocean eulerian mass transport along i-axis,kg/s,"('time_counter', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_3d
+hfx,ocean_heat_x_transport,ocean eulerian heat transport along i-axis,W,"('time_counter', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_3d
+hfx_adv,advectice_ocean_heat_x_transport,ocean advective heat transport along i-axis,W,"('time_counter', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_3d
+hfx_diff,ocean_heat_x_transport_due_to_diffusion,ocean diffusion heat transport along i-axis,W,"('time_counter', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_3d
+sozosatr,ocean_salt_x_transport,ocean eulerian salt transport along i-axis,1e-3*kg/s,"('time_counter', 'y', 'x')",eORCA025,U,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/U1y_3d
+e3v,cell_thickness,v-cell thickness,m,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V5d_4d
+vo,sea_water_y_velocity,ocean current along j-axis,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V5d_4d
+vo_eiv,bolus_sea_water_y_velocity,eiv ocean current along j-axis,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V5d_4d
+tauvo,surface_downward_y_stress,wind stress along j-axis,N/m2,"('time_counter', 'y', 'x')",eORCA025,V,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V5d_3d
+v2o,square_of_sea_water_y_velocity,vv,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V5d_4d
+vmo,ocean_mass_y_transport,ocean eulerian mass transport along j-axis,kg/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V5d_4d
+somesatr,ocean_salt_y_transport,ocean eulerian salt transport along i-axis,1e-3*kg/s,"('time_counter', 'y', 'x')",eORCA025,V,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V5d_3d
+e3v,cell_thickness,v-cell thickness,m,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_4d
+vo,sea_water_y_velocity,ocean current along j-axis,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_4d
+vo_eiv,bolus_sea_water_y_velocity,eiv ocean current along j-axis,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_4d
+tauvo,surface_downward_y_stress,wind stress along j-axis,N/m2,"('time_counter', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_3d
+v2o,square_of_sea_water_y_velocity,vv,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_4d
+vmo,ocean_mass_y_transport,ocean eulerian mass transport along j-axis,kg/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_4d
+hfy,ocean_heat_y_transport,ocean eulerian heat transport along j-axis,W,"('time_counter', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_3d
+hfy_adv,advectice_ocean_heat_y_transport,ocean advective heat transport along j-axis,W,"('time_counter', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_3d
+hfy_diff,ocean_heat_y_transport_due_to_diffusion,ocean diffusion heat transport along j-axis,W,"('time_counter', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_3d
+somesatr,ocean_salt_y_transport,ocean eulerian salt transport along i-axis,1e-3*kg/s,"('time_counter', 'y', 'x')",eORCA025,V,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1m_3d
+e3v,cell_thickness,v-cell thickness,m,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_4d
+vo,sea_water_y_velocity,ocean current along j-axis,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_4d
+vo_eiv,bolus_sea_water_y_velocity,eiv ocean current along j-axis,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_4d
+tauvo,surface_downward_y_stress,wind stress along j-axis,N/m2,"('time_counter', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_3d
+v2o,square_of_sea_water_y_velocity,vv,m/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_4d
+vmo,ocean_mass_y_transport,ocean eulerian mass transport along j-axis,kg/s,"('time_counter', 'depthv', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_4d
+hfy,ocean_heat_y_transport,ocean eulerian heat transport along j-axis,W,"('time_counter', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_3d
+hfy_adv,advectice_ocean_heat_y_transport,ocean advective heat transport along j-axis,W,"('time_counter', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_3d
+hfy_diff,ocean_heat_y_transport_due_to_diffusion,ocean diffusion heat transport along j-axis,W,"('time_counter', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_3d
+somesatr,ocean_salt_y_transport,ocean eulerian salt transport along i-axis,1e-3*kg/s,"('time_counter', 'y', 'x')",eORCA025,V,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/V1y_3d
+e3w,cell_thickness,w-cell thickness,m,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W5d_4d
+wmo,upward_ocean_mass_transport,vertical mass transport,kg/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W5d_4d
+wo,upward_sea_water_velocity,w,m/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W5d_4d
+w2o,square_of_upward_sea_water_velocity,ww,m/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,5d,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W5d_4d
+e3w,cell_thickness,w-cell thickness,m,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+difvho,ocean_vertical_heat_diffusivity,vertical eddy diffusivity,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+difvso,ocean_vertical_salt_diffusivity,salt vertical eddy diffusivity,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+difvmo,ocean_vertical_momentum_diffusivity,vertical eddy viscosity,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+avt_evd,enhanced_vertical_heat_diffusivity,convective enhancement of vertical diffusivity,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+diftrto,ocean_vertical_tracer_diffusivity_due_to_tides,vertical diffusivity due to tidal mixing,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+wmo,upward_ocean_mass_transport,vertical mass transport,kg/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+wo,upward_sea_water_velocity,w,m/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+w2o,square_of_upward_sea_water_velocity,ww,m/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1m,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1m_4d
+e3w,cell_thickness,w-cell thickness,m,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
+difvho,ocean_vertical_heat_diffusivity,vertical eddy diffusivity,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
+difvso,ocean_vertical_salt_diffusivity,salt vertical eddy diffusivity,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
+difvmo,ocean_vertical_momentum_diffusivity,vertical eddy viscosity,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
+avt_evd,enhanced_vertical_heat_diffusivity,convective enhancement of vertical diffusivity,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
+diftrto,ocean_vertical_tracer_diffusivity_due_to_tides,vertical diffusivity due to tidal mixing,m2/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
+wmo,upward_ocean_mass_transport,vertical mass transport,kg/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
+wo,upward_sea_water_velocity,w,m/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
+w2o,square_of_upward_sea_water_velocity,ww,m/s,"('time_counter', 'depthw', 'y', 'x')",eORCA025,W,1y,https://noc-msm-o.s3-ext.jc.rl.ac.uk/npd-eorca025-era5v1/W1y_4d
