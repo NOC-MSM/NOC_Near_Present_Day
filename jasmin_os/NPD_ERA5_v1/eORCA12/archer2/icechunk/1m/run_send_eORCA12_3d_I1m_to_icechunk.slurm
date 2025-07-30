@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=xfer_I1m_eORCA12
-#SBATCH --time=05:00:00
-#SBATCH --ntasks=30
-#SBATCH --mem=75GB
+#SBATCH --job-name=xfer_I1m_3d_eORCA12
+#SBATCH --time=12:00:00
+#SBATCH --ntasks=12
+#SBATCH --mem=36GB
 
 #SBATCH --account=n01-CLASS
 #SBATCH --partition=serial
@@ -29,7 +29,7 @@ filedir=/work/n01/n01/atb299/NOC_NPD/20250228/NOC_Near_Present_Day/nemo/cfgs/GLO
 store_credentials_json=/work/n01/n01/otooth/NOC-NPD/credentials/jasmin_os_credentials.json
 
 # Filepath to Dask configuration:
-dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/dask_config.json
+dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/eORCA12/archer2/icechunk/1m/dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca12-era5v1
@@ -45,16 +45,16 @@ object_prefix=I1m_3d
 
 # -- Send eORCA12 monthly mean outputs to JASMIN OS -- #
 # Iterating over years:
-for yr in {1980..2024}
+for yr in {1980..2023}
 do
     # Define the filepath to the monthly mean icemod files:
-    filepath_icemod=$filedir/${yr}/eORCA12_1m_icemod_${yr}*.nc
+    filepath_icemod=$filedir/????/eORCA12_1m_icemod_${yr}*.nc
 
-    echo "In Progress: Appending $yr eORCA12 ERA-5 v1 I1m variables to icechunk store..."
+    echo "In Progress: Sending ${yr} eORCA12 ERA-5 v1 I1m variables to icechunk store..."
     ods update_icechunk -f $filepath_icemod -c $store_credentials_json -b $bucket -p $object_prefix \
                         -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                         -cs '{"x":4320, "y":3605}' -dc $dask_config_json \
-                        -br "main" -cm "Added eORCA12 ERA5v1 I1m 1980-2024" || { echo "Error: ods update_icechunk failed."; exit 1; }
+                        -br "main" -cm "Added eORCA12 ERA5v1 I1m 1976-2024" || { echo "Error: ods update_icechunk failed."; exit 1; }
 
-    echo "Completed: Append $yr eORCA12 ERA-5 v1 I1m fields to icechunk store."
+    echo "Completed: Sent ${yr} eORCA12 ERA-5 v1 I1m variables to icechunk store."
 done

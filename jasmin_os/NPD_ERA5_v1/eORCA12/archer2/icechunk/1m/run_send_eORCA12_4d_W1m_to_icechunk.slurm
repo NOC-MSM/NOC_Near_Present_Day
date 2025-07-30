@@ -39,22 +39,25 @@ bucket=npd-eorca12-era5v1
 source /home2/home/n01/n01/otooth/miniforge3/bin/activate
 conda activate env_jasmin_os
 
+# Define 4-dimensional variables:
+variables_gridW="depthw_bounds time_centered_bounds time_counter_bounds e3w difvho difvso difvmo avt_evd wmo wo w2o obvfsq"
+
 # -- Send eORCA12 monthly mean outputs to JASMIN OS -- #
 # Define the object prefix for the icechunk store:
 object_prefix=W1m
 
 # -- Send eORCA12 monthly mean outputs to JASMIN OS -- #
 # Iterating over years:
-for yr in {1980..2024}
+for yr in {1980..2023}
 do
     # Define the filepath to the monthly mean W-point files:
-    filepath_gridW=$filedir/${yr}/eORCA12_1m_grid_W_${yr}*.nc
+    filepath_gridW=$filedir/????/eORCA12_1m_grid_W_${yr}*.nc
 
-    echo "In Progress: Appending $yr eORCA12 ERA-5 v1 W1m variables to icechunk store..."
+    echo "In Progress: Sending ${yr} eORCA12 ERA-5 v1 W1m variables to icechunk store..."
     ods update_icechunk -f $filepath_gridW -c $store_credentials_json -b $bucket -p $object_prefix \
                         -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                         -cs '{"x":540, "y":721, "depthw":25}' -v $variables_gridW -dc $dask_config_json \
-                        -br "main" -cm "Added eORCA12 ERA5v1 W1m 1980-2024" || { echo "Error: ods update_icechunk failed."; exit 1; }
+                        -br "main" -cm "Added eORCA12 ERA5v1 W1m 1976-2024" || { echo "Error: ods update_icechunk failed."; exit 1; }
 
-    echo "Completed: Append $yr eORCA12 ERA-5 v1 W1m fields to icechunk store."
+    echo "Completed: Sent ${yr} eORCA12 ERA-5 v1 W1m fields to icechunk store."
 done

@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=xfer_T1m_3d_eORCA12
 #SBATCH --time=10:00:00
-#SBATCH --ntasks=25
-#SBATCH --mem=50GB
+#SBATCH --ntasks=12
+#SBATCH --mem=36GB
 
 #SBATCH --account=n01-CLASS
 #SBATCH --partition=serial
@@ -32,7 +32,7 @@ variables_gridT="time_centered_bounds time_counter_bounds zos zossq friver hfto 
 store_credentials_json=/work/n01/n01/otooth/NOC-NPD/credentials/jasmin_os_credentials.json
 
 # Filepath to Dask configuration:
-dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/dask_config.json
+dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/eORCA12/archer2/icechunk/1y/dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca12-era5v1
@@ -48,7 +48,7 @@ object_prefix=T1m_3d
 
 # -- Send eORCA12 monthly mean outputs to JASMIN OS -- #
 # Iterating over years:
-for yr in {1980..2024}
+for yr in {1980..2023}
 do
     # Define the filepath to the monthly mean T-point files:
     filepath_gridT=$filedir/${yr}/eORCA12_1m_grid_T_${yr}*.nc

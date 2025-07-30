@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=xfer_U1m_3d_eORCA12
 #SBATCH --time=10:00:00
-#SBATCH --ntasks=30
-#SBATCH --mem=75GB
+#SBATCH --ntasks=2
+#SBATCH --mem=8GB
 
 #SBATCH --account=n01-CLASS
 #SBATCH --partition=serial
@@ -26,7 +26,7 @@ filepath_domain=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near
 filedir=/work/n01/n01/atb299/NOC_NPD/20250228/NOC_Near_Present_Day/nemo/cfgs/GLOBAL_QCO/eORCA12/TIDY
 
 # Define 3-dimensional variables:
-variables_gridU="tauuo umo_vint hfx hfx_adv hfx_diff sozosatr"
+variables_gridU="time_centered_bounds time_counter_bounds tauuo umo_vint hfx hfx_adv hfx_diff sozosatr"
 
 # Filepath to JASMIN OS credentials:
 store_credentials_json=/work/n01/n01/otooth/NOC-NPD/credentials/jasmin_os_credentials.json
@@ -48,16 +48,16 @@ object_prefix=U1m_3d
 
 # -- Send eORCA12 monthly mean outputs to JASMIN OS -- #
 # Iterating over years:
-for yr in {1980..2024}
+for yr in {1980..2023}
 do
     # Define the filepath to the monthly mean U-point files:
-    filepath_gridU=$filedir/${yr}/eORCA12_1m_grid_U_${yr}*.nc
+    filepath_gridU=$filedir/????/eORCA12_1m_grid_U_${yr}*.nc
 
-    echo "In Progress: Sending $yr eORCA12 ERA-5 v1 U1m 3D variables to icechunk store..."
+    echo "In Progress: Sending ${yr} eORCA12 ERA-5 v1 U1m 3D variables to icechunk store..."
     ods update_icechunk -f $filepath_gridU -c $store_credentials_json -b $bucket -p $object_prefix \
                         -gf $filepath_domain -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
-                        -cs '{"x":4320, "y":3605}' -v $variables_gridU -dc $dask_config_json \
-                        -br "main" -cm "Added eORCA12 ERA5v1 U1m 1980-2024" || { echo "Error: ods update_icechunk failed."; exit 1; }
+                        -cs '{"x":4320, "y":3605}' -v $variables_gridU \
+                        -br "main" -cm "Added eORCA12 ERA5v1 U1m 1976-2024" || { echo "Error: ods update_icechunk failed."; exit 1; }
 
-    echo "Completed: Sent $yr eORCA12 ERA-5 v1 U1m 3D variables to icechunk store."
+    echo "Completed: Sent ${yr} eORCA12 ERA-5 v1 U1m 3D variables to icechunk store."
 done

@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=xfer_S1m_eORCA12
 #SBATCH --time=05:00:00
-#SBATCH --ntasks=30
-#SBATCH --mem=75GB
+#SBATCH --ntasks=12
+#SBATCH --mem=25GB
 
 #SBATCH --account=n01-CLASS
 #SBATCH --partition=serial
@@ -29,7 +29,7 @@ filedir=/work/n01/n01/atb299/NOC_NPD/20250228/NOC_Near_Present_Day/nemo/cfgs/GLO
 store_credentials_json=/work/n01/n01/otooth/NOC-NPD/credentials/jasmin_os_credentials.json
 
 # Filepath to Dask configuration:
-dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/dask_config.json
+dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/eORCA12/archer2/icechunk/1m/dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca12-era5v1
@@ -45,7 +45,7 @@ object_prefix=S1m_1d
 
 # -- Send eORCA12 monthly mean outputs to JASMIN OS -- #
 # Iterating over years:
-for yr in {1980..2024}
+for yr in {1980..2023}
 do
     # Define the filepath to the monthly mean scalar files:
     filepath_scalar=$filedir/${yr}/eORCA12_1m_scalar_${yr}*.nc
