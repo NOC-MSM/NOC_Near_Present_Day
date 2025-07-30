@@ -74,9 +74,13 @@ JASMIN is the UK's data analysis facility for environmental science, providing s
 
 The JASMIN object store is organised into tenancies (equivalent to Group Workspaces for those already familiar with JASMIN). Outputs from the Near-Present-Day simulations are stored in the ```noc-msm-o``` tenancy using the following structure:
 
+### **NPD JRA55-do v1**
+
+Outputs available for the Near-Present-Day simulations using the JRA55-do atmospheric forcing dataset (1976-2024) are stored in **Zarr stores** (see below) in the ```npd-eorca1-jra55v1``` and ```npd-eorca025-jra55v1``` buckets, which correspond to the eORCA1 and eORCA025 model configurations, respectively. Each **Zarr store** is accessible (read-only) over HTTP using the URL prefix ```https://noc-msm-o.s3-ext.jc.rl.ac.uk```.
+
 ```mermaid
 ---
-title: Near-Present-Day Outputs available via JASMIN Object Storage
+title: JRA55-do v1 Near-Present-Day Outputs available via JASMIN Object Storage
 config:
   layout: elk
   look: handDrawn
@@ -122,12 +126,10 @@ graph LR
     D --> npd-eorca12-jra55v1
 ```
 
-In the diagram above, the outputs available for each Near-Present-Day simulation are stored in a separate bucket (e.g., ```npd-eorca1-jra55v1```), which identifies the model configuration (eORCA1), the atmospheric forcing (JRA55-do) and the version of the simulation (v1.0). All of the data stored in Near-Present-Day simulation buckets is accessible (read-only) over HTTP using the URL prefix ```https://noc-msm-o.s3-ext.jc.rl.ac.uk```.
-
 ??? info "Note"
-    **The URL prefix provided above is for users seeking to access Near-Preseent-Day outputs from the JASMIN External Cloud and locations external to JASMIN.**
+    **The URL prefix provided above is for users seeking to access Near-Present-Day outputs from the JASMIN External Cloud and locations external to JASMIN.**
 	
-	**From inside JASMIN, including LOTUS compute nodes and Scientific Analysis servers the URL prefix** ```https://noc-msm-o.s3.jc.rl.ac.uk``` **should be used.**
+	**From inside JASMIN, including LOTUS compute nodes and Scientific Analysis servers the URL prefix** ```https://noc-msm-o.s3.jc.rl.ac.uk``` **can be used.**
 
 Within a given bucket, output data available depends on the chosen model configuration.
 
@@ -182,11 +184,106 @@ graph TB
   V5d --> 1976_V5d
   V5d --> 1977_V5d
 ```
+
+### **NPD ERA-5 v1**
+
+Outputs available for the Near-Present-Day simulations using a climatologically adjusted version of the ERA-5 atmospheric forcing dataset (1976-present) are stored in **Icechunk repositories** (see below) in the ```npd-eorca1-era5v1```, ```npd-eorca025-era5v1``` and ```npd-eorca12-era5v1``` buckets, which correspond to the eORCA1, eORCA025 and eORCA12 model configurations, respectively.
+
+```mermaid
+---
+title: ERA-5 v1 Near-Present-Day Outputs available via JASMIN Object Storage
+config:
+  layout: elk
+  look: handDrawn
+  theme: neutral
+---
+graph LR
+  subgraph npd-eorca1-era5v1 [eORCA1]
+	  eORCA1.T1m[T1m]
+	  eORCA1.U1m[U1m]
+	  eORCA1.V1m[V1m]
+	  eORCA1.W1m[W1m]
+	  eORCA1.I1m[I1m]
+	  eORCA1.S1m[S1m]
+	  eORCA1.T1y[T1y]
+	  eORCA1.U1y[U1y]
+	  eORCA1.V1y[V1y]
+	  eORCA1.W1y[W1y]
+	  eORCA1.I1y[I1y]
+	  eORCA1.S1y[S1y]
+	 end
+  subgraph npd-eorca025-era5v1 [eORCA025]
+	  eORCA025.T5d_3d[T5d_3d]
+	  eORCA025.U5d_3d[U5d_3d]
+	  eORCA025.V5d_3d[V5d_3d]
+	  eORCA025.T5d_4d[T5d_4d]
+	  eORCA025.U5d_4d[U5d_4d]
+	  eORCA025.V5d_4d[V5d_4d]
+	  eORCA025.W5d_4d[W5d_4d]
+	  eORCA025.I5d_3d[I5d_3d]
+	  eORCA025.S5d_1d[S5d_1d]
+	  eORCA025.T1m_3d[T1m_3d]
+	  eORCA025.U1m_3d[U1m_3d]
+	  eORCA025.V1m_3d[V1m_3d]
+	  eORCA025.T1m_4d[T1m_4d]
+	  eORCA025.U1m_4d[U1m_4d]
+	  eORCA025.V1m_4d[V1m_4d]
+	  eORCA025.W1m_4d[W1m_4d]
+	  eORCA025.I1m_3d[U1m_3d]
+	  eORCA025.S1m_1d[S1m_1d]
+	  eORCA025.T1y_3d[T1y_3d]
+	  eORCA025.U1y_3d[U1y_3d]
+	  eORCA025.V1y_3d[V1y_3d]
+	  eORCA025.T1y_4d[T1y_4d]
+	  eORCA025.U1y_4d[U1y_4d]
+	  eORCA025.V1y_4d[V1y_4d]
+	  eORCA025.W1y_4d[W1y_4d]
+	  eORCA025.I1y_3d[I1y_3d]
+	  eORCA025.S1y_1d[S1y_1d]
+	 end
+  subgraph npd-eorca12-era5v1 [eORCA12]
+	  eORCA12.T5d_3d[T5d_3d]
+	  eORCA12.U5d_3d[U5d_3d]
+	  eORCA12.V5d_3d[V5d_3d]
+	  eORCA12.T5d_4d[T5d_4d]
+	  eORCA12.U5d_4d[U5d_4d]
+	  eORCA12.V5d_4d[V5d_4d]
+	  eORCA12.W5d_4d[W5d_4d]
+	  eORCA12.I5d_3d[I5d_3d]
+	  eORCA12.S5d_1d[S5d_1d]
+	  eORCA12.T1m_3d[T1m_3d]
+	  eORCA12.U1m_3d[U1m_3d]
+	  eORCA12.V1m_3d[V1m_3d]
+	  eORCA12.T1m_4d[T1m_4d]
+	  eORCA12.U1m_4d[U1m_4d]
+	  eORCA12.V1m_4d[V1m_4d]
+	  eORCA12.W1m_4d[W1m_4d]
+	  eORCA12.I1m_3d[U1m_3d]
+	  eORCA12.S1m_1d[S1m_1d]
+	  eORCA12.T1y_3d[T1y_3d]
+	  eORCA12.U1y_3d[U1y_3d]
+	  eORCA12.V1y_3d[V1y_3d]
+	  eORCA12.T1y_4d[T1y_4d]
+	  eORCA12.U1y_4d[U1y_4d]
+	  eORCA12.V1y_4d[V1y_4d]
+	  eORCA12.W1y_4d[W1y_4d]
+	  eORCA12.I1y_3d[I1y_3d]
+	  eORCA12.S1y_1d[S1y_1d]
+	 end
+
+    A[noc-msm-o.s3-ext.jc.rl.ac.uk] --> B[npd-eorca1-era5v1]
+    B --> npd-eorca1-era5v1
+    A --> C[npd-eorca025-era5v1]
+    C --> npd-eorca025-era5v1
+    A --> D[npd-eorca12-era5v1]
+    D --> npd-eorca12-era5v1
+```
+
 ### **Using the JASMIN Object Store**
 
 Now we have seen how the outputs of the Near-Present-Day simulations are structured within the JASMIN object store, our next step is accessing this data from a local or remote machine.
 
-Although many users will be more familiar with analysing ocean-climate data via netCDF files, output variables generated by the Near-Present-Day simulations are stored in the cloud-native [Zarr](https://zarr.readthedocs.io/en/stable/index.html) file format. 
+Although many users will be more familiar with analysing ocean-climate data via netCDF files, output variables generated by the Near-Present-Day simulations are stored in Analysis-Ready Cloud-Optimised (ARCO) [Zarr](https://zarr.readthedocs.io/en/stable/index.html) stores and [Icechunk](https://icechunk.io/en/latest/overview/) repositories. 
 
 !!! info "A Brief Introduction to Zarr"
     Zarr is an open source, flexible and efficient storage format designed for chunked, compressed, N-dimensional arrays. At its simplest, Zarr can be considered a cloud-native alternative to netCDF files since it consists of binary data files (chunks) accompanied by external metadata files.
@@ -197,8 +294,49 @@ Although many users will be more familiar with analysing ocean-climate data via 
 
     [Click here](https://zarr-specs.readthedocs.io/en/latest/specs.html) more information on the Zarr specification.
 
-#### Method 1: Accessing Data Directly via URL
-The simplest way to access Near-Present-Day simulation outputs is to use the URLs included in the **Available Ocean & Sea-Ice Outputs** in combination with [xarray](https://docs.xarray.dev/) - a Python package for working with labelled multi-dimensional arrays. Here, we will provide an example of accessing the annual mean sea surface temperature ```tos_con``` dataset (1976-2023) output by the eORCA1-JRA55v1 Near-Present-Day configuration:
+!!! info "A Brief Introduction to Icechunk"
+    Icechunk is an open-source, cloud-native transactional tensor storage engine designed for N-dimensional data in cloud object storage. At its simplest, Icechunk can be considered a "transactional storage engine for Zarr", meaning that Icechunk manages all of the I/O for reading, writing and updating metadata and chunk data & keeps track of changes (referred to as transactions) to the store in the form of snapshots. 
+
+    In place of Zarr store, users create an Icechunk repository, which functions as both a self-contained Zarr store and a database of the snapshots resulting from transactions (e.g., updating values or writing new values in the store). 
+
+    This allows Icechunk repositories to support data version control, since users can time-travel to previous snapshots of a repository.
+
+    [Click here](https://icechunk.io/en/latest/overview/) for an overview of Icechunk.
+
+#### Method 1: Accessing Icechunk Repositories using the OceanDataStore library:
+The simplest way to access ERA-5 Near-Present-Day simulation outputs is to use the **OceanDataStore** Python library designed to streamline accessing ocean model outputs stored in cloud object storage. To learn more about **OceanDataStore** click [here](https://noc-msm.github.io/OceanDataStore/).
+
+Here, we will provide an example of using the **OceanDataCatalog** API to access outputs from the eORCA1-ERA5v1 Near-Present-Day configuration:
+
+```bash title="Installing OceanDataStore with pip" 
+# Create and Activate a new Python virtual environment:
+source /path/to/my/venv/bin/activate
+
+# Install OceanDataStore from GitHub:
+pip install git+https://github.com/NOC-MSM/OceanDataStore.git
+
+```
+
+Now, in a Python script or Jupyter / Marimo Notebook, we will access the annual mean sea surface temperature ```tos_con``` (1976-present) data:
+
+```py title="Example: Accessing eORCA1-ERA5v1 Sea Surface Temperature via OceanDataCatalog" 
+# Import required Python packages:
+from OceanDataStore import OceanDataCatalog
+
+# Create instance of OceanDataCatalog to access National Oceanography Centre Spatio-Temporal Access Catalog:
+catalog = OceanDataCatalog(catalog_name="noc-model-stac")
+
+# Search for sea surface conservative temperature (SST) outputs:
+catalog.search(collection='noc-npd', variable='tos_con')
+
+# Let's access the SST variables first ID, corresponding to the eORCA1 ERA-5v1 simulation as an xarray Dataset:
+ds = catalog.open_dataset(id=catalog.Items[0].id,
+						  variables=['tos_con'],
+                          )
+```
+
+#### Method 2a: Accessing Zarr Stores Directly via URL
+The simplest way to access JRA55-do v1 Near-Present-Day simulation outputs is to use the URLs included in the **Available Ocean & Sea-Ice Outputs** in combination with [xarray](https://docs.xarray.dev/) - a Python package for working with labelled multi-dimensional arrays. Here, we will provide an example of accessing the annual mean sea surface temperature ```tos_con``` dataset (1976-2023) output by the eORCA1-JRA55v1 Near-Present-Day configuration:
 
 ```py title="Example: Accessing eORCA1-JRA55v1 Sea Surface Temperature via URL" 
 # Import required Python packages:
@@ -212,36 +350,3 @@ tos_con = xr.open_zarr(sst_url, consolidated=True, chunks={}) # (1)
 ```
 
 1.  :man_raising_hand: Here, ```consolidated=True``` means open the store using zarr’s consolidated metadata capability and ```chunks={}``` means load the data with dask using engine preferred chunks. See the xarray [documentation](https://docs.xarray.dev/en/stable/generated/xarray.open_zarr.html) for more details.
-
-#### Method 2: Accessing Data using the NPD Data Catalogs
-
-Alternatively, users can explore the metadata & output variables from the Near-Present-Day simulations on their local machine using one of the NPD Data Catalogs. Below, we show how to access the same eORCA1-JRA55v1 annual mean sea surface temperature dataset using the NPD Data Catalog available via GitHub, which contains all of the NPD JRA55-do datasets available on the JASMIN Object Store:
-
-```py title="Example: Accessing eORCA1-JRA55v1 Sea Surface Temperature using the NPD Data Catalog" 
-# Import required Python packages:
-import pandas as pd
-import xarray as xr
-
-# Defining the NPD JRA55-do Data Catalog URL:
-catalog_url = "https://raw.githubusercontent.com/NOC-MSM/NOC_Near_Present_Day/main/jasmin_os/catalogs/npd_jra55_v1_catalog.csv"
-
-# Read the data catalog using pandas:
-catalog = pd.read_csv(catalog_url)
-
-# Query the NPD JRA55-do data catalog:
-sst_url = catalog.query("variable == 'tos_con' & freq == '1y' & model == 'eORCA1'")["url"].iloc[0]
-
-# Open eORCA1-JRA55v1 annual mean SST data:
-tos_con = xr.open_zarr(sst_url, consolidated=True, chunks={})
-```
-
-!!! info "Searching the NPD Data Catalog"
-    To explore the available Near-Present-Day outputs stored in the JASMIN Object Store, users can access the Data Catalogs (shown in **Available Ocean & Sea-Ice Outputs**) as a DataFrame on their local machine.
-
-	Once a chosen output variable is identified, users can specify the NEMO model grid type (```grid```), temporal frequency (```freq```) of the output, and the variable name (```variable```) to access the data as an xarray Dataset. The options for the ```grid``` & ```freq``` parameters are listed below:
-
-	```grid = ["T", "U", "V",  "W", "I", "S", "M"]```
-
-	```freq = ["5d", "1m", "1y"]```
-
-	For users seeking to access Secondary outputs of the Near-Present-Day simulations (including AMOC diagnostics), the following options should be chosen: ```grid="M"``` and ```freq="1m"```.
