@@ -9,7 +9,7 @@
   <context id="xios" >
     <variable_definition>
       <variable_group id="buffer">
-        <variable id="min_buffer_size" type="int">60000000</variable>
+        <variable id="min_buffer_size" type="int">6000000</variable>
         <variable id="optimal_buffer_size" type="string">performance</variable>
       </variable_group>
 
@@ -23,12 +23,12 @@
       </variable_group>
     </variable_definition>
     <pool_definition>
-     <pool name="Opool" nprocs="163"> <!-- Oce dyn  : 96 ; BGC : 67 --> 
+     <pool name="Opool" nprocs="160"> <!-- Oce dyn  : 96 ; BGC : 64 --> 
       <service name="d1mwriter" nprocs="4"  type="writer"/>
       <service name="d1ywriter" nprocs="4"  type="writer"/>
       <service name="p1mwriter" nprocs="4"  type="writer"/>
       <service name="p1ywriter" nprocs="4"  type="writer"/>
-      <service name="p5dwriter" nprocs="3"  type="writer"/>
+      <service name="p5dwriter" nprocs="4"  type="writer"/>
       <service name="t1dwriter" nprocs="3"  type="writer"/>
       <service name="s1dwriter" nprocs="1"  type="writer"/>
       <service name="t5dwriter" nprocs="4"  type="writer"/>
@@ -44,8 +44,8 @@
       <service name="v1dwriter" nprocs="2"  type="writer"/>
       <service name="v5dwriter" nprocs="2"  type="writer"/>
       <service name="v1mwriter" nprocs="2"  type="writer"/>
-      <service name="pdatherer" nprocs="24" type="gatherer"/>
-      <service name="pgatherer" nprocs="24" type="gatherer"/>
+      <service name="pgatherer" nprocs="22" type="gatherer"/>
+      <service name="dgatherer" nprocs="22" type="gatherer"/>
       <service name="tgatherer" nprocs="24" type="gatherer"/>
       <service name="igatherer" nprocs="8"  type="gatherer"/>
       <service name="ugatherer" nprocs="16" type="gatherer"/>
