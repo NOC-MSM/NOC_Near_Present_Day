@@ -73,7 +73,7 @@ do
     for f in $files
     do
      time_c=$(get_time_count $f)
-     if [ ! -f $dstdir/$f ] && [ ${time_c} >= 1 ] ; then
+     if [[ ! -f $dstdir/$f  &&  ${time_c} -ge 1 ]] ; then
       ## files not yet store and full --> copy them to storedir
       echo rsync -vtpo $f $dstdir
       rsync -vtpo  $f $dstdir
