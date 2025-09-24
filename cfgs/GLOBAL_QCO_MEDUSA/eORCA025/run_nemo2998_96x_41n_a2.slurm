@@ -4,16 +4,12 @@
 #SBATCH --error=./job.err
 #SBATCH --account=n01-CLASS
 #SBATCH --time=05:00:00
-#SBATCH --nodes=45
+#SBATCH --nodes=49
 #SBATCH --partition=standard
 #SBATCH --qos=standard
 #SBATCH --exclusive
 #SBATCH --hint=nomultithread
 #SBATCH --distribution=block:cyclic
-
-set -u
-set -e
-set -o pipefail
 
 
 # ========================================================
@@ -34,7 +30,7 @@ set -o pipefail
   SCRIPTNAME=run_nemo2998_96x_41n_a2.slurm
 # Move OUTPUTS to a store-place : 
   ISTORE=true
-export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/eORCA025_river"
+export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/NPD025-MEDUSA-1.0"
 #--------------------------------------------------------------
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
@@ -369,7 +365,7 @@ export SLURM_OVERLAP=1
 echo "Commence srun.."
 
 srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
---het-group=0 --nodes=10 --ntasks=163 --ntasks-per-core=1 --ntasks-per-node=17 --cpus-per-task=1 /tmp/xios_server.exe \
+--het-group=0 --nodes=14 --ntasks=196 --ntasks-per-core=1 --ntasks-per-node=14 --cpus-per-task=1 /tmp/xios_server.exe \
 : --het-group=1 --nodes=34 --ntasks=2924 --ntasks-per-core=1 --ntasks-per-node=86 --cpus-per-task=1  /tmp/nemo \
 : --het-group=2 --nodes=1 --ntasks=74 --ntasks-per-core=1 --ntasks-per-node=74 --cpus-per-task=1  /tmp/nemo
 
