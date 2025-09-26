@@ -34,7 +34,7 @@ cd NOC_Near_Present_Day
 
 ./setup {-s Archer2}
 ```
-The setup script downloads nemo, compiles tools and configurations. Setup defaults to Anemone, which is ideally suited for fast development/turnaround of smaller configurations (e.g. eORCA025). 
+The setup script downloads nemo and medusa, compiles tools and configurations. Setup defaults to Anemone, which is ideally suited for fast development/turnaround of smaller configurations (e.g. eORCA025). 
 
 ### Global eORCA025
 
@@ -106,6 +106,39 @@ Finally:
 ```shell
 sbatch run_nemo11168_48X.slurm
 ```
+
+## Running NPD with MEDUSA 
+
+Almost identical as running NPD without MEDUSA :
+Main  differences are
+- `eORCA12-MEDUSA` is not yet ready to run.
+- `eORCA025-MEDUSA` runs only on Archer2
+- `eORCA1-MEDUSA` only on Anemone
+
+When excecuting the setup script, 2 configurations are set : `GLOBAL_QCO` which is dynamics only, and `GLOBAL_QCO_MEDUSA` which includes the biogeochemistry.
+
+### Global eORCA025-MEDUSA
+
+The global eORCA025 configuration with MEDUSA is ready to run on Archer2. All that is required is:
+
+```shell
+cd nemo/cfgs/GLOBAL_QCO_MEDUSA/eORCA025
+
+sbatch run_nemo2998_96x_41n_a2.slurm
+```
+
+### Global eORC1-MEDUSA 
+
+The global eORCA1 configuration with MEDUSA is ready to run on Anemone. All that is required is:
+
+```shell
+cd nemo/cfgs/GLOBAL_QCO_MEDUSA/eORCA1
+
+sbatch run_nemo552_40x_10n.slurm
+```
+
+> [!IMPORTANT]
+> Everything else is identical to setting the dynamics only configuration.                                  
 
 ## Using Cylc Workflow [Under development]
 
