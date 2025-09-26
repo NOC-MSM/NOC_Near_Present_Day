@@ -60,6 +60,11 @@ MODULE diawri
    USE ice 
    USE icewri 
 #endif
+   !
+#if defined key_top
+   USE trcwri,  ONLY: trc_wri_state ! add trc tracers in ocean.abort 
+#endif
+   !
    USE lib_mpp         ! MPP library
    USE timing          ! preformance summary
    USE diu_bulk        ! diurnal warm layer
@@ -1276,6 +1281,15 @@ CONTAINS
       ENDIF
       !
 #endif
+      !
+#if defined key_top
+      ! open trc abort file
+      CALL iom_open( TRIM(cdfile_name)//'_trc', inum, ldwrt = .TRUE. )
+      ! Add passive tracers to abort file
+      CALL trc_wri_state( Kmm, inum )
+      CALL iom_close( inum )
+#endif
+
    END SUBROUTINE dia_wri_state
 
    !!======================================================================

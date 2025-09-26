@@ -18,6 +18,12 @@
                                    !!     from NEMO if TRUE
 /
 &nammsa_bio
+!! Metabolic losses
+      xmetapn   = 0.043      !!
+      xmetapd   = 0.043      !!  
+      xmetazmi  = 0.043      !!  
+      xmetazme  = 0.043      !! 
+!!
 !! min and max warning values  
       tempminw = -3.0
       tempmaxw = 45.0
@@ -39,10 +45,10 @@
    sn_dust =       'mahowald.orca100_ext_nh.nc' ,  -1             , 'dust' ,   .true.    , .true. , 'yearly'  ,    ''            ,    ''    ,    ''
 /
 &nammsa_river        
-   ln_read_rivn   = .true.
-   ln_read_rivsi  = .true.
-   ln_read_rivc   = .true.
-   ln_read_rivalk = .true.
+   ln_read_rivn   = .false.
+   ln_read_rivsi  = .false.
+   ln_read_rivc   = .false.
+   ln_read_rivalk = .false.
    rivn_kind      = 2
    rivsi_kind     = 2
    rivc_kind      = 2
