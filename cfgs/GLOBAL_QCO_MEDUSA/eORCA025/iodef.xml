@@ -9,7 +9,7 @@
   <context id="xios" >
     <variable_definition>
       <variable_group id="buffer">
-        <variable id="min_buffer_size" type="int">60000000</variable>
+        <variable id="min_buffer_size" type="int">6000000</variable>
         <variable id="optimal_buffer_size" type="string">performance</variable>
       </variable_group>
 

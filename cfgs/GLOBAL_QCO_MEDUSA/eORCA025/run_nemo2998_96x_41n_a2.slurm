@@ -1,7 +1,5 @@
 #!/bin/bash
 #SBATCH --job-name=NPD_025
-#SBATCH --output=./job.out
-#SBATCH --error=./job.err
 #SBATCH --account=n01-CLASS
 #SBATCH --time=05:00:00
 #SBATCH --nodes=49
