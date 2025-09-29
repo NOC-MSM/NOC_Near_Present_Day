@@ -22,6 +22,9 @@ The key features of each configuration are summarised below:
     * Coupled to [SI$^{3}$](https://doi.org/10.5281/zenodo.7534900) sea ice engine.
     * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.
     * Forced with JRA55-do (v1; 1976-2023) and climatologically adjusted ERA-5 (v1; 1976-present) atmospheric forcing.
+    * MEDUSA : 
+        * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.     
+          Except for DIC and Alkalinity initialised from UKESM1.1 end of hisorical run [add Janes Papaer](paper url).
 
 === "eORCA025"
     * 1/4$^{\circ}$ nominal horizontal resolution (j=1206, i=1440).
@@ -30,6 +33,8 @@ The key features of each configuration are summarised below:
     * Coupled to [SI$^{3}$](https://doi.org/10.5281/zenodo.7534900) sea ice engine.
     * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.
     * Forced with JRA55-do (v1; 1976-2023) and climatologically adjusted ERA-5 (v1; 1976-present) atmospheric forcing.
+        * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.     
+          Except for DIC and Alkalinity initialised from UKESM1.1 end of hisorical run [add Janes Papaer](paper url).
 
 === "eORCA12"
     * 1/12$^{\circ}$ nominal horizontal resolution (j=3605, i=4320).
@@ -37,6 +42,8 @@ The key features of each configuration are summarised below:
     * Coupled to [SI$^{3}$](https://doi.org/10.5281/zenodo.7534900) sea ice engine.
     * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.
     * Forced with climatologically adjusted ERA-5 (v1; 1976-present) atmospheric forcing.
+        * Initialised from [World Ocean Atlas 2023](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/) (1971-2001) climatology.     
+          Except for DIC and Alkalinity initialised from UKESM1.1 end of hisorical run [add Janes Papaer](paper url).
 
 For more details on each model configuration see [Deep Dives: Model Configurations].
 
@@ -80,79 +87,163 @@ By default, the script will setup for the Anemone HPC, which is ideally suited f
 
 The global eORCA1 and eORCA025 configurations are ready to run. Here, we provide a brief overview on how to setup a first experiment with the default atmospheric forcing JRA55-do on the Anemone HPC:
 
-=== "eORCA1"
-    All that is required to run the eORCA1 Near-Present-Day configuration starting from 1976 is:
-    ```sh
-    cd nemo/cfgs/GLOBAL_QCO/eORCA1
+=== NEMO dynamics only
+    === "eORCA1"
+        All that is required to run the eORCA1 Near-Present-Day configuration starting from 1976 is:
+        ```sh
+        cd nemo/cfgs/GLOBAL_QCO/eORCA1
 
-    sbatch run_nemo552_40x_10n.slurm
-    ```
+        sbatch run_nemo552_40x_10n.slurm
+        ```
 
-    There are a few important variables to set in the runscript.
+        There are a few important variables to set in the runscript.
     
-    The default configuration will generate a 10-year simulation without spin-up which is divided into 1-year jobs:
-    ```sh
-    # ========================================================
-    # PARAMETERS TO SET
-    # time units used here for restart frequency and simulaion length
-    TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
-    # Restart/resubmission frequency (in TIME_UNITS)
-    FREQRST=1
-    # job-step initial time step (0: infer from time.step)
-    # IT000 != 0 -> auto-resubmission is switched OFF
-    IT000=0
-    #
-    # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
-    ITBEGIN=1
-    # Simulation length (in TIME_UNITS) 
-    LENGTH=10
-    # Name of this script (to resubmit)
-    SCRIPTNAME=run_nemo552_40x_10n.slurm
-    # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
-    SPIN=0
-    ```
+        The default configuration will generate a 10-year simulation without spin-up which is divided into 1-year jobs:
+        ```sh
+        # ========================================================
+        # PARAMETERS TO SET
+        # time units used here for restart frequency and simulaion length
+        TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
+        # Restart/resubmission frequency (in TIME_UNITS)
+        FREQRST=1
+        # job-step initial time step (0: infer from time.step)
+        # IT000 != 0 -> auto-resubmission is switched OFF
+        IT000=0
+        #
+        # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
+        ITBEGIN=1
+        # Simulation length (in TIME_UNITS) 
+        LENGTH=10
+        # Name of this script (to resubmit)
+        SCRIPTNAME=run_nemo552_40x_10n.slurm
+        # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
+        SPIN=0
+        ```
 
-    To run with ERA-5 atmospheric forcing, use the following command to modify the namelist file:
-    ```sh
-    cp namelist_cfg_ERA5 namelist_cfg
-    ```
+        To run with ERA-5 atmospheric forcing, use the following command to modify the namelist file:
+        ```sh
+        cp namelist_cfg_ERA5 namelist_cfg
+        ```
 
-=== "eORCA025"
-    All that is required to run the eORCA025 Near-Present-Day configuration starting from 1976 is:
-    ```sh
-    cd nemo/cfgs/GLOBAL_QCO/eORCA025
+    === "eORCA025"
+        All that is required to run the eORCA025 Near-Present-Day configuration starting from 1976 is:
+        ```sh
+        cd nemo/cfgs/GLOBAL_QCO/eORCA025
 
-    sbatch run_nemo1326_96x_26n.slurm
-    ```
+        sbatch run_nemo1326_96x_26n.slurm
+        ```
 
-    There are a few important variables to set in the runscript.
+        There are a few important variables to set in the runscript.
     
-    The default configuration will generate a 3-year simulation without spin-up which is divided into 1-year jobs:
-    ```sh
-    # ========================================================
-    # PARAMETERS TO SET
-    # time units used here for restart frequency and simulaion length
-    TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
-    # Restart/resubmission frequency (in TIME_UNITS)
-    FREQRST=1
-    # job-step initial time step (0: infer from time.step)
-    # IT000 != 0 -> auto-resubmission is switched OFF
-    IT000=0
-    #
-    # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
-    ITBEGIN=1
-    # Simulation length (in TIME_UNITS) 
-    LENGTH=3   
-    # Name of this script (to resubmit)
-    SCRIPTNAME=run_nemo1326_96x_26n.slurm
-    # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
-    SPIN=0
-    ```
+        The default configuration will generate a 3-year simulation without spin-up which is divided into 1-year jobs:
+        ```sh
+        # ========================================================
+        # PARAMETERS TO SET
+        # time units used here for restart frequency and simulaion length
+        TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
+        # Restart/resubmission frequency (in TIME_UNITS)
+        FREQRST=1
+        # job-step initial time step (0: infer from time.step)
+        # IT000 != 0 -> auto-resubmission is switched OFF
+        IT000=0
+        #
+        # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
+        ITBEGIN=1
+        # Simulation length (in TIME_UNITS) 
+        LENGTH=3   
+        # Name of this script (to resubmit)
+        SCRIPTNAME=run_nemo1326_96x_26n.slurm
+        # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
+        SPIN=0
+        ```
 
-    To run with ERA-5 atmospheric forcing, use the following command to modify the namelist file:
-    ```sh
-    cp namelist_cfg_ERA5 namelist_cfg
-    ```
+        To run with ERA-5 atmospheric forcing, use the following command to modify the namelist file:
+        ```sh
+        cp namelist_cfg_ERA5 namelist_cfg
+        ```
 
+=== NEMO-MEDUSA
+    Running with MEDUSA is as simple as for the dynamics only:
+    Mind however 
+    - The slightly different configuration path
+    - The different slurm script file name
+    - And remember that the run will be twice as long with MEDUSA on.
+ 
+    === "eORCA1"
+        All that is required to run the eORCA1 Near-Present-Day configuration starting from 1976 is:
+        ```sh
+        cd nemo/cfgs/GLOBAL_QCO_MEDUSA/eORCA1
+
+        sbatch run_nemo552_40x_10n.slurm
+        ```
+
+        There are a few important variables to set in the runscript.
+
+        The default configuration will generate a 10-year simulation without spin-up which is divided into 1-year jobs:
+        ```sh
+        # ========================================================
+        # PARAMETERS TO SET
+        # time units used here for restart frequency and simulaion length
+        TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
+        # Restart/resubmission frequency (in TIME_UNITS)
+        FREQRST=1
+        # job-step initial time step (0: infer from time.step)
+        # IT000 != 0 -> auto-resubmission is switched OFF
+        IT000=0
+        #
+        # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
+        ITBEGIN=1
+        # Simulation length (in TIME_UNITS)
+        LENGTH=10
+        # Name of this script (to resubmit)
+        SCRIPTNAME=run_nemo552_40x_10n.slurm
+        # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
+        SPIN=0
+        ```
+
+        To run with ERA-5 atmospheric forcing, use the following command to modify the namelist file:
+        ```sh
+        cp namelist_cfg_ERA5 namelist_cfg
+        ```
+
+    === "eORCA025" (Archer2 only)
+        All that is required to run the eORCA025 Near-Present-Day configuration starting from 1976 is:
+        ```sh
+        cd nemo/cfgs/GLOBAL_QCO_MEDUSA/eORCA025
+
+        sbatch run_nemo2998_96x_41n_a2.slurm
+        ```
+
+        There are a few important variables to set in the runscript.
+
+        The default configuration will generate a 3-year simulation without spin-up which is divided into 1-year jobs:
+        ```sh
+        # ========================================================
+        # PARAMETERS TO SET
+        # time units used here for restart frequency and simulaion length
+        TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
+        # Restart/resubmission frequency (in TIME_UNITS)
+        FREQRST=1
+        # job-step initial time step (0: infer from time.step)
+        # IT000 != 0 -> auto-resubmission is switched OFF
+        IT000=0
+        #
+        # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
+        ITBEGIN=1
+        # Simulation length (in TIME_UNITS)
+        LENGTH=3
+        # Name of this script (to resubmit)# Name of this script (to resubmit)
+        SCRIPTNAME=run_nemo2998_96x_41n_a2.slurm
+        # Move OUTPUTS to a store-place : 
+        ISTORE=true
+        export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/SE-MEDUSA-1.0"
+        # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
+        SPIN=0
+        ```
+
+        To run with ERA-5 atmospheric forcing, use the following command to modify the namelist file:
+        ```sh
+        cp namelist_cfg_ERA5 namelist_cfg
+        ```
 
 
