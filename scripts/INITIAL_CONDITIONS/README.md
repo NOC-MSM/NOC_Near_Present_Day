@@ -1,6 +1,6 @@
-# NOC Initial Conditions for NEMO eORCA simulations
+# NOC NPD: Creating Initial Conditions using World Ocean Atlas.
 
-Generating initial conservative temperature and absolute salinity fields and sea surface salinity restoration conditions for global configurations at eORCA1, eORCA025 and eORCA12 using World Ocean Atlas climate norms.
+Generating initial conservative temperature and absolute salinity fields and sea surface salinity restoration conditions for global NPD configurations at eORCA1, eORCA025 and eORCA12 using World Ocean Atlas climate norms.
 
 ## Quick start on {Archer2|Anemone}
 
@@ -17,7 +17,7 @@ cd NOC_Near_Present_Day
 First, we can use the following commands to run a bash script which will download the upper 1500m monthly mean climatologies for the climate norms (1971-2000, 1981-2010, 1991-2020) and the winter-average full-depth climatologies from the [NCEI](https://www.ncei.noaa.gov/access/world-ocean-atlas-2023/).
 
 ```shell
-cd tools/INITIAL_CONDITIONS/
+cd scripts/INITIAL_CONDITIONS/
 
 ./download_woa23_climatologies.sh
 ```
@@ -27,7 +27,7 @@ cd tools/INITIAL_CONDITIONS/
 Next, use the following commands to set-up the conda virtual environment needed to run the initial condition and SSS restoration Python scripts.
 
 ```shell
-cd tools/INITIAL_CONDITIONS/
+cd scripts/INITIAL_CONDITIONS/
 
 conda env create -f env_initial_conditions.yml
 
