@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================================================
-# send_eORCA025_restarts_to_ODS.sh
+# send_eORCA025_restarts_to_jasmin_os.sh
 #
 # Description: Script to send eORCA025-ERA5v1 NPD restart .nc
 # files to the JASMIN Object Store.
