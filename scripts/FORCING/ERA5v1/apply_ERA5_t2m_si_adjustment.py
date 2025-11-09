@@ -1,8 +1,7 @@
 """
 apply_ERA5_t2m_si_adjustment.py
 
-Description: This script applies monthly climatological correction to ERA-5
-3-hourly 2m air temperature where sea ice cover exists.
+Description: This script applies monthly climatological correction to ERA-5 hourly 2m air temperature where sea ice cover exists.
 
 Created By: Adam Blaker (atb299@noc.ac.uk)
 Edited By: Ollie Tooth (oliver.tooth@noc.ac.uk)
