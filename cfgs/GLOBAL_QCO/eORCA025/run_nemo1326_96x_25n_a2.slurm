@@ -36,12 +36,10 @@ if [ "$TIME_UNITS" -eq 0 ] ; then
 fi
 # ========================================================
 ## modules load
-module load cray-mpich/8.1.23
-module swap craype-network-ofi craype-network-ucx
-module swap cray-mpich cray-mpich-ucx
-module load cray-hdf5-parallel/1.12.2.1
-module load cray-netcdf-hdf5parallel/4.9.0.1
-module load libfabric
+module load PrgEnv-cray/8.4.0
+module load cce/16.0.1
+module load cray-hdf5-parallel/1.12.2.7
+module load cray-netcdf-hdf5parallel/4.9.0.7
 
 export NEMO_EXP_DIR=$PWD
 echo $NEMO_EXP_DIR
@@ -55,7 +53,7 @@ export UCX_TLS=rc,dc,self,sm
 cd "$NEMO_EXP_DIR"
 
 # Link nemo and xios -> Check consistency with arch file
-ln -s /work/n01/shared/nemo/XIOS3_r2700/bin/xios_server.exe .
+ln -s /work/n01/shared/nemo/XIOS3_r27XX/bin/xios_server.exe .
 ln -s ../BLD/bin/nemo.exe .
 
 # Broadcast executables
