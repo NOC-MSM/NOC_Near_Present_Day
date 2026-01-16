@@ -41,6 +41,11 @@ module load cce/16.0.1
 module load cray-hdf5-parallel/1.12.2.7
 module load cray-netcdf-hdf5parallel/4.9.0.7
 
+## Switch from ofi to ucx 
+# module swap craype-network-ofi craype-network-ucx
+# module swap cray-mpich cray-mpich-ucx
+# module load libfabric
+
 export NEMO_EXP_DIR=$PWD
 echo $NEMO_EXP_DIR
 export OMP_NUM_THREADS="1"
