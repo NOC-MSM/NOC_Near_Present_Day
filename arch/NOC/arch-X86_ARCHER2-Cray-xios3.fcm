@@ -33,8 +33,7 @@
 # Known to work with: module load cray-mpich/8.1.23 ; module load cray-hdf5-parallel/1.12.2.1 ; module load cray-netcdf-hdf5parallel/4.9.0.1
 %NCDF_HOME           ${NETCDF_DIR}
 %HDF5_HOME           ${HDF5_DIR}
-#%XIOS_HOME           /work/n01/shared/nemo/XIOS3H_Cray
-%XIOS_HOME           /work/n01/shared/nemo/XIOS3_r2700
+%XIOS_HOME           /work/n01/shared/nemo/XIOS3_r27XX
 #OASIS_HOME          
 
 %NCDF_INC            -I%NCDF_HOME/include -I%HDF5_HOME/include
