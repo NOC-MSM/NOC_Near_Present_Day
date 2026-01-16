@@ -62,7 +62,7 @@
     ln_crt_fbk = .false.,    !  Add surface current feedback to the wind stress (Renault et al. 2020, doi: 10.1029/2019MS001715)
        rn_stau_a = -2.9e-3   !     Alpha from eq. 10: Stau = Alpha * Wnd + Beta
        rn_stau_b =  8.0e-3   !     Beta
-    cn_dir = './INPUT/ERA5_t2m_adj/',
+    cn_dir = './INPUT/ERA5v1/',
     sn_humi    = 'd2m',      1, 'd2m',      .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
     sn_prec    = 'mtpr',     1, 'mtpr',     .true.,  .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
     sn_qlw     = 'msdwlwrf', 1, 'msdwlwrf', .false., .false., 'monthly', 'weights_ERA5_eORCA025_bilin.nc', '', ''
