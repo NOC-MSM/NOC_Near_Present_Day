@@ -9,13 +9,9 @@ BRANCH=branch_4.2
 TAG=4.2.2
 
 MEDUSA_Br=16-medusa-nemo4-2-1-3
-#MEDUSA_Br=29-high-din-in-omz-problem-3
-#MEDUSA_Br=29-high-din-no-subox-remin
 MEDDIR=${WD}/MEDUSA_git
 NEMODIR=${WD}/nemo
 USE_EXISTING_NEMO=0
-USE_EXISTING_MEDUSA=0
-UPDATE_MEDUSA=1
 STOP=0
 
 # Handle arguments
@@ -112,6 +108,8 @@ git clone https://gitlab.com/nocacuk/OCM/medusa.git -b ${MEDUSA_Br} ${MEDDIR} ||
 ##########################################
 cd ${WD}
 ./scripts/add_msa_to_NPD_nemo
+
+
 
 ###########################################
 # SYSTEM
