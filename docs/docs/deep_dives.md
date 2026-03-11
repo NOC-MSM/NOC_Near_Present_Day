@@ -104,6 +104,21 @@ The Near-Present-Day simulations use NEMO's recently introduced dynamic-thermody
 
 For a more detailed discussion on the SI$^{3}$ model configuration, users are referred to [Blockley et al. (2023)]() and [Guiavarc’h et al., in review](https://doi.org/10.5194/egusphere-2024-805).
 
+
+### **Biogeochemistry**
+
+It is possible to run NPD with MEDUSA - 
+
+NPD is run with an updated version of [MEDUSA2.0](url), [MEDUSA in UKESM1 paper](url). 
+Since MEDUSA2.0, MEDUSA has seen some updates :
+- Phytoplankton growth follow a temperature dependant Q10 function
+- fixed a bug that allowed some phytoplankton growth under sea-ice.
+- Phytoplankton growth is now also limited in carbon.
+- Possibility to add river nutrients
+
+MEDUSA is initialised with January climatology of World Ocean Atlas 2023 ([Reagen et al., 2024](https://www.ncei.noaa.gov/products/world-ocean-atlas)) Climate Normal (30-year average) corresponding to 1971-2000 are . Except for DIC and Alkalinity initialized with UKESM1.1 historical values in 1976. [UKESM1.0 spin-up paper](url).
+
+
 ---
 
 ## **Creating Initial Conditions :thermometer:**
