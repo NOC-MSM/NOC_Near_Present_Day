@@ -1,0 +1,10 @@
+{
+    "config_kwargs": {
+        "temporary_directory":"/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20260322_eORCA025/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/eORCA025_MEDUSA/Archer2/icechunk/1m/", "local_directory":"/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20260322_eORCA025/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/eORCA025_MEDUSA/Archer2/icechunk/1m/"
+    },
+    "cluster_kwargs": {
+        "n_workers" : 20,
+        "threads_per_worker" : 1,
+        "memory_limit":"3GB"
+    }
+}
