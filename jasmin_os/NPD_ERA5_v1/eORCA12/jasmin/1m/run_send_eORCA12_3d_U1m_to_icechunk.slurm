@@ -16,6 +16,8 @@
 # Created On: 2025-04-10
 #
 # ==============================================================
+set -euo pipefail
+
 # -- Input arguments to ods -- #
 # Filepath to eORCA12 ancillary file:
 filepath_domain=/gws/nopw/j04/atlantis/otooth/NPD/eORCA12/domain_cfg_xy_adjusted.nc
@@ -24,10 +26,11 @@ filepath_domain=/gws/nopw/j04/atlantis/otooth/NPD/eORCA12/domain_cfg_xy_adjusted
 filedir=/gws/nopw/j04/atlantis/atb299/NPD/eORCA12
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=/home/users/o_tooth/NOC/jasmin_os/credentials/jasmin_object_store_credentials.json
+store_credentials_json=./credentials/jasmin_object_store_credentials.json
 
-# Bucket and object prefix:
+# Define bucket and object prefix:
 bucket=npd-eorca12-era5v1
+object_prefix=U1m_3d
 
 # -- Python Environment -- #
 # Activate Python virtual environment:
@@ -40,14 +43,12 @@ variables_gridU="time_centered_bounds time_counter_bounds tauuo umo_vint hfx hfx
 
 # -- Send eORCA12 monthly mean outputs to JASMIN OS -- #
 # Define the filepath to the monthly mean U-point files:
-filepath_gridU=$filedir/????/eORCA12_1m_grid_U_197*.nc
-# Define the object prefix for the Icechunk:
-object_prefix=U1m_3d
+filepath_gridU=$filedir/????/eORCA12_1m_grid_U_*.nc
 
-echo "In Progress: Sending eORCA12 ERA-5 v1 U1m 3D variables to Icechunk..."
+echo "In Progress: Sending eORCA12 ERA5v1 U1m 3-D variables to Icechunk..."
 ods send_to_icechunk -f $filepath_gridU -c $store_credentials_json -b $bucket -p $object_prefix \
                      -gf $filepath_domain -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
-                     -cs '{"x":4320, "y":3605}' -v $variables_gridU \
-                     -br "main" -cm "Added eORCA12 ERA5v1 U1m 1976-1996" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
+                     -cs '{"x":4320, "y":3605}' -v $variables_gridU -vc \
+                     -br "main" -cm "Added eORCA12 ERA5v1 U1m 1976-2024"
 
-echo "Completed: Sent eORCA12 ERA-5 v1 U1m 3D variables to Icechunk."
+echo "Completed: Sent eORCA12 ERA5v1 U1m 3-D variables to Icechunk."

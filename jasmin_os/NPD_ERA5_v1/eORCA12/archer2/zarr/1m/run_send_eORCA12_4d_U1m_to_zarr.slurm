@@ -18,7 +18,9 @@
 # Created On: 2025-04-10
 #
 # ==============================================================
-# -- Input arguments to ods -- #
+set -euo pipefail
+
+# -- Input arguments to OceanDataStore -- #
 # Filepath to eORCA12 ancillary file:
 filepath_domain=/work/n01/n01/atb299/NPD_eORCA12_v4.2/domain_cfg.nc
 
@@ -29,10 +31,10 @@ filedir=/work/n01/n01/atb299/NOC_NPD/20250228/NOC_Near_Present_Day/nemo/cfgs/GLO
 variables_gridU="e3u uo uo_eiv u2o umo"
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=/work/n01/n01/otooth/NOC-NPD/credentials/jasmin_os_credentials.json
+store_credentials_json=.../credentials/jasmin_os_credentials.json
 
 # Filepath to Dask configuration:
-dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/dask_config.json
+dask_config_json=./dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca12-era5v1
@@ -52,7 +54,7 @@ echo "In Progress: Sending 1976 eORCA12 ERA-5 v1 U1m 4D variables to zarr store.
 ods send_to_zarr -f $filepath_gridU -c $store_credentials_json -b $bucket -p $object_prefix \
                       -gf $filepath_domain -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
                       -cs '{"x":540, "y":721, "depthu":25}' -v $variables_gridU \
-                      -dc $dask_config_json -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                      -dc $dask_config_json -zv 3
 
 echo "Completed: Sent 1976 eORCA12 ERA-5 v1 U1m 4D variables to zarr store."
 
@@ -67,7 +69,7 @@ do
     ods update_zarr -f $filepath_gridU -c $store_credentials_json -b $bucket -p $object_prefix \
                             -gf $filepath_domain -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
                             -cs '{"x":540, "y":721, "depthu":25}' -v $variables_gridU \
-                            -dc $dask_config_json -zv 3 || { echo "Error: ods update_zarr failed."; exit 1; }
+                            -dc $dask_config_json -zv 3
 
     echo "Completed: Append $yr eORCA12 ERA-5 v1 U1m 4D variables to zarr store."
 done

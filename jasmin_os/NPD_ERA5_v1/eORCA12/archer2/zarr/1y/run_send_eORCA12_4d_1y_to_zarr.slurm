@@ -18,7 +18,9 @@
 # Created On: 2025-04-10
 #
 # ==============================================================
-# -- Input arguments to ods -- #
+set -euo pipefail
+
+# -- Input arguments to OceanDataStore -- #
 # Filepath to eORCA12 ancillary file:
 filepath_domain=/work/n01/n01/atb299/NPD_eORCA12_v4.2/domain_cfg.nc
 
@@ -38,10 +40,10 @@ variables_gridV="e3v vo vo_eiv v2o vmo"
 variables_gridW="depthw_bounds time_centered_bounds time_counter_bounds e3w difvho difvso difvmo avt_evd wmo wo w2o obvfsq"
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=/work/n01/n01/otooth/NOC-NPD/credentials/jasmin_os_credentials.json
+store_credentials_json=.../credentials/jasmin_os_credentials.json
 
 # Filepath to Dask configuration:
-dask_config_json=/work/n01/n01/otooth/NOC-NPD/NEMO_cfgs/20250312_eORCA12/NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/dask_config.json
+dask_config_json=./dask_config.json
 
 # Bucket and object prefix:
 bucket=npd-eorca12-era5v1
@@ -56,7 +58,7 @@ echo "In Progress: Sending eORCA12 T1y 4-D variables to zarr store..."
 ods send_to_zarr -f $filepath_gridT -c $store_credentials_json -b $bucket -p T1y \
                       -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                       -cs '{"x":540, "y":721, "deptht":25}' -v $variables_gridT \
-                      -dc $dask_config_json -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                      -dc $dask_config_json -zv 3
 
 echo "Completed: Sent eORCA12 T1y 4-D variables to zarr store."
 
@@ -64,7 +66,7 @@ echo "In Progress: Sending eORCA12 U1y 4-D variables to zarr store..."
 ods send_to_zarr -f $filepath_gridU -c $store_credentials_json -b $bucket -p U1y \
                       -gf $filepath_domain -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
                       -cs '{"x":540, "y":721, "depthu":25}' -v $variables_gridU \
-                      -dc $dask_config_json -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                      -dc $dask_config_json -zv 3
 
 echo "Completed: Sent eORCA12 U1y 4-D variables to zarr store."
 
@@ -72,7 +74,7 @@ echo "In Progress: Sending eORCA12 V1y 4-D variables to zarr store..."
 ods send_to_zarr -f $filepath_gridV -c $store_credentials_json -b $bucket -p V1y \
                       -gf $filepath_domain -uc '{"nav_lon":"glamv", "nav_lat":"gphiv"}' \
                       -cs '{"x":540, "y":721, "depthv":25}' -v $variables_gridV \
-                      -dc $dask_config_json -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                      -dc $dask_config_json -zv 3
 
 echo "Completed: Sent eORCA12 V1y 4-D variables to zarr store."
 
@@ -80,7 +82,7 @@ echo "In Progress: Sending eORCA12 W1y 4-D variables to zarr store..."
 ods send_to_zarr -f $filepath_gridW -c $store_credentials_json -b $bucket -p W1y \
                       -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                       -cs '{"x":540, "y":721, "depthw":25}' -v $variables_gridW \
-                      -dc $dask_config_json -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                      -dc $dask_config_json -zv 3
 
 echo "Completed: Sent eORCA12 W1y 4-D variables to zarr store."
 

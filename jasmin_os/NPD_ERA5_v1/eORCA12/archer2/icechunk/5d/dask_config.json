@@ -1,0 +1,10 @@
+{
+    "config_kwargs": {
+        "temporary_directory":".../NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/eORCA12/archer2/icechunk/1y/", "local_directory":".../NOC_Near_Present_Day/jasmin_os/NPD_ERA5_v1/eORCA12/archer2/icechunk/1y/"
+    },
+    "cluster_kwargs": {
+        "n_workers" : 22,
+        "threads_per_worker" : 1,
+        "memory_limit":"3GB"
+    }
+}

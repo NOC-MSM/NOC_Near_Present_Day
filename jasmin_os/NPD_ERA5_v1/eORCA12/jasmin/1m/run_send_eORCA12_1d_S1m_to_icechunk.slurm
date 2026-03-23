@@ -16,6 +16,8 @@
 # Created On: 2025-04-10
 #
 # ==============================================================
+set -euo pipefail
+
 # -- Input arguments to ods -- #
 # Filepath to eORCA12 ancillary file:
 filepath_domain=/gws/nopw/j04/atlantis/otooth/NPD/eORCA12/domain_cfg_xy_adjusted.nc
@@ -24,10 +26,11 @@ filepath_domain=/gws/nopw/j04/atlantis/otooth/NPD/eORCA12/domain_cfg_xy_adjusted
 filedir=/gws/nopw/j04/atlantis/atb299/NPD/eORCA12
 
 # Filepath to JASMIN OS credentials:
-store_credentials_json=/home/users/o_tooth/NOC/jasmin_os/credentials/jasmin_object_store_credentials.json
+store_credentials_json=./credentials/jasmin_object_store_credentials.json
 
-# Bucket and object prefix:
+# Defin bucket and object prefix:
 bucket=npd-eorca12-era5v1
+object_prefix=S1m_1d
 
 # -- Python Environment -- #
 # Activate Python virtual environment:
@@ -38,11 +41,9 @@ conda activate env_jasmin_os
 # -- Send eORCA12 monthly mean outputs to JASMIN OS -- #
 # Define the filepath to the monthly mean scalar files:
 filepath_scalar=$filedir/????/eORCA12_1m_scalar_*.nc
-# Define the object prefix for the Icechunk store:
-object_prefix=S1m_1d
 
-echo "In Progress: Sending eORCA12 ERA-5 v1 S1m variables to Icechunk store..."
+echo "In Progress: Sending eORCA12 ERA5v1 S1m variables to Icechunk store..."
 ods send_to_icechunk -f $filepath_scalar -c $store_credentials_json -b $bucket -p $object_prefix \
-                     -br "main" -cm "Added eORCA12 ERA5v1 S1m 1976-2024" -vc || { echo "Error: ods send_to_icechunk failed."; exit 1; }
+                     -br "main" -cm "Added eORCA12 ERA5v1 S1m 1976-2024" -vc
 
-echo "Completed: Sent eORCA12 ERA-5 v1 S1m fields to Icechunk store."
+echo "Completed: Sent eORCA12 ERA5v1 S1m fields to Icechunk store."
