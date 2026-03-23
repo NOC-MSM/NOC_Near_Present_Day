@@ -17,7 +17,9 @@
 # Created On: 2025-03-03
 #
 # ==============================================================
-# -- Input arguments to ods -- #
+set -euo pipefail
+
+# -- Input arguments to OceanDataStore -- #
 # Filepath to eORCA1 ancillary file:
 filepath_domain=/dssgfs01/scratch/npd/simulations/Domains/eORCA1/domain_cfg.nc
 
@@ -49,33 +51,33 @@ echo "In Progress: Sending eORCA1 ERA-5 v1 T1m variables to Zarr..."
 ods send_to_zarr -f $filepath_gridT -c $store_credentials_json -b $bucket -p T1m \
                  -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                  -cs '{"x":360,"y":331,"deptht":25}' \
-                 -dc $dask_config_json -vs -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                 -dc $dask_config_json -zv 3
 
 echo "In Progress: Sending eORCA1 ERA-5 v1 U1m variables to Zarr..."
 ods send_to_zarr -f $filepath_gridU -c $store_credentials_json -b $bucket -p U1m \
                  -gf $filepath_domain -uc '{"nav_lon":"glamu", "nav_lat":"gphiu"}' \
                  -cs '{"x":360,"y":331,"depthu":25}' \
-                 -dc $dask_config_json -vs -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                 -dc $dask_config_json -zv 3
 
 echo "In Progress: Sending eORCA1 ERA-5 v1 V1m variables to Zarr..."
 ods send_to_zarr -f $filepath_gridV -c $store_credentials_json -b $bucket -p V1m \
                  -gf $filepath_domain -uc '{"nav_lon":"glamv", "nav_lat":"gphiv"}' \
                  -cs '{"x":360,"y":331,"depthv":25}' \
-                 -dc $dask_config_json -vs -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                 -dc $dask_config_json -zv 3
 
 echo "In Progress: Sending eORCA1 ERA-5 v1 W1m variables to Zarr..."
 ods send_to_zarr -f $filepath_gridW -c $store_credentials_json -b $bucket -p W1m \
                  -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
                  -cs '{"x":360,"y":331,"depthw":25}' \
-                 -dc $dask_config_json -vs -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                 -dc $dask_config_json -zv 3
 
 echo "In Progress: Sending eORCA1 ERA-5 v1 I1m variables to Zarr..."
 ods send_to_zarr -f $filepath_icemod -c $store_credentials_json -b $bucket -p I1m \
                  -gf $filepath_domain -uc '{"nav_lon":"glamt", "nav_lat":"gphit"}' \
-                 -cs '{"x":360,"y":331}' -dc $dask_config_json -vs -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                 -cs '{"x":360,"y":331}' -dc $dask_config_json -zv 3
 
 echo "In Progress: Sending eORCA1 ERA-5 v1 scalar variables to Zarr..."
 ods send_to_zarr -f $filepath_scalar -c $store_credentials_json -b $bucket -p S1m \
-                 -dc $dask_config_json -vs -zv 3 || { echo "Error: ods send_to_zarr failed."; exit 1; }
+                 -dc $dask_config_json -zv 3
 
 echo "Completed: Sent eORCA1 ERA-5 v1 monthly mean fields to Zarr stores."

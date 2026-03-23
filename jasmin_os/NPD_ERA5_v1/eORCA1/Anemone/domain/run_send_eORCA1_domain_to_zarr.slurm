@@ -17,7 +17,9 @@
 # Created On: 2025-03-03
 #
 # ==============================================================
-# -- Input arguments to msm-os -- #
+set -euo pipefail
+
+# -- Input arguments to OceanDataStore -- #
 # Filepath to eORCA1 ancillary files:
 filepath_mesh_mask=/dssgfs01/scratch/npd/simulations/Domains/eORCA1/mesh_mask.nc
 filepath_subbasins=/dssgfs01/scratch/npd/simulations/Domains/eORCA1/subbasins_CMIP6.nc
