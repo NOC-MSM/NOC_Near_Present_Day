@@ -1,0 +1,11 @@
+{
+    "config_kwargs": {
+        "temporary_directory":".../NOC_Near_Present_Day/jasmin_os/NPD_JRA55_v1/eORCA1/diags/",
+        "local_directory":".../NOC_Near_Present_Day/jasmin_os/NPD_JRA55_v1/eORCA1/diags/"
+    },
+    "cluster_kwargs": {
+        "n_workers" : 20,
+        "threads_per_worker" : 1,
+        "memory_limit":"2.5GB"
+    }
+}
