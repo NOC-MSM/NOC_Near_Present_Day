@@ -8,14 +8,14 @@
 #SBATCH --nodes=1
 
 # ==============================================================
-# run_send_eORCA025_metric_to_jasmin_os.slurm
+# run_send_eORCA025_metric_to_zarr.slurm
 #
 # Description: SLURM script to send the eORCA025 METRIC section 
 # variables for the RAPID, MOVE and SAMBA arrays to the JASMIN
 # object store.
 #
 # Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
-# Created On: 2025-01-02
+# Created On: 2026-03-22
 #
 # ==============================================================
 # -- Input arguments to msm-os -- #
@@ -27,31 +27,28 @@ filepath_samba=/dssgfs01/scratch/otooth/npd_data/simulations/eORCA025_JRA55/metr
 # Filepath to JASMIN OS credentials:
 store_credentials_json=.../credentials/jasmin_os_credentials.json
 
-# Bucket and object prefix:
+# Filepath to Dask Configuration file:
+dask_config_json=./dask_config.json
+
+# Define bucket:
 bucket=npd-eorca025-jra55v1
 
-# Variables - save entire dataset to single zarr store - and chunks:
-variables=compact
-
 # -- Python Environment -- #
-# Activate miniconda environment:
-source /home/otooth/miniconda3/etc/profile.d/conda.sh
+# Activate Python environment:
+source /dssgfs01/working/otooth/miniforge3/bin/activate
 conda activate env_jasmin_os
 
 # -- Send METRIC eORCA025 monthly mean output to JASMIN OS -- #
 echo "In Progress: Sending eORCA025 monthly METRIC RAPID 26.5N outputs to JASMIN object store..."
-msm_os send_with_dask -f $filepath_rapid -c $store_credentials_json -b $bucket -p M1m/rapid_26N -v $variables \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/"}' \
-                      -dlc '{"n_workers":10,"threads_per_worker":4,"memory_limit":"3GB"}'
+ods send_to_zarr -f $filepath_rapid -c $store_credentials_json -b $bucket -p M1m/rapid_26N \
+                 -dc $dask_config_json -zv 3
 
 echo "In Progress: Sending eORCA025 monthly METRIC MOVE 16N outputs to JASMIN object store..."
-msm_os send_with_dask -f $filepath_move -c $store_credentials_json -b $bucket -p M1m/move_16N -v $variables \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/"}' \
-                      -dlc '{"n_workers":10,"threads_per_worker":4,"memory_limit":"3GB"}'
+ods send_to_zarr -f $filepath_move -c $store_credentials_json -b $bucket -p M1m/move_16N \
+                 -dc $dask_config_json -zv 3
 
 echo "In Progress: Sending eORCA025 monthly METRIC SAMBA 34.5S outputs to JASMIN object store..."
-msm_os send_with_dask -f $filepath_samba -c $store_credentials_json -b $bucket -p M1m/samba_34_5S -v $variables \
-                      -dco '{"temporary_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/","local_directory":"/dssgfs01/scratch/otooth/NOC_NPD/20250102/NOC_Near_Present_Day/jasmin_os/tmp/"}' \
-                      -dlc '{"n_workers":10,"threads_per_worker":4,"memory_limit":"3GB"}'
+ods send_to_zarr -f $filepath_samba -c $store_credentials_json -b $bucket -p M1m/samba_34_5S \
+                 -dc $dask_config_json -zv 3
 
 echo "Completed: Sent eORCA025 monthly METRIC outputs to JASMIN object store."
