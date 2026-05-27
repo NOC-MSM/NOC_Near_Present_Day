@@ -22,14 +22,14 @@
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=65
+  LENGTH=1
 # Name of this script (to resubmit)
   SCRIPTSPIN=run_nemo2998_96x_41n_a2_SPINUP.slurm
   SCRIPTNAME=run_nemo2998_96x_41n_a2.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
-  SPIN=0 
+  SPIN=1 
 # Move OUTPUTS to a store-place : 
-  ISTORE=true
+  ISTORE=false
 export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/NPD025-MEDUSA-1.0"
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
