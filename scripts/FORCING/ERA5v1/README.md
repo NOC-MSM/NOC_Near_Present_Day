@@ -28,9 +28,9 @@ In the following sections, we will discuss how to perform these steps in detail 
 
 ## 1. Downloading ERA-5 Atmospheric Fields
 
-Inside the `NOC_Near_Present_Day/scripts/FORCING/ERA5v1/` directory, users will find a bash script `run_download_ERA5_forcing.sh` to automate the downloading of ERA-5 data from the Copernicus Climate Data Store. 
+Inside the `NOC_Near_Present_Day/scripts/FORCING/ERA5v1/` directory, users will find a SLURM job script `run_download_ERA5_forcing.slurm` to automate the downloading of ERA-5 data from the Copernicus Climate Data Store. 
 
-One executing `run_download_ERA5_forcing.sh`, it calls the `download_ERA5_forcing.py` Python script, which (by default) downloads the following variables from the specified input `year` to present:
+On submitting the `run_download_ERA5_forcing.slurm` job script, it calls the `download_ERA5_forcing.py` Python script, which (by default) downloads the following variables from the specified input `year` to present:
 
 - 2m_temperature
 - 2m_dewpoint_temperature
@@ -46,13 +46,13 @@ One executing `run_download_ERA5_forcing.sh`, it calls the `download_ERA5_forcin
 
 Each variable is downloaded for the entire globe at hourly temporal resolution & stored in a single netCDF file per month per variable.
 
-These original ERA-5 variable netCDF files are stored according to their year in the `/dssgfs01/scratch/npd/forcing/ERA5/original/` directory and the `/dssgfs01/scratch/npd/forcing/ERA5/original_latest/` directory for the latest 3-months (since these are subject to change). 
+These original ERA-5 variable netCDF files are stored according to their year in the `/dssgfs01/scratch/npd/forcing/ERA5/original/` directory and the `/dssgfs01/scratch/npd/forcing/ERA5/original_latest/` directory for the latest 3-months (since these are subject to change - ERA5T dataset). 
 
 ## 2. Preprocessing ERA-5 Atmospheric Fields
 
-Once we completed downloading our ERA-5 atmospheric forcing files using the `run_download_ERA5_forcing.sh` script, we next need to pre-process these fields.
+Once we have completed downloading our ERA-5 atmospheric forcing files using the `run_download_ERA5_forcing.slurm` job script, we next need to pre-process these atmospheric fields.
 
-There are three steps to pre-processing each ERA-5 variable netCDF file, all of which are perfomed by the the `run_preprocess_ERA5_forcing_original.slurm` and `run_preprocess_ERA5_forcing_original_latest.slurm` scripts.
+There are three steps to pre-processing each ERA-5 variable stored in individual netCDF files, all of which are perfomed by the the `run_preprocess_ERA5_forcing_original.slurm` and `run_preprocess_ERA5_forcing_original_latest.slurm` job scripts.
 
 1. All land grid points in the ERA-5 forcing field are flood filled using a land-sea mask created using the `create_land_sea_mask.py` script and the `ifthen` and `fillmiss3` operations available in the `cdo` library.
 
@@ -87,49 +87,25 @@ In both cases, the resulting monthly bias corrected 2 m air temperature netCDF f
 
 We first need to create symbolic links to all preprocessed ERA-5 atmospheric forcing files, excluding the bias corrected 2 m air temperature files.
 
-**Note:** These commands should be performed inside the `/dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/all_fields/` directory.
+To do this, we can use the `run_create_links_ERA5_t2m_adj.slurm` script on the Anemone HPC, which follows the steps below:
 
-```bash
-# Define NEMO forcing variables, excluding 2m_temperature
-vars = ('2m_dewpoint_temperature' 'mean_sea_level_pressure' 'mean_surface_downward_long_wave_radiation_flux' 'mean_total_precipitation_rate' '10m_u_component_of_wind' '10m_v_component_of_wind' '2m_temperature' 'mean_snowfall_rate' 'mean_surface_downward_short_wave_radiation_flux')
+1. Create symbolic links to all ERA-5 forcing variables, including adjusted 2 m temperature for the specified `year`:
 
-# Create symbolic links:
-for var in ${vars[*]}; do
-    ln -s /dssgfs01/scratch/npd/forcing/ERA5/preprocessed/????/${var}/*nc .
-done
-```
+2. Update date string formatting to replace "_20" -> "_y20" and "-" -> "m".
 
-For the bias corrected 2 m air temperature, we use the following path instead:
-
-```bash
-ln -s /dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/????/*.nc .
-```
-
-Next, we need to update the date format of the preprocessed links to be read by the surface boundary condition module in NEMO:
-
-```bash
-# Fix date format
-rename _19 _y19 *nc
-rename _20 _y20 *nc
-rename - m *nc
-```
-
-Finally, we need to rename the variable names within the links to their shorter standard names:
-
-```bash
-# Rename with variable names
-rename 10m_u_component_of_wind u10 10m_u_component_of_wind*nc
-rename 10m_v_component_of_wind v10 10m_v_component_of_wind*nc
-rename 2m_dewpoint_temperature d2m 2m_dewpoint_temperature*nc
-rename 2m_temperature t2m 2m_temperature*nc
-rename mean_sea_level_pressure msl mean_sea_level_pressure*nc
-rename mean_snowfall_rate msr mean_snowfall_rate*nc
-rename mean_surface_downward_long_wave_radiation_flux msdwlwrf mean_surface_downward_long_wave_radiation_flux*nc
-rename mean_surface_downward_short_wave_radiation_flux msdwswrf mean_surface_downward_short_wave_radiation_flux*nc
-rename mean_total_precipitation_rate mtpr mean_total_precipitation_rate*nc
-```
+3. Rename all symbolic links to use short-form variable names (e.g., "10m_u_component_of_wind" -> "u10").
 
 We have now completed preparing the ERA-5 atmospheric forcing fields & we can perform a NOC Near-Present Day simulation by creating a further link to the `/dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/all_fields` inside our NEMO run directory (this link will then be referenced directly in our `namelist_cfg` file).
+
+# Appendix: Near-Real Time ERA-5 Forcing Files
+
+We cannot run NOC NPD configurations with incomplete monthly forcing files since NEMO verifies the length of the record dimension against the present month using its internal calendar in the SBC module.
+
+To overcome this, we can use the `extend_ERA5_preprocessed_latest.py` script to fill all missing data along the record dimension in our preprocessed ERA-5 forcing variables with NaN values.
+
+This will allow us to run a partial month using a NOC NPD configuration, but note that the simulation is expected to fail on reaching the fill values as this represents unphysical forcing of the ocean by the atmosphere.
+
+To ensure 5-day mean output fields are still produces, users should modify the `sync_freq` to increase the frequency with which XIOS writes 5-day means to netCDF output files. The default 15-day value will result in missing netCDF files if unmodified.
 
 ## Contacts
 

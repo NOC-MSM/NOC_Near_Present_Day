@@ -19,13 +19,13 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 # -- Configure Argument Parser -- #
 # Define the argument parser:
-parser = argparse.ArgumentParser(description='Download ERA-5 atmospheric forcing data from the Copernicus Climate Data Store at 3-hour frequency in monthly netCDF output files.')
+parser = argparse.ArgumentParser(description='Download ERA-5 atmospheric forcing data from the Copernicus Climate Data Store at 1-hour frequency in monthly netCDF output files.')
 # Define input arguments:
 parser.add_argument('-y','--year', help='Year to start ERA-5 monthly download from.', required=True, type=int, default=2025)
 parser.add_argument('-s','--savedir', help='Directory to save historic ERA-5 monthly netCDF files.', required=True)
 parser.add_argument('-l','--latestdir', help='Directory to save latest 3-months of ERA-5 monthly netCDF files.', required=True)
-parser.add_argument('-v','--variables', help='List of ERA-5 variables to download.', required=False, nargs='+', default=['2m_temperature', '2m_dewpoint_temperature', '10m_u_component_of_wind', '10m_v_component_of_wind',
- 'mean_total_precipitation_rate', 'mean_snowfall_rate', 'mean_surface_downward_short_wave_radiation_flux', 'mean_surface_downward_long_wave_radiation_flux', 'mean_sea_level_pressure', 'sea_ice_cover', 'sea_surface_temperature'])
+parser.add_argument('-e','--enddate', help='Final date to end ERA-5 monthly download.', required=False, type=str, default=None)
+parser.add_argument('-v','--variables', help='List of ERA-5 variables to download.', required=False, nargs='+', default=['2m_temperature', '2m_dewpoint_temperature', '10m_u_component_of_wind', '10m_v_component_of_wind', 'mean_total_precipitation_rate', 'mean_snowfall_rate', 'mean_surface_downward_short_wave_radiation_flux', 'mean_surface_downward_long_wave_radiation_flux', 'mean_sea_level_pressure', 'sea_ice_cover', 'sea_surface_temperature'])
 
 # --- Configure Logging --- #
 logging.basicConfig(
@@ -46,12 +46,19 @@ ini_year = args['year']
 save_dir = args['savedir']
 latest_dir = args['latestdir']
 variables = args['variables']
+end_date = args['enddate']
+if end_date is not None:
+    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
 
 # -- Define download_ERA5_data() -- #
 @retry(stop=stop_after_attempt(3), wait=wait_fixed(10))
-def download_ERA5_data(client, date:datetime.date, variable:str, outfile:str) -> None:
+def download_ERA5_data(client,
+                       date:datetime.date,
+                       variable:str,
+                       outfile:str
+                       ) -> None:
     """
-    Download ERA-5 3-hourly data on single levels using the Copernicus
+    Download ERA-5 1-hourly data on single levels using the Copernicus
     Climate Data Store (CDS) API.
 
     Parameters:
@@ -117,7 +124,11 @@ def download_ERA5_data(client, date:datetime.date, variable:str, outfile:str) ->
 
 # -- Prepare Dates -- #
 ini_date = date(year=ini_year, month=1, day=1)
-final_date = date.today()
+# Optionally define custom end date for partial month download:
+if end_date is not None:
+    final_date = end_date
+else:
+    final_date = date.today()
 # Excluding current month - downloads latest full month of data:
 dates_monthly = np.arange(ini_date, final_date, dtype='datetime64[M]').astype(datetime.date)
 

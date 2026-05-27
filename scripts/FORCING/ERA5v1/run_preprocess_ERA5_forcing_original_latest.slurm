@@ -1,15 +1,15 @@
 #!/bin/bash
 #SBATCH --job-name=preprocess_ERA5_original_latest
-#SBATCH --time=04:00:00
+#SBATCH --time=06:00:00
 #SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-core=1
-#SBATCH --mem-per-cpu=12G
+#SBATCH --mem-per-cpu=8G
 #SBATCH --ntasks-per-node=16
 #SBATCH --ntasks-per-socket=8
 
 # ------------------------------------------------------------
-# run_preprocess_ERA5_forcing_latest.slurm
+# run_preprocess_ERA5_forcing_original_latest.slurm
 # Description:
 # Perform flood filling, chunking and variable renaming for
 # latest ERA-5 1-hourly atmospheric forcing fields & save to
@@ -29,7 +29,7 @@ export indir='/dssgfs01/scratch/npd/forcing/ERA5/original_latest/'
 export outdir='/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_latest/'
 
 # -- Define Input Files -- #
-year=2025
+year=2026
 infiles=(${indir}${year}/{10m_u_component_of_wind,10m_v_component_of_wind,2m_dewpoint_temperature,2m_temperature,mean_sea_level_pressure,mean_snowfall_rate,mean_surface_downward_short_wave_radiation_flux,mean_surface_downward_long_wave_radiation_flux,mean_total_precipitation_rate}/*.nc)
 inf=${#infiles[*]}
 
@@ -65,9 +65,9 @@ xargs -n 1 -P 16 <<< ${compfiles[*]} sh -c '${cdodir}/cdo -k auto -z zip_1 ifthe
 xargs -n 1 -P 16 <<< ${compfiles[*]} sh -c '${cdodir}/cdo -k auto -z zip_1 fillmiss3 ${masktemp}/${1} ${floodtemp}/${1}' bash
 echo "Completed: Flood filled ERA-5 forcing files."
 
-# -- Rechunking ERA-5 Forcing Fields -- #
 echo "================================================="
-xargs -n 1 -P 12 <<< ${compfiles[*]} sh -c 'ncks --mk_rec_dmn time --cnk_dmn longitude,24 --cnk_dmn latitude,24 --cnk_dmn time,1 --dfl_lvl 1 ${floodtemp}/${1} ${outdir}${1: -10: -6}/${1::-11}/${1}' bash
+echo "In Progress: Rechunking ERA-5 forcing files..."
+xargs -n 1 -P 6 <<< ${compfiles[*]} sh -c 'ncks --mk_rec_dmn time --cnk_dmn longitude,24 --cnk_dmn latitude,24 --cnk_dmn time,1 --dfl_lvl 1 ${floodtemp}/${1} ${outdir}${1: -10: -6}/${1::-11}/${1}' bash
 echo "Completed: Rechunked ERA-5 forcing files."
 
 # -- Renaming Variables ERA-5 Forcing Fields -- #
