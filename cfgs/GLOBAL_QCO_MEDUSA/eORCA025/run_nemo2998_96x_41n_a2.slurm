@@ -30,7 +30,8 @@
   SPIN=0 
 # Move OUTPUTS to a store-place : 
   ISTORE=true
-export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/NPD025-MEDUSA-1.0"
+export STORE_OUT="/work/n01/n01/julpal/NPD_OUT_STORE/NPD025-MEDUSA-ERA51.1"
+#--------------------------------------------------------------
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -46,10 +47,6 @@ module load cce/16.0.1
 module load cray-hdf5-parallel/1.12.2.7
 module load cray-netcdf-hdf5parallel/4.9.0.7
 
-## Switch from ofi to ucx 
-# module swap craype-network-ofi craype-network-ucx
-# module swap cray-mpich cray-mpich-ucx
-# module load libfabric
 
 export NEMO_EXP_DIR=$PWD
 echo $NEMO_EXP_DIR
