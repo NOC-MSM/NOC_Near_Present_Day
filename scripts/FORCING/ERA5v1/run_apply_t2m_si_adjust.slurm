@@ -17,12 +17,12 @@
 module load NEMO/prg-env
 export I_MPI_SHM=icx
 
-source /home/otooth/miniconda3/etc/profile.d/conda.sh
+source /dssgfs01/working/otooth/miniforge3/bin/activate
 conda activate /dssgfs01/working/otooth/conda_envs/env_npd_era5
 
 # -- Process Single Year -- #
 # Define years to process:
-yr=2025
+yr=2026
 
 echo "================================================="
 echo "In Progress: Applying Climatological Adjustment to ${yr} ..."

@@ -15,7 +15,7 @@ import xarray as xr
 
 # -- Configure Argument Parser -- #
 # Define the argument parser:
-parser = argparse.ArgumentParser(description='Apply monthly climatological correction to ERA-5 2m air temperature at 3-hourly frequency above sea ice.')
+parser = argparse.ArgumentParser(description='Apply monthly climatological correction to ERA-5 2m air temperature at 1-hourly frequency above sea ice.')
 # Define input arguments:
 parser.add_argument('-y','--year', help='Year to apply monthly climatological correction.', type=int, required=True)
 parser.add_argument('-o','--outdir', help='Directory to save climatologically corrected ERA-5 2m temperature netCDF files.', default="/dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/")
@@ -93,12 +93,12 @@ else:
 
 # -- Define File Paths -- #
 # ERA-5 2m temperature input directory:
-t2m_fpath = f"/dssgfs01/scratch/npd/forcing/ERA5/preprocessed/{yr}/2m_temperature/*.nc"
+t2m_fpath = f"/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_latest/{yr}/2m_temperature/*.nc"
 t2m_files = sorted(glob.glob(t2m_fpath))
 n_files = len(t2m_files)
 
 # ERA-5 sea ice cover input directory:
-sic_fpath = f"/dssgfs01/scratch/npd/forcing/ERA5/original/{yr}/sea_ice_cover/*.nc"
+sic_fpath = f"/dssgfs01/scratch/npd/forcing/ERA5/original_latest/{yr}/sea_ice_cover/*.nc"
 sic_files = sorted(glob.glob(sic_fpath))
 
 # Check number of t2m and sic files match:
@@ -115,48 +115,66 @@ months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 # -- Apply Climatological Correction -- #
 # Iterate over monthly 2m temperature and sea ice cover files:
 for n in range(n_files):
-    # Open 2m temperature dataset:   
-    ds_t2m = xr.open_dataset(t2m_files[n])
-    if ("valid_time" in ds_t2m.coords):
-        ds_t2m = ds_t2m.rename({"valid_time": "time"})
-    logging.info(f"Completed: Read {t2m_files[n]}")
 
-    # Open sea ice conc. dataset:   
-    ds_sic = xr.open_dataset(sic_files[n])
-    if ("valid_time" in ds_sic.coords):
-        ds_sic = ds_sic.rename({"valid_time": "time"})
-    logging.info(f"Completed: Read {sic_files[n]}") 
-
-    # Open ERA-5 monthly climatological adjustment file:
-    t2m_adj_dir = "/dssgfs01/scratch/atb299/ERA5_adjustment/2m_temperature"
-    if (n == 1) & (len(ds_t2m.time) == 696): 
-       logging.info(f"In Progress: Applying {months[n]} {yr} Leap Year Adjustment.")
-       ds_bias = xr.open_dataset(f"{t2m_adj_dir}/2m_temperature-{f'{n+1:02d}'}_LY.nc")
-    else:
-        logging.info(f"In Progress: Applying {months[n]} {yr} Regular Adjustment.")
-        ds_bias = xr.open_dataset(f"{t2m_adj_dir}/2m_temperature-{f'{n+1:02d}'}.nc")
-
-    # Replace time values with input t2m data:
-    ds_bias['time'] = ds_t2m['time']
-
-    # Apply climatological correction where sea ice exists (i.e., sic > 0):
-    ds_t2m_adj = xr.where(ds_sic['siconc'] > 0, ds_t2m['t2m'] - ds_bias['t2m'], ds_t2m['t2m']).to_dataset(name='t2m')
-
-    # Add attributes of original dataset to adjusted dataset:
-    ds_t2m_adj.attrs = ds_t2m.attrs
-
-    logging.info("Completed: Applied monthly climatological correction to ERA-5 2m temperature.")
-
-    # Adjust dtypes for latest ERA-5 data:
-    if (yr >= 2024):
-        ds_t2m_adj['t2m'] = ds_t2m_adj['t2m'].astype('float')
-
-    # -- Write Climatologically Corrected Data -- #
-    # Define original encoding for output netCDF file:
-    encoding = get_encoding(ds_t2m, yr)
     # Defining output file path:
     outfile = f"{outdir}/2m_temperature_{yr}-{f'{n+1:02d}'}.nc"
-    # Write to netCDF file:
-    logging.info(f"In Progress: Producing {months[n]} {yr} climatologically corrected ERA-5 2m temperature.")
-    ds_t2m_adj.to_netcdf(outfile, encoding=encoding, unlimited_dims='time')
-    logging.info(f"Completed: Produced {months[n]} {yr} climatologically corrected ERA-5 2m temperature in {outfile}")
+
+    if os.path.exists(outfile):
+        logging.info(f"Skipping {months[n]} {yr}: climatologically corrected ERA-5 2m temperature already exists in {outfile}.")
+        continue
+
+    else:
+        logging.info(f"In Progress: Applying monthly climatological correction to {months[n]} {yr} ERA-5 2m temperature.")
+        # Open 2m temperature dataset:   
+        ds_t2m = xr.open_dataset(t2m_files[n])
+        if ("valid_time" in ds_t2m.coords):
+            ds_t2m = ds_t2m.rename({"valid_time": "time"})
+        logging.info(f"Completed: Read {t2m_files[n]}")
+
+        # Open sea ice conc. dataset:   
+        ds_sic = xr.open_dataset(sic_files[n])
+        if ("valid_time" in ds_sic.coords):
+            ds_sic = ds_sic.rename({"valid_time": "time"})
+        if len(ds_sic['time']) != len(ds_t2m['time']):
+            logging.info(f"t2m = {len(ds_t2m['time'])}, sic = {len(ds_sic['time'])}")
+            ds_sic = ds_sic.isel(time=slice(0, len(ds_t2m['time'])))
+            logging.info(f"Completed: Subset {months[n]} {yr} sea ice cover to match ERA-5 2m temperature.")
+        logging.info(f"Completed: Read {sic_files[n]}") 
+
+        # Open ERA-5 monthly climatological adjustment file:
+        t2m_adj_dir = "/dssgfs01/scratch/atb299/ERA5_adjustment/2m_temperature"
+        if (n == 1) & (len(ds_t2m.time) == 696): 
+            logging.info(f"In Progress: Applying {months[n]} {yr} Leap Year Adjustment.")
+            ds_bias = xr.open_dataset(f"{t2m_adj_dir}/2m_temperature-{f'{n+1:02d}'}_LY.nc")
+        else:
+            logging.info(f"In Progress: Applying {months[n]} {yr} Regular Adjustment.")
+            ds_bias = xr.open_dataset(f"{t2m_adj_dir}/2m_temperature-{f'{n+1:02d}'}.nc")
+
+        # Align ERA-5 climatological adjustment time dimension to input t2m data:
+        if len(ds_bias['time']) > len(ds_t2m['time']):
+            logging.info(f"t2m = {len(ds_t2m['time'])}, bias = {len(ds_bias['time'])}")
+            ds_bias = ds_bias.isel(time=slice(0, len(ds_t2m['time'])))
+            logging.info(f"Completed: Subset {months[n]} {yr} climatological adjustment to match ERA-5 2m temperature.")
+
+        # Replace time values with input t2m data:
+        ds_bias['time'] = ds_t2m['time']
+
+        # Apply climatological correction where sea ice exists (i.e., sic > 0):
+        ds_t2m_adj = xr.where(ds_sic['siconc'] > 0, ds_t2m['t2m'] - ds_bias['t2m'], ds_t2m['t2m']).to_dataset(name='t2m')
+
+        # Add attributes of original dataset to adjusted dataset:
+        ds_t2m_adj.attrs = ds_t2m.attrs
+
+        logging.info("Completed: Applied monthly climatological correction to ERA-5 2m temperature.")
+
+        # Adjust dtypes for latest ERA-5 data:
+        if (yr >= 2024):
+            ds_t2m_adj['t2m'] = ds_t2m_adj['t2m'].astype('float')
+
+        # -- Write Climatologically Corrected Data -- #
+        # Define original encoding for output netCDF file:
+        encoding = get_encoding(ds_t2m, yr)
+        # Write to netCDF file:
+        logging.info(f"In Progress: Writing {months[n]} {yr} climatologically corrected ERA-5 2m temperature to {outfile}.")
+        ds_t2m_adj.to_netcdf(outfile, encoding=encoding, unlimited_dims='time')
+        logging.info(f"Completed: Writing {months[n]} {yr} climatologically corrected ERA-5 2m temperature in {outfile}")
