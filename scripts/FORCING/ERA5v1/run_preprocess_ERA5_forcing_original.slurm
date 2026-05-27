@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=preprocess_ERA5_original
-#SBATCH --time=04:00:00
+#SBATCH --time=06:00:00
 #SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-core=1
@@ -29,8 +29,7 @@ export indir='/dssgfs01/scratch/npd/forcing/ERA5/original/'
 export outdir='/dssgfs01/scratch/npd/forcing/ERA5/preprocessed/'
 
 # -- Define Input Files -- #
-# TO DO: Update from start_year below to present.
-year=2025
+year=2026
 infiles=(${indir}${year}/{10m_u_component_of_wind,10m_v_component_of_wind,2m_dewpoint_temperature,2m_temperature,mean_sea_level_pressure,mean_snowfall_rate,mean_surface_downward_short_wave_radiation_flux,mean_surface_downward_long_wave_radiation_flux,mean_total_precipitation_rate}/*.nc)
 inf=${#infiles[*]}
 
