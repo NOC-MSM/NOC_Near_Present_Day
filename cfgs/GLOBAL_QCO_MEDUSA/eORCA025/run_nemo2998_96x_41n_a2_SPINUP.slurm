@@ -2,7 +2,7 @@
 #SBATCH --job-name=NPD_025
 #SBATCH --account=n01-CLASS
 #SBATCH --time=05:00:00
-#SBATCH --nodes=49
+#SBATCH --nodes=46
 #SBATCH --partition=standard
 #SBATCH --qos=standard
 #SBATCH --exclusive
@@ -367,7 +367,7 @@ export SLURM_OVERLAP=1
 echo "Commence srun.."
 
 srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
---het-group=0 --nodes=14 --ntasks=196 --ntasks-per-core=1 --ntasks-per-node=14 --cpus-per-task=1 /tmp/xios_server.exe \
+--het-group=0 --nodes=11 --ntasks=220 --ntasks-per-core=1 --ntasks-per-node=20 --cpus-per-task=1 /tmp/xios_server.exe \
 : --het-group=1 --nodes=34 --ntasks=2924 --ntasks-per-core=1 --ntasks-per-node=86 --cpus-per-task=1  /tmp/nemo \
 : --het-group=2 --nodes=1 --ntasks=74 --ntasks-per-core=1 --ntasks-per-node=74 --cpus-per-task=1  /tmp/nemo
 
