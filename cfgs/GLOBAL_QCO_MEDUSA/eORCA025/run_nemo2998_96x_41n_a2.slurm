@@ -2,18 +2,17 @@
 #SBATCH --job-name=NPD_025
 #SBATCH --account=n01-CLASS
 #SBATCH --time=05:00:00
-#SBATCH --nodes=49
+#SBATCH --nodes=46
 #SBATCH --partition=standard
 #SBATCH --qos=standard
 #SBATCH --exclusive
 #SBATCH --hint=nomultithread
 #SBATCH --distribution=block:cyclic
 
-
 # ========================================================
 # PARAMETERS TO SET
 # time units used here for restart frequency and simulaion length
-  TIME_UNITS=0 # 0=years ; 1=days ; 2=hours ; 3=month
+  TIME_UNITS=0 # 0=years ; 1=days ; 2=hours
 # Restart/resubmission frequency (in TIME_UNITS)
   FREQRST=1
 # job-step initial time step (0: infer from time.step)
@@ -22,13 +21,16 @@
 #
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
-# Simulation length (in TIME_UNITS)
-  LENGTH=57
+# Simulation length (in TIME_UNITS) 
+  LENGTH=65
 # Name of this script (to resubmit)
+  SCRIPTSPIN=run_nemo2998_96x_41n_a2_SPINUP.slurm
   SCRIPTNAME=run_nemo2998_96x_41n_a2.slurm
+# If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
+  SPIN=0 
 # Move OUTPUTS to a store-place : 
   ISTORE=true
-export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/NPD025-MEDUSA-1.0"
+export STORE_OUT="/work/n01/n01/julpal/NPD_OUT_STORE/NPD025-MEDUSA-ERA51.1"
 #--------------------------------------------------------------
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
@@ -45,10 +47,6 @@ module load cce/16.0.1
 module load cray-hdf5-parallel/1.12.2.7
 module load cray-netcdf-hdf5parallel/4.9.0.7
 
-## Switch from ofi to ucx 
-# module swap craype-network-ofi craype-network-ucx
-# module swap cray-mpich cray-mpich-ucx
-# module load libfabric
 
 export NEMO_EXP_DIR=$PWD
 echo $NEMO_EXP_DIR
@@ -189,8 +187,6 @@ if [ "$IT000" -gt 1 ]; then
     # Use restarts
     edit_var ln_rstart ".true." ./namelist_cfg
     edit_var ln_tsd_init ".false." ./namelist_cfg
-    edit_var ln_rsttr ".true." ./namelist_top_cfg
-    edit_var ln_trcdta ".false." ./namelist_top_cfg
 
     # Set start
     TSTEP=$((IT000 - 1))
@@ -205,7 +201,6 @@ if [ "$IT000" -gt 1 ]; then
     TCERST_IN=${OCERST_IN}_trc
     edit_var cn_ocerst_in "'${OCERST_IN}'" ./namelist_cfg
     edit_var cn_icerst_in "'${ICERST_IN}'" ./namelist_ice_cfg
-    edit_var cn_trcrst_in "'${TCERST_IN}'" ./namelist_top_cfg
 
     RST_FILE="none"
     if [ -f $RST_DIR/${OCERST_IN}.nc ] ; then
@@ -214,6 +209,36 @@ if [ "$IT000" -gt 1 ]; then
       RST_FILE=$RST_DIR/${OCERST_IN}_0000.nc
     fi
     read -r RST_YR START_MTH START_DAY START_YR <<< "$(date_from_restart $RST_FILE )"
+
+    if [ $SPIN = 1 ] ; then
+      ## With MEDUSA - We only start MEDUSA at the last year of the spin-up
+      ## So Here, we start NEMO-MEDUSA from the end of NEMO-physics-only's 2nd year of SPIN-up
+      ## as it's done for NEMO-phys-only last 1976 run: 
+      ##    - time.step file is here - set to match end of 2nd 1976 cycle restart.
+      ##    - start from end of 2nd 1976 end of run restart.
+      ##     ==> Make sure both of the above are in the rundir (1976 restart in RESTARTS dir)
+      ##    - reset T-S at start as in spin-up
+      ## There we start MEDUSA from our init conditions - with reseted T-S - 
+      ## 
+      
+      START_YR=$RST_YR
+      edit_var ln_reset_ts ".true." ./namelist_cfg
+      edit_var nn_rstctl "0" ./namelist_cfg
+      edit_var ln_rsttr ".false." ./namelist_top_cfg
+      edit_var ln_trcdta ".true." ./namelist_top_cfg
+    elif [ $SPIN = 0 ] ; then
+      edit_var ln_reset_ts ".false." ./namelist_cfg
+      edit_var nn_rstctl "2" ./namelist_cfg
+      edit_var ln_rsttr ".true." ./namelist_top_cfg
+      edit_var ln_trcdta ".false." ./namelist_top_cfg
+      edit_var cn_trcrst_in "'${TCERST_IN}'" ./namelist_top_cfg
+    else
+      echo "Error: it is unclear whether this is a spinup with T and S reset, or a normal simulation"
+      exit 1
+    fi
+
+    echo "Start year is: " $START_YR
+
 else
     # Start from rest
     edit_var ln_rstart ".false." ./namelist_cfg
@@ -230,7 +255,7 @@ else
       echo "Warning: not starting at the beginning of the year; itend calculation may not result in an end-of-year finish"
     fi
 fi
-
+    
 if [ "$START_YR" -lt 0 ] ; then
     # START_YR not discoverable; assume 365 day year
     YR_LEN=365
@@ -238,12 +263,13 @@ else
     YR_LEN=$(greg_length $START_YR )
 fi
 
+
 # Edit nn_itend and (possibly) ln_rst_list and nn_stocklist
 # Deal with frequency and length units (convert to hours in all cases)
 # TIME_UNITS=0 # 0=years ; 1=days ; 2=hours ; no conversion required for last case.
 if [ "$TIME_UNITS" -eq 0 ]; then
     #
-    # First calculate the final timestep of the experiment based on LENGTH, ITBEGIN and nn_date0
+    # First calculate the final timestep of the experiment based on LENGTH, ITBEGIN and nn_date0 
     # For simplicity, assume always starting at the beginning of the year.
     #
     DATE0=$(get_var nn_date0 ./namelist_cfg)
@@ -251,12 +277,16 @@ if [ "$TIME_UNITS" -eq 0 ]; then
     EXP_LENGTH=$(greg_length $EXP_START_YR )
     LT=$(( LENGTH - 1 ))
     if [ "$LT" -gt 0 ] ; then
-      for y in `seq 1 1 $LT`
-       do
-        EXP_START_YR=$(( EXP_START_YR + 1 ))
-        YL=$( greg_length $EXP_START_YR )
-        EXP_LENGTH=$(( EXP_LENGTH + YL ))
-       done
+      if [ $SPIN = 1 ] ; then
+        EXP_LENGTH=$(( EXP_LENGTH * LENGTH ))
+      else
+        for y in `seq 1 1 $LT`
+        do
+          EXP_START_YR=$(( EXP_START_YR + 1 ))
+          YL=$( greg_length $EXP_START_YR )
+          EXP_LENGTH=$(( EXP_LENGTH + YL ))
+        done
+      fi
     fi
     # convert from days to hours
     EXP_LENGTH=$(( EXP_LENGTH * 24 ))
@@ -271,7 +301,7 @@ if [ "$TIME_UNITS" -eq 0 ]; then
     LT=$(( FREQRST - 1 ))
     if [ "$LT" -gt 0 ] ; then
       for y in `seq 1 1 $LT`
-       do
+      do
         START_YR=$(( START_YR + 1 ))
         YL=$( greg_length $START_YR )
         NEXT_STOCK="$(( NEXT_STOCK + YL * 24 * 60 * 60 / DT ))"
@@ -279,49 +309,7 @@ if [ "$TIME_UNITS" -eq 0 ]; then
         if [ "$y" -lt 10 ] ; then
           STOCK_LIST="${STOCK_LIST},${NEXT_STOCK}"
         fi
-       done
-    fi
-    ITEND=$NEXT_STOCK
-    edit_var nn_stocklist "$STOCK_LIST" ./namelist_cfg
-elif [ "$TIME_UNITS" -eq 3 ]; then
-    #
-    # First calculate the final timestep of the experiment based on LENGTH, ITBEGIN and nn_date0
-    # For simplicity, assume always starting at the beginning of the year.
-    #
-    DATE0=$(get_var nn_date0 ./namelist_cfg)
-    EXP_START_YR=${DATE0:0:4} ; EXP_START_MTH=${DATE0:4:2} ; EXP_START_DAY=${DATE0:6:2}
-    EXP_LENGTH=$(greg_month_length $EXP_START_MTH $EXP_START_YR )
-    LT=$(( LENGTH - 1 ))
-    if [ "$LT" -gt 0 ] ; then
-      for mm in `seq 1 1 $LT`
-       do
-        EXP_START_MTH=$(( EXP_START_MTH + 1 ))
-        YL=$( greg_month_length $mm $EXP_START_YR )
-        EXP_LENGTH=$(( EXP_LENGTH + YL ))
-       done
-    fi
-    # convert from days to hours
-    EXP_LENGTH=$(( EXP_LENGTH * 24 ))
-    #
-    # Next calculate the end-of-year timesteps in this period of the experiment
-    # based on FREQRST, IT000 and ending date of previous job-step
-    # Note FREQRST is used to determine the length of each job-step. End of year restarts
-    # are always written even when FREQRST > 1
-    #
-    NEXT_STOCK="$(( IT000 - 1 + $EXP_LENGTH * 60 * 60 / DT ))"
-    STOCK_LIST=$NEXT_STOCK
-    LT=$(( FREQRST - 1 ))
-    if [ "$LT" -gt 0 ] ; then
-      for y in `seq 1 1 $LT`
-       do
-        START_YR=$(( START_YR + 1 ))
-        YL=$( greg_month_length $y $START_YR )
-        NEXT_STOCK="$(( NEXT_STOCK + YL * 24 * 60 * 60 / DT ))"
-        # stocklist is limited to length 10
-        if [ "$y" -lt 10 ] ; then
-          STOCK_LIST="${STOCK_LIST},${NEXT_STOCK}"
-        fi
-       done
+      done
     fi
     ITEND=$NEXT_STOCK
     edit_var nn_stocklist "$STOCK_LIST" ./namelist_cfg
@@ -332,24 +320,37 @@ elif [ "$TIME_UNITS" -eq 1 ]; then
     edit_var ln_rst_list ".false." ./namelist_cfg
 elif [ "$TIME_UNITS" -eq 2 ]; then
     ITEND=$(( IT000 - 1 + FREQRST * 60 * 60 / DT ))
-    EXP_LENGTH=$LENGTH
+    EXP_LENGTH=$LENGTH 
     edit_var ln_rst_list ".false." ./namelist_cfg
 fi
 
 FINAL=$(( ITBEGIN - 1 + EXP_LENGTH * 60 * 60 / DT ))
 echo "ITEND = "$ITEND
 echo "FINAL = "$FINAL
-if [ "$ITEND" -ge "$FINAL" ]; then
-    ITEND=$FINAL
-fi
+#if [ "$ITEND" -ge "$FINAL" ]; then
+#    ITEND=$FINAL
+#fi
 edit_var nn_itend "$ITEND" ./namelist_cfg
 
+#########################
 # Submit next job
-if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+if [ $SPIN = 1 ] ; then
+  if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+    sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTSPIN"
+  elif [ "$ITEND" -ge "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+    ### Spin-up Over--> continue with normal runscript
     sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
-    if ${ISTORE}; then
-      sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm" ${STORE_OUT}
-    fi
+  fi
+else 
+  if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+    sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
+  fi
+fi
+
+########################
+# Move Outputs to Store dir  
+if ${ISTORE}; then
+  sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm" ${STORE_OUT}
 fi
 
 # Create directories
@@ -366,7 +367,7 @@ export SLURM_OVERLAP=1
 echo "Commence srun.."
 
 srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
---het-group=0 --nodes=14 --ntasks=196 --ntasks-per-core=1 --ntasks-per-node=14 --cpus-per-task=1 /tmp/xios_server.exe \
+--het-group=0 --nodes=11 --ntasks=220 --ntasks-per-core=1 --ntasks-per-node=20 --cpus-per-task=1 /tmp/xios_server.exe \
 : --het-group=1 --nodes=34 --ntasks=2924 --ntasks-per-core=1 --ntasks-per-node=86 --cpus-per-task=1  /tmp/nemo \
 : --het-group=2 --nodes=1 --ntasks=74 --ntasks-per-core=1 --ntasks-per-node=74 --cpus-per-task=1  /tmp/nemo
 
@@ -408,3 +409,4 @@ for NAMELIST in *namelist_cfg; do
         exit 1
     fi
 done
+

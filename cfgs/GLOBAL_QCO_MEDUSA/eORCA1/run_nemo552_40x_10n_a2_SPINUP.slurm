@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=NPD_1
-#SBATCH --partition=compute
+#SBATCH --account=n01-CLASS
 #SBATCH --time=00:30:00
-#SBATCH --ntasks-per-core=1
-#SBATCH --ntasks-per-node=64
-#SBATCH --ntasks-per-socket=32
 #SBATCH --nodes=10
-##SBATCH --exclude=compute[001-059]
-#SBATCH --exclude=compute[001]
+#SBATCH --partition=standard
+#SBATCH --qos=standard
+#SBATCH --exclusive
+#SBATCH --hint=nomultithread
+#SBATCH --distribution=block:cyclic
 
 # ========================================================
 # PARAMETERS TO SET
@@ -22,14 +22,14 @@
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=65
+  LENGTH=1
 # Name of this script (to resubmit)
-  SCRIPTSPIN=run_nemo552_40x_10n_SPINUP.slurm
-  SCRIPTNAME=run_nemo552_40x_10n.slurm
+  SCRIPTSPIN=run_nemo552_40x_10n_a2_SPINUP.slurm
+  SCRIPTNAME=run_nemo552_40x_10n_a2.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
-  SPIN=0 
+  SPIN=1 
 # Move OUTPUTS to a store-place :                            
-  ISTORE=true
+  ISTORE=false
 export STORE_OUT="/dssgfs01/working/jpp1m13/STORE-OUT/OUT_NPD_SPUN_eORCA1-MEDUSA_traqsr"  
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
@@ -41,9 +41,34 @@ if [ "$TIME_UNITS" -eq 0 ] ; then
 fi
 # ========================================================
 ## modules load
-module purge
-module load NEMO/prg-env
-module load libfabric/1.18.0-GCCcore-12.3.0
+module load PrgEnv-cray/8.4.0
+module load cce/16.0.1
+module load cray-hdf5-parallel/1.12.2.7
+module load cray-netcdf-hdf5parallel/4.9.0.7
+
+## Switch from ofi to ucx 
+# module swap craype-network-ofi craype-network-ucx
+# module swap cray-mpich cray-mpich-ucx
+# module load libfabric
+
+export NEMO_EXP_DIR=$PWD
+echo $NEMO_EXP_DIR
+export OMP_NUM_THREADS="1"
+export I_MPI_SHM="off"
+unset I_MPI_PMI_LIBRARY
+export FI_CXI_OPTIMIZED_MRS=false
+# UD transport layer is "unreliable", so disable it by setting...
+export UCX_TLS=rc,dc,self,sm
+
+cd "$NEMO_EXP_DIR"
+
+# Link nemo and xios -> Check consistency with arch file
+ln -s /work/n01/shared/nemo/XIOS3_r27XX/bin/xios_server.exe .
+ln -s ../BLD/bin/nemo.exe .
+
+# Broadcast executables
+sbcast --compress=none "$NEMO_EXP_DIR"/nemo.exe /tmp/nemo
+sbcast --compress=none "$NEMO_EXP_DIR"/xios_server.exe /tmp/xios_server.exe
 
 # ========================================================
 # Define useful functions
@@ -334,19 +359,23 @@ fi
 # Create directories
 mkdir -p {RESTARTS,OUTPUT}
 
-# Link nemo
-ln -fs ../BLD/bin/nemo.exe nemo
-
-export XIO_HOME=/dssgfs01/working/atb299/XIOS3
-#
-export OMP_NUM_THREADS=1
-export I_MPI_SHM=off
-unset I_MPI_PMI_LIBRARY 
 
 # Run checker to trap hanging jobs
 ./time_step_chk $SLURM_JOB_ID "$SCRIPTNAME" &
 
-mpiexec.hydra -print-rank-map -ppn 1 -np 67 $XIO_HOME/bin/xios_server.exe : -np 552 ./nemo
+# mpiexec.hydra -print-rank-map -ppn 1 -np 67 $XIO_HOME/bin/xios_server.exe : -np 552 ./nemo
+
+srun --overlap --oversubscribe --mem=1GB --ntasks=$SLURM_NNODES --ntasks-per-node=1 ./run_check_mem.sh &
+export SLURM_OVERLAP=1
+
+# Run NEMO
+echo "Commence srun.."
+
+srun --cpu-bind=verbose --mem-bind=local --overlap --oversubscribe \
+--het-group=0 --nodes=1 --ntasks=67 --ntasks-per-core=1 --ntasks-per-node=67 --cpus-per-task=1 /tmp/xios_server.exe \
+: --het-group=1 --nodes=8 --ntasks=552 --ntasks-per-core=1 --ntasks-per-node=69 --cpus-per-task=1  /tmp/nemo \
+: --het-group=2 --nodes=1 --ntasks=74 --ntasks-per-core=1 --ntasks-per-node=74 --cpus-per-task=1  /tmp/nemo
+
 
 # Move log files
 mkdir -p LOGS/"$SLURM_JOB_ID"
