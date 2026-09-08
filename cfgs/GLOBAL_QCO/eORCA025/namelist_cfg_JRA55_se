@@ -138,8 +138,8 @@
 
       ln_int_wave_drag = .true.,
       ln_calc_tdiss = .true.,   ! calculate tdiss rather than reading in
-         cn_int_wave_drag = 'INPUTS/tdiss_R025_fac2.nc',
-         cn_h_rough = 'INPUTS/h_RMS_topog_anom.nc', ! roughness file
+         cn_int_wave_drag = 'INPUT/tdiss_R025_fac2.nc',
+         cn_h_rough = 'INPUT/h_RMS_topog_anom.nc', ! roughness file
          rn_kappa_tdiss = 0.00075398 ! x12 value  0.00006283,  ! wave number Jayne and Laurence 2004 value !282.74333! increasedwith x1500^2 x2
          tdiss_mindepth = 500.0 ! minimum depth to apply tdiss parameterisation 
 
