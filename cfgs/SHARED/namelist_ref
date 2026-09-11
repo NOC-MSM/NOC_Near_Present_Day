@@ -717,6 +717,14 @@
             !
       ln_tide_ramp  = .false.               !  Use linear ramp for tides at startup
          rn_tide_ramp_dt = 0.               !  ramp duration in days
+
+      ln_int_wave_drag = .false.,
+      ln_calc_tdiss = .true.,   ! calculate tdiss rather than reading in
+         cn_int_wave_drag = 'INPUTS/tdiss_R025_fac2.nc',
+         cn_h_rough = 'INPUTS/h_RMS_topog_anom.nc', ! roughness file
+         rn_kappa_tdiss = 0.00075398 ! x12 value  0.00006283,  ! wave number Jayne and Laurence 2004 value !282.74333! increasedwith x1500^2 x2
+         tdiss_mindepth = 500.0 ! minimum depth to apply tdiss parameterisation
+
       sn_tide_cnames(1) = 'DUMMY'               !  name of constituent - all tidal components must be set in namelist_cfg
 /
 !-----------------------------------------------------------------------
