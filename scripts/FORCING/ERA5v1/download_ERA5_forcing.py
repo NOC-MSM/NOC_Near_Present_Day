@@ -8,13 +8,14 @@ Created By: Jenny Mecking (jmecki@noc.ac.uk)
 Last Edited By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 """
 # --- Import Dependencies --- #
-import os
-import cdsapi
-import logging
-import datetime
 import argparse
-import numpy as np
+import datetime
+import logging
+import os
 from datetime import date, timedelta
+
+import cdsapi
+import numpy as np
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 # -- Configure Argument Parser -- #
@@ -29,7 +30,7 @@ parser.add_argument('-v','--variables', help='List of ERA-5 variables to downloa
 
 # --- Configure Logging --- #
 logging.basicConfig(
-    filename="download_era5_forcing.log",
+    filename=f"download_era5_forcing_{date.today().strftime("%Y-%m-%d")}.log",
     encoding="utf-8",
     filemode="w",
     format="{asctime} - {levelname} - {message}",
@@ -37,6 +38,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M",
     level=logging.INFO,
     )
+logger = logging.getLogger(__name__)
 
 # -- Define User Inputs -- #
 # Parse input arguments as dict:
@@ -119,8 +121,7 @@ def download_ERA5_data(client,
             'format': 'netcdf',
         },
         outfile)
-    
-    return
+
 
 # -- Prepare Dates -- #
 ini_date = date(year=ini_year, month=1, day=1)
@@ -151,7 +152,7 @@ for date_mo in dates_monthly:
 
         # Check if filepath exists:
         if os.path.isfile(outfile):
-            logging.info(f"Skipping file: {outfile} already exists.")
+            logger.info(f"Skipping file: {outfile} already exists.")
         else:
             # Check if directory exists:
             if not os.path.exists(outdir):
@@ -159,5 +160,5 @@ for date_mo in dates_monthly:
                 os.makedirs(outdir)
 
             # Download ERA5 data with a maximum of 3 retries:
-            logging.info(f"Downloading {variable} data for {date_mo.year}-{date_mo.month}.")
+            logger.info(f"Downloading {variable} data for {date_mo.year}-{date_mo.month}.")
             download_ERA5_data(client, date_mo, variable, outfile)
