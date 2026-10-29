@@ -9,10 +9,12 @@ Missing time steps are filled with NaN values.
 Created By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 """
 # -- Import Dependencies -- #
-import os
 import logging
-import xarray as xr
+import os
+from datetime import date
+
 import numpy as np
+import xarray as xr
 
 
 # -- Define main function to extend ERA5 preprocessed data -- #
@@ -20,12 +22,7 @@ def main(filedir_latest: str = "/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_
          filedir_t2m_adj: str = "/dssgfs01/scratch/npd/forcing/ERA5_t2m_adj",
          year: int = 2026,
          month: int = 5,
-         variable_list: list = ["2m_temperature", "2m_dewpoint_temperature",
-                                "mean_sea_level_pressure",
-                                "mean_surface_downward_long_wave_radiation_flux",
-                                "mean_surface_downward_short_wave_radiation_flux",
-                                "mean_snowfall_rate", "mean_total_precipitation_rate",
-                                "10m_u_component_of_wind", "10m_v_component_of_wind"]
+         variable_list: list | None = None
          ) -> None:
     """
     Extend the valid_time dimension of the latest month of ERA5 preprocessed data.
@@ -45,7 +42,7 @@ def main(filedir_latest: str = "/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_
     """
     # --- Configure Logging --- #
     logging.basicConfig(
-        filename="extend_ERA5_preprocessed_latest.log",
+        filename=f"extend_ERA5_preprocessed_latest_{date.today().strftime('%Y-%m-%d')}.log",
         encoding="utf-8",
         filemode="w",
         format="{asctime} - {levelname} - {message}",
@@ -53,6 +50,8 @@ def main(filedir_latest: str = "/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_
         datefmt="%Y-%m-%d %H:%M",
         level=logging.INFO,
         )
+
+    logger = logging.getLogger(__name__)
     
     # -- Define Variable Mapping -- #
     var_map = {
@@ -67,9 +66,19 @@ def main(filedir_latest: str = "/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_
         "10m_v_component_of_wind": "v10"
     }
 
-    logging.info(f"=== Extending ERA5 preprocessed data for {year}-{month:02d} ===")
+    # -- Set Default Variable List if None -- #
+    if variable_list is None:
+        variable_list = ["2m_temperature", "2m_dewpoint_temperature",
+                         "mean_sea_level_pressure",
+                         "mean_surface_downward_long_wave_radiation_flux",
+                         "mean_surface_downward_short_wave_radiation_flux",
+                         "mean_snowfall_rate", "mean_total_precipitation_rate",
+                         "10m_u_component_of_wind", "10m_v_component_of_wind"
+                         ]
+
+    logger.info(f"=== Extending ERA5 preprocessed data for {year}-{month:02d} ===")
     for var in variable_list:
-        logging.info(f"-> In Progress: Extending ERA5 preprocessed variable: {var}")
+        logger.info(f"-> In Progress: Extending ERA5 preprocessed variable: {var}")
         # -- Define Target Directory -- #
         if var == "2m_temperature":
             filedir = f"{filedir_t2m_adj}/{year}"
@@ -83,18 +92,18 @@ def main(filedir_latest: str = "/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_
         # -- Check if Output Filepath Exists -- #
         filepath_out = f"{filedir}/{var}_{year}-{month:02d}_extended.nc"
         if os.path.isfile(filepath_out):
-            logging.info(f"Skipping file: {filepath_out} already exists.")
+            logger.info(f"Skipping file: {filepath_out} already exists.")
             continue
 
         # -- Open Reference ERA5 Dataset -- #
         filepath_ref = f"{filedir_ref}/{var}_{year - 1}-{month:02d}.nc"
         ds_ref = xr.open_dataset(filepath_ref)
-        logging.info(f"-> Completed: Opened reference ERA5 dataset: {filepath_ref}")
+        logger.info(f"-> Completed: Opened reference ERA5 dataset: {filepath_ref}")
 
         # -- Open Partial ERA5 Dataset -- #
         filepath_partial = f"{filedir}/{var}_{year}-{month:02d}.nc"
         ds_partial = xr.open_dataset(filepath_partial)
-        logging.info(f"-> Completed: Opened latest partial ERA5 dataset: {filepath_partial}")
+        logger.info(f"-> Completed: Opened latest partial ERA5 dataset: {filepath_partial}")
 
         # -- Define Empty ERA5 Dataset for Missing Time Steps -- #
         if len(ds_partial[time_name]) == len(ds_ref[time_name]):
@@ -108,9 +117,9 @@ def main(filedir_latest: str = "/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_
         ds_out = xr.concat([ds_partial, ds_ref], dim=time_name)
 
         # -- Write Extended Dataset to File -- #
-        ds_out.to_netcdf(filepath_out)
-        logging.info(f"-> Completed: Saved extended ERA5 preprocessed variable {var} to netCDF file: {filepath_out}")
-        logging.info("  ======  ")
+        ds_out.to_netcdf(filepath_out, unlimited_dims=time_name)
+        logger.info(f"-> Completed: Saved extended ERA5 preprocessed variable {var} to NetCDF file: {filepath_out}")
+        logger.info("  ======  ")
 
 if __name__ == "__main__":
     # ========== Input Arguments ========== #
@@ -122,7 +131,7 @@ if __name__ == "__main__":
 
     # Define year and month of the latest month of ERA5 data to be extended:
     year = 2026
-    month = 5
+    month = 10
 
     # Define list of ERA5 variables to extend:
     variable_list = ["2m_temperature", "2m_dewpoint_temperature",
