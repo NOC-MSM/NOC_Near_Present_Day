@@ -26,5 +26,5 @@ yr=2026
 
 echo "================================================="
 echo "In Progress: Applying Climatological Adjustment to ${yr} ..."
-python apply_ERA5_t2m_si_adjustment.py --year $yr
+python apply_ERA5_t2m_si_adjustment.py --year $yr --latest
 echo "Completed: Applied Climatological Adjustment to ${yr}."
