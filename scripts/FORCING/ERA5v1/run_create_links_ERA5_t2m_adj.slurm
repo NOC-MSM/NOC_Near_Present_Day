@@ -17,6 +17,10 @@ set -euo pipefail
 # ==== Input Parameters ==== #
 # Year to prepare symbolic links for:
 year=2026
+# Month to prepare symbolic links for:
+month=10
+# Extended month(only applicable to latest month):
+month_extended=true
 
 # Input directory containing preprocessed ERA-5 monthly .nc files:
 inputdir="/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_latest"
@@ -25,7 +29,7 @@ inputdir="/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_latest"
 linksdir="/dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/all_fields/"
 
 # === Create Symbolic Links for Climatologically Adjusted ERA-5 2m Temperature === #
-echo "In Progress: Creating symbolic links for climatologically adjusted ERA-5 2m temperature files for ${year} ..."
+echo "In Progress: Creating symbolic links for climatologically adjusted ERA-5 2m temperature files for ${year}-${month} ..."
 
 # Move to directory of symbolic links for ERA-5 adjusted forcing:
 mkdir -p $linksdir
@@ -36,11 +40,25 @@ vars="2m_dewpoint_temperature mean_sea_level_pressure mean_surface_downward_long
 
 # Create symbolic links for preprocessed ERA-5 variables:
 for var in ${vars}; do
-    ln -s ${inputdir}/${year}/${var}/*nc .
+    if [ "$month_extended" = true ]; then
+        ln -s ${inputdir}/${year}/${var}/${var}_${year}-${month}_extended.nc ${var}_${year}-${month}.nc
+    elif [ "$month_extended" = false ]; then
+        ln -s ${inputdir}/${year}/${var}/${var}_${year}-${month}.nc .
+    else
+        echo "InputError: month_extended must be specified as true or false"
+        exit 1
+    fi
 done
 
 # Create symbolic links for climatologically adjusted ERA-5 2m temperature:
-ln -s /dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/${year}/2m_temperature*.nc .
+if [ "$month_extended" = true ]; then
+    ln -s /dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/${year}/2m_temperature_${year}-${month}_extended.nc 2m_temperature_${year}-${month}.nc
+elif [ "$month_extended" = false ]; then
+    ln -s /dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/${year}/2m_temperature_${year}-${month}.nc .
+else
+    echo "InputError: month_extended must be specified as true or false"
+    exit 1
+fi
 
 # === Update File Naming Format === #
 # Update ERA-5 date format (i.e., _2025-01 -> _y2025m01):
@@ -59,5 +77,5 @@ rename mean_surface_downward_long_wave_radiation_flux msdwlwrf mean_surface_down
 rename mean_surface_downward_short_wave_radiation_flux msdwswrf mean_surface_downward_short_wave_radiation_flux*nc
 rename mean_total_precipitation_rate mtpr mean_total_precipitation_rate*nc
 
-echo "Completed: Created symbolic links for climatologically adjusted ERA-5 2m temperature files for ${year}."
+echo "Completed: Created symbolic links for climatologically adjusted ERA-5 2m temperature files for ${year}-${month}"
 cd -
