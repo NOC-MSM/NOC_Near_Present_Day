@@ -22,14 +22,15 @@
 # Simulation original starting time step (unchanged for LENGTHxTIME_UNITS)
   ITBEGIN=1
 # Simulation length (in TIME_UNITS) 
-  LENGTH=10
+  LENGTH=65
 # Name of this script (to resubmit)
+  SCRIPTSPIN=run_nemo552_40x_10n_SPINUP.slurm
   SCRIPTNAME=run_nemo552_40x_10n.slurm
 # If conducting the repeat and reset T and S spinup set SPIN to 1, else set to 0
   SPIN=0 
 # Move OUTPUTS to a store-place :                            
-  ISTORE=false                                               
-export STORE_OUT="/general/n01/n01/julpal/OUTPUTS/NPD/eORCA025_river"  
+  ISTORE=true
+export STORE_OUT="/dssgfs01/working/jpp1m13/STORE-OUT/OUT_NPD_SPUN_eORCA1-MEDUSA_traqsr"  
 #
 # Use of nn_stocklist to trigger end-of-year restarts regardless of leap- or non-leap-
 # years, means job-steps have to be limited to no more than 10 years. Force this if
@@ -164,8 +165,6 @@ if [ "$IT000" -gt 1 ]; then
     # Use restarts
     edit_var ln_rstart ".true." ./namelist_cfg
     edit_var ln_tsd_init ".false." ./namelist_cfg
-    edit_var ln_rsttr ".true." ./namelist_top_cfg
-    edit_var ln_trcdta ".false." ./namelist_top_cfg
 
     # Set start
     TSTEP=$((IT000 - 1))
@@ -180,7 +179,6 @@ if [ "$IT000" -gt 1 ]; then
     TCERST_IN=${OCERST_IN}_trc
     edit_var cn_ocerst_in "'${OCERST_IN}'" ./namelist_cfg
     edit_var cn_icerst_in "'${ICERST_IN}'" ./namelist_ice_cfg
-    edit_var cn_trcrst_in "'${TCERST_IN}'" ./namelist_top_cfg
 
     RST_FILE="none"
     if [ -f $RST_DIR/${OCERST_IN}.nc ] ; then
@@ -191,12 +189,27 @@ if [ "$IT000" -gt 1 ]; then
     read -r RST_YR START_MTH START_DAY START_YR <<< "$(date_from_restart $RST_FILE )"
 
     if [ $SPIN = 1 ] ; then
+      ## With MEDUSA - We only start MEDUSA at the last year of the spin-up
+      ## So Here, we start NEMO-MEDUSA from the end of NEMO-physics-only's 2nd year of SPIN-up
+      ## as it's done for NEMO-phys-only last 1976 run: 
+      ##    - time.step file is here - set to match end of 2nd 1976 cycle restart.
+      ##    - start from end of 2nd 1976 end of run restart.
+      ##     ==> Make sure both of the above are in the rundir (1976 restart in RESTARTS dir)
+      ##    - reset T-S at start as in spin-up
+      ## There we start MEDUSA from our init conditions - with reseted T-S - 
+      ## 
+      
       START_YR=$RST_YR
       edit_var ln_reset_ts ".true." ./namelist_cfg
       edit_var nn_rstctl "0" ./namelist_cfg
+      edit_var ln_rsttr ".false." ./namelist_top_cfg
+      edit_var ln_trcdta ".true." ./namelist_top_cfg
     elif [ $SPIN = 0 ] ; then
       edit_var ln_reset_ts ".false." ./namelist_cfg
       edit_var nn_rstctl "2" ./namelist_cfg
+      edit_var ln_rsttr ".true." ./namelist_top_cfg
+      edit_var ln_trcdta ".false." ./namelist_top_cfg
+      edit_var cn_trcrst_in "'${TCERST_IN}'" ./namelist_top_cfg
     else
       echo "Error: it is unclear whether this is a spinup with T and S reset, or a normal simulation"
       exit 1
@@ -292,17 +305,30 @@ fi
 FINAL=$(( ITBEGIN - 1 + EXP_LENGTH * 60 * 60 / DT ))
 echo "ITEND = "$ITEND
 echo "FINAL = "$FINAL
-if [ "$ITEND" -ge "$FINAL" ]; then
-    ITEND=$FINAL
-fi
+#if [ "$ITEND" -ge "$FINAL" ]; then
+#    ITEND=$FINAL
+#fi
 edit_var nn_itend "$ITEND" ./namelist_cfg
 
+#########################
 # Submit next job
-if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+if [ $SPIN = 1 ] ; then
+  if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+    sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTSPIN"
+  elif [ "$ITEND" -ge "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+    ### Spin-up Over--> continue with normal runscript
     sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
-    if ${ISTORE}; then
-      sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm" ${STORE_OUT}
-    fi
+  fi
+else 
+  if [ "$ITEND" -lt "$FINAL" ] && [ "$RESUBMIT" = true ]; then
+    sbatch --dependency=afterok:"$SLURM_JOB_ID" "$SCRIPTNAME"
+  fi
+fi
+
+########################
+# Move Outputs to Store dir  
+if ${ISTORE}; then
+  sbatch --dependency=afterok:"$SLURM_JOB_ID" "e025tordf.slurm" ${STORE_OUT}
 fi
 
 # Create directories

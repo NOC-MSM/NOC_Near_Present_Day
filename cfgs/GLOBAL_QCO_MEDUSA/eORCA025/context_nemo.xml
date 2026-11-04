@@ -11,7 +11,7 @@
        <variable id="ref_month" type="int"> 01 </variable>
        <variable id="ref_day"   type="int"> 01 </variable>
        <variable id="rho0"      type="float" > 1026.0 </variable>
-       <variable id="cpocean"   type="float" > 3991.86795711963 </variable>
+       <variable id="cpocean"   type="float" > 3991.86795711963  </variable>
        <variable id="convSpsu"  type="float" > 0.99530670233846  </variable>
        <variable id="rhoic"     type="float" > 917.0 </variable>
        <variable id="rhosn"     type="float" > 330.0 </variable>
@@ -21,13 +21,16 @@
 <!-- Fields definition -->
     <field_definition src="./field_def_nemo-oce.xml"/>       <!--  NEMO ocean dynamics                     -->
     <field_definition src="./field_def_nemo-ice.xml"/>       <!--  NEMO ocean sea ice                      -->
-    <field_definition src="./field_def_nemo-medusa.xml"/>       <!--  NEMO ocean sea ice                      -->
+    <field_definition src="./field_def_nemo-medusa.xml"/>    <!--  NEMO ocean sea ice                      -->
 
 
 <!-- Files definition -->
+    <file_definition src="file_def_nemo-oce_1d_C6.xml"/>     <!--  NEMO ocean dynamics                     -->
+    <file_definition src="file_def_nemo-oce_5d_C6.xml"/>     <!--  NEMO ocean dynamics                     -->
     <file_definition src="file_def_nemo-oce_1m_C6.xml"/>     <!--  NEMO ocean dynamics                     -->
     <file_definition src="file_def_nemo-oce_1y_C6.xml"/>     <!--  NEMO ocean dynamics                     -->
 
+    <file_definition src="./file_def_nemo-ice_5d_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
     <file_definition src="./file_def_nemo-ice_1m_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
     <file_definition src="./file_def_nemo-ice_1y_C6.xml"/>   <!--  NEMO ocean sea ice                      -->
 

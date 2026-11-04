@@ -7,10 +7,12 @@ Created By: Adam Blaker (atb299@noc.ac.uk)
 Edited By: Ollie Tooth (oliver.tooth@noc.ac.uk)
 """
 # -- Import Dependencies -- #
-import os
+import argparse
 import glob
 import logging
-import argparse
+import os
+from datetime import date
+
 import xarray as xr
 
 # -- Configure Argument Parser -- #
@@ -18,11 +20,12 @@ import xarray as xr
 parser = argparse.ArgumentParser(description='Apply monthly climatological correction to ERA-5 2m air temperature at 1-hourly frequency above sea ice.')
 # Define input arguments:
 parser.add_argument('-y','--year', help='Year to apply monthly climatological correction.', type=int, required=True)
+parser.add_argument('-l', '--latest', help='Whether to use latest 3-months of 2m temperature data (ERA5-T).', action='store_true')
 parser.add_argument('-o','--outdir', help='Directory to save climatologically corrected ERA-5 2m temperature netCDF files.', default="/dssgfs01/scratch/npd/forcing/ERA5_t2m_adj/")
 
 # --- Configure Logging --- #
 logging.basicConfig(
-    filename="apply_t2m_si_adjustment.log",
+    filename=f"apply_t2m_si_adjustment_{date.today().strftime('%Y-%m-%d')}.log",
     encoding="utf-8",
     filemode="w",
     format="{asctime} - {levelname} - {message}",
@@ -30,6 +33,8 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M",
     level=logging.INFO,
     )
+
+logger = logging.getLogger(__name__)
 
 # -- Define format_ERA5_data() -- #
 def get_encoding(ds: xr.Dataset, yr: int) -> dict:
@@ -52,9 +57,9 @@ def get_encoding(ds: xr.Dataset, yr: int) -> dict:
     """
     # -- Verify Inputs -- #
     if not isinstance(ds, xr.Dataset):
-        raise ValueError("Input dataset must be an xarray Dataset.")
+        raise TypeError("Input dataset must be an xarray Dataset.")
     if not isinstance(yr, int):
-        raise ValueError("Year must be an integer.")
+        raise TypeError("Year must be an integer.")
     if 't2m' not in ds.data_vars:
         raise ValueError("Input dataset must contain variable ``t2m`` storing 2m temperature data.")
     
@@ -90,16 +95,20 @@ if outdir.endswith("/"):
     outdir = f"{outdir}{yr}"
 else:
     outdir = f"{outdir}/{yr}"
+# Define whether to use latest 3-months of data:
+latest = args["latest"]
 
 # -- Define File Paths -- #
 # ERA-5 2m temperature input directory:
-t2m_fpath = f"/dssgfs01/scratch/npd/forcing/ERA5/preprocessed_latest/{yr}/2m_temperature/*.nc"
+t2m_fpath = f"/dssgfs01/scratch/npd/forcing/ERA5/preprocessed{'_latest' if latest else ''}/{yr}/2m_temperature/*.nc"
 t2m_files = sorted(glob.glob(t2m_fpath))
+logger.info(f"Processing t2m_files: {t2m_files}")
 n_files = len(t2m_files)
 
 # ERA-5 sea ice cover input directory:
-sic_fpath = f"/dssgfs01/scratch/npd/forcing/ERA5/original_latest/{yr}/sea_ice_cover/*.nc"
+sic_fpath = f"/dssgfs01/scratch/npd/forcing/ERA5/original{'_latest' if latest else ''}/{yr}/sea_ice_cover/*.nc"
 sic_files = sorted(glob.glob(sic_fpath))
+logger.info(f"Processing sic_files: {sic_files}")
 
 # Check number of t2m and sic files match:
 if (n_files != len(sic_files)):
@@ -115,46 +124,48 @@ months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 # -- Apply Climatological Correction -- #
 # Iterate over monthly 2m temperature and sea ice cover files:
 for n in range(n_files):
+    # Define month integer from file path:
+    month = int(t2m_files[n].split("/")[-1].split(".")[0][-2:])
 
     # Defining output file path:
-    outfile = f"{outdir}/2m_temperature_{yr}-{f'{n+1:02d}'}.nc"
+    outfile = f"{outdir}/2m_temperature_{yr}-{f'{month:02d}'}.nc"
 
     if os.path.exists(outfile):
-        logging.info(f"Skipping {months[n]} {yr}: climatologically corrected ERA-5 2m temperature already exists in {outfile}.")
+        logger.info(f"Skipping {months[month-1]} {yr}: climatologically corrected ERA-5 2m temperature already exists in {outfile}.")
         continue
 
     else:
-        logging.info(f"In Progress: Applying monthly climatological correction to {months[n]} {yr} ERA-5 2m temperature.")
+        logger.info(f"In Progress: Applying monthly climatological correction to {months[month-1]} {yr} ERA-5 2m temperature.")
         # Open 2m temperature dataset:   
         ds_t2m = xr.open_dataset(t2m_files[n])
         if ("valid_time" in ds_t2m.coords):
             ds_t2m = ds_t2m.rename({"valid_time": "time"})
-        logging.info(f"Completed: Read {t2m_files[n]}")
+        logger.info(f"Completed: Read {t2m_files[n]}")
 
         # Open sea ice conc. dataset:   
         ds_sic = xr.open_dataset(sic_files[n])
         if ("valid_time" in ds_sic.coords):
             ds_sic = ds_sic.rename({"valid_time": "time"})
         if len(ds_sic['time']) != len(ds_t2m['time']):
-            logging.info(f"t2m = {len(ds_t2m['time'])}, sic = {len(ds_sic['time'])}")
+            logger.info(f"t2m = {len(ds_t2m['time'])}, sic = {len(ds_sic['time'])}")
             ds_sic = ds_sic.isel(time=slice(0, len(ds_t2m['time'])))
-            logging.info(f"Completed: Subset {months[n]} {yr} sea ice cover to match ERA-5 2m temperature.")
-        logging.info(f"Completed: Read {sic_files[n]}") 
+            logger.info(f"Completed: Subset {months[month-1]} {yr} sea ice cover to match ERA-5 2m temperature.")
+        logger.info(f"Completed: Read {sic_files[n]}") 
 
         # Open ERA-5 monthly climatological adjustment file:
         t2m_adj_dir = "/dssgfs01/scratch/atb299/ERA5_adjustment/2m_temperature"
-        if (n == 1) & (len(ds_t2m.time) == 696): 
-            logging.info(f"In Progress: Applying {months[n]} {yr} Leap Year Adjustment.")
-            ds_bias = xr.open_dataset(f"{t2m_adj_dir}/2m_temperature-{f'{n+1:02d}'}_LY.nc")
+        if (month == 2) & (len(ds_t2m.time) == 696): 
+            logger.info(f"In Progress: Applying {months[month-1]} {yr} Leap Year Adjustment.")
+            ds_bias = xr.open_dataset(f"{t2m_adj_dir}/2m_temperature-{f'{month:02d}'}_LY.nc")
         else:
-            logging.info(f"In Progress: Applying {months[n]} {yr} Regular Adjustment.")
-            ds_bias = xr.open_dataset(f"{t2m_adj_dir}/2m_temperature-{f'{n+1:02d}'}.nc")
+            logger.info(f"In Progress: Applying {months[month-1]} {yr} Regular Adjustment.")
+            ds_bias = xr.open_dataset(f"{t2m_adj_dir}/2m_temperature-{f'{month:02d}'}.nc")
 
         # Align ERA-5 climatological adjustment time dimension to input t2m data:
         if len(ds_bias['time']) > len(ds_t2m['time']):
-            logging.info(f"t2m = {len(ds_t2m['time'])}, bias = {len(ds_bias['time'])}")
+            logger.info(f"t2m = {len(ds_t2m['time'])}, bias = {len(ds_bias['time'])}")
             ds_bias = ds_bias.isel(time=slice(0, len(ds_t2m['time'])))
-            logging.info(f"Completed: Subset {months[n]} {yr} climatological adjustment to match ERA-5 2m temperature.")
+            logger.info(f"Completed: Subset {months[month-1]} {yr} climatological adjustment to match ERA-5 2m temperature.")
 
         # Replace time values with input t2m data:
         ds_bias['time'] = ds_t2m['time']
@@ -165,7 +176,7 @@ for n in range(n_files):
         # Add attributes of original dataset to adjusted dataset:
         ds_t2m_adj.attrs = ds_t2m.attrs
 
-        logging.info("Completed: Applied monthly climatological correction to ERA-5 2m temperature.")
+        logger.info("Completed: Applied monthly climatological correction to ERA-5 2m temperature.")
 
         # Adjust dtypes for latest ERA-5 data:
         if (yr >= 2024):
@@ -175,6 +186,6 @@ for n in range(n_files):
         # Define original encoding for output netCDF file:
         encoding = get_encoding(ds_t2m, yr)
         # Write to netCDF file:
-        logging.info(f"In Progress: Writing {months[n]} {yr} climatologically corrected ERA-5 2m temperature to {outfile}.")
+        logger.info(f"In Progress: Writing {months[month-1]} {yr} climatologically corrected ERA-5 2m temperature to {outfile}.")
         ds_t2m_adj.to_netcdf(outfile, encoding=encoding, unlimited_dims='time')
-        logging.info(f"Completed: Writing {months[n]} {yr} climatologically corrected ERA-5 2m temperature in {outfile}")
+        logger.info(f"Completed: Writing {months[month-1]} {yr} climatologically corrected ERA-5 2m temperature in {outfile}")

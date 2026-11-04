@@ -1,1 +1,1 @@
-INPUT/eddy_viscosity_3D_eORCA1.nc
+INPUT/eddy_viscosity_3D_GSD_eORCA1.nc
