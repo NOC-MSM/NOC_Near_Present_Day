@@ -19,10 +19,10 @@
 /
 &nammsa_bio
 !! Metabolic losses
-      xmetapn   = 0.043      !!
-      xmetapd   = 0.043      !!  
-      xmetazmi  = 0.043      !!  
-      xmetazme  = 0.043      !! 
+!      xmetapn   = 0.043      !!
+!      xmetapd   = 0.043      !!  
+!      xmetazmi  = 0.043      !!  
+!      xmetazme  = 0.043      !! 
 !!
 !! min and max warning values  
       tempminw = -3.0

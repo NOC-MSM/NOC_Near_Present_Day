@@ -86,6 +86,7 @@ do
       if [ $heres -eq $theres ]
         then
         #echo $f -- copy size match -- can safely erase local copy
+        echo echo deleting $f >> to_be_deleted.txt
         echo rm -f $f >> to_be_deleted.txt
         # rm -f $f
       else 
