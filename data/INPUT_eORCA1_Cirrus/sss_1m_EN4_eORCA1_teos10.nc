@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA1_inputs/sss_1m_EN4_eORCA1_teos10.nc

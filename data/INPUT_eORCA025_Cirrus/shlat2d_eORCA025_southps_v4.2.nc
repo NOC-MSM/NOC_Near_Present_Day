@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA025_inputs/shlat2d_eORCA025_southps_v4.2.nc

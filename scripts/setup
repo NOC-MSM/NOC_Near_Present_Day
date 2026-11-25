@@ -57,8 +57,10 @@ if [[ "$SYSTEM" =~ ^([aA][nN][eE][mM][oO][nN][eE])$ ]]; then
       SYSTEM=Anemone
     elif [[ "$SYSTEM" =~ ^([aA][rR][cC][hH][eE][rR][2])$ ]]; then
       SYSTEM=Archer2
+    elif [[ "$SYSTEM" =~ ^([cC][iI][rR][rR][uU][sS])$ ]]; then
+      SYSTEM=Cirrus
     else
-      echo "System not recognised. Options are: Anemone, Archer2"
+      echo "System not recognised. Options are: Anemone, Archer2 or Cirrus"
     exit
 fi
 

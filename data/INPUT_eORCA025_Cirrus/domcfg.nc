@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA025_inputs/domcfg.nc

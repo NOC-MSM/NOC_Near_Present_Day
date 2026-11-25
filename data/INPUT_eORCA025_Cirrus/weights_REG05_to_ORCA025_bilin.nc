@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA025_inputs/weights_REG05_to_ORCA025_bilin.nc

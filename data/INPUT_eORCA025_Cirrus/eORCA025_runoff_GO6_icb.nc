@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA025_inputs/eORCA025_runoff_GO6_icb.nc
