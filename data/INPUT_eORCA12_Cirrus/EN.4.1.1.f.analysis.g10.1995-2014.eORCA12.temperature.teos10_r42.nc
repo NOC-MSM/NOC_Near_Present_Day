@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA12_inputs/EN.4.1.1.f.analysis.g10.1995-2014.eORCA12.temperature.teos10_r42.nc

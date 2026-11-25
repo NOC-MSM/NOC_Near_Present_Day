@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA12_inputs/domain_cfg.nc

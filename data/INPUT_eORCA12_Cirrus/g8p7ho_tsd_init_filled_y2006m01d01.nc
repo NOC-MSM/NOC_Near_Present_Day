@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA12_inputs/g8p7ho_tsd_init_filled_y2006m01d01.nc
