@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA12_inputs/woa23_decav71A0_TS_TEOS10_eORCA12_gauss_smoothed.nc

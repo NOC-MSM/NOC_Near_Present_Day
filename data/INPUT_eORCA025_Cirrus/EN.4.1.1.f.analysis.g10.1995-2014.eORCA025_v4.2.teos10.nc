@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA025_inputs/EN.4.1.1.f.analysis.g10.1995-2014.eORCA025_v4.2.teos10.nc

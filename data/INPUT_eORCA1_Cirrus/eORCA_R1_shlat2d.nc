@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA1_inputs/eORCA_R1_shlat2d.nc

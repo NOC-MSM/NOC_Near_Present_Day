@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA12_inputs/geothermal_heating_weight.nc

@@ -1,0 +1,1 @@
+/epccfs/n01/shared/eORCA1_inputs/goutorbe_1x1_0360_eORCA1_v2.2x.nc
